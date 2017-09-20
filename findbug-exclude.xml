@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+  <!--EI_EXPOSE_REP/2 is resource unfriendly approach to avoid object's unexpected changes.
+  In real program the most of objects (not only Date and arrays) is mutable.
+  These are also POJO-unfriendly rules.
+  Using annotation "immutable" is the best way to implements logic: "do not change
+  mutable object outside or better - by annotated allowChangeImmutableFor[]".-->
+  <Match>
+     <Class name="org.beigesoft.pdf.service.PdfWriteHelper" />
+     <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.service.TtfLoader" />
+     <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.service.TtfLoader" />
+     <Bug pattern="EI_EXPOSE_REP2" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.pdf.model.PdfInfo" />
+     <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.pdf.model.PdfInfo" />
+     <Bug pattern="EI_EXPOSE_REP2" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.pdf.model.PdfCidFontType2" />
+     <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.pdf.model.PdfCidFontType2" />
+     <Bug pattern="EI_EXPOSE_REP2" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.model.TableForEmbeddingBf" />
+     <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.model.TableForEmbeddingBf" />
+     <Bug pattern="EI_EXPOSE_REP2" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.model.TtfMaxp" />
+     <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.model.TtfMaxp" />
+     <Bug pattern="EI_EXPOSE_REP2" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.model.TtfHhea" />
+     <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.model.TtfHhea" />
+     <Bug pattern="EI_EXPOSE_REP2" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.model.TtfHead" />
+     <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.model.TtfHead" />
+     <Bug pattern="EI_EXPOSE_REP2" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.model.TtfLoca" />
+     <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.model.TtfLoca" />
+     <Bug pattern="EI_EXPOSE_REP2" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.model.TtfHmtx" />
+     <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.model.TtfHmtx" />
+     <Bug pattern="EI_EXPOSE_REP2" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.model.TtfTableDirEntry" />
+     <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.model.TtfTableDirEntry" />
+     <Bug pattern="EI_EXPOSE_REP2" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.pdf.service.PdfWriteHelper" />
+     <Bug pattern="SS_SHOULD_BE_STATIC" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.model.TtfConstants" />
+     <Bug pattern="SS_SHOULD_BE_STATIC" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.model.CmpTableDirEntryOffset" />
+     <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.model.CmpTableForEmbeddingTag" />
+     <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE" />
+  </Match>
+  <Match>
+     <Class name="org.beigesoft.ttf.model.CmpTableDirEntryTag" />
+     <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE" />
+  </Match>
+</FindBugsFilter>
