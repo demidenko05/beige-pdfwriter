@@ -45,9 +45,14 @@ public class TtfCompactFontMaker implements ITtfCompactFontMaker {
   private Map<String, TtfFont> ttfFonts;
 
   /**
-   * <p>Font directory in resources.</p>
+   * <p>App-scoped TTF fonts name to streamer method map.</p>
    **/
-  private String fontDir = "/";
+  private Map<String, ITtfSourceStreamer> ttfFontsStreamers;
+
+  /**
+   * <p>App-scoped TTF fonts name to path map.</p>
+   **/
+  private Map<String, String> ttfFontsPaths;
 
   //Debug log preferences:
   /**
@@ -81,30 +86,23 @@ public class TtfCompactFontMaker implements ITtfCompactFontMaker {
   public final byte[] makeFromFile(final Map<String, Object> pAddParam,
     final String pFontName,
       final List<Character> pUsedCids) throws Exception {
+    ITtfSourceStreamer ttfStreamer = this.ttfFontsStreamers.get(pFontName);
     TtfFont ttfFont = this.ttfFonts.get(pFontName);
-    if (ttfFont == null) {
+    String fntPath = this.ttfFontsPaths.get(pFontName);
+    if (ttfFont == null || ttfStreamer == null || fntPath == null) {
       throw new ExceptionPdfWr("There is no TTF font data for "
         + pFontName + "!");
     }
-    String fntFlNm = this.fontDir + pFontName + ".ttf";
-    URL url = TtfCompactFontMaker.class
-      .getResource(fntFlNm);
-    if (url != null) {
-      this.logger.info(null, TtfCompactFontMaker.class,
-        "Loading font from resource " + pFontName);
-      TtfInputStream is = null;
-      try {
-        is = new TtfInputStream(TtfCompactFontMaker.class
-          .getResourceAsStream(fntFlNm));
-        return makeFromIs(pAddParam, ttfFont, is, pUsedCids);
-      } finally {
-        if (is != null) {
-          is.close();
-        }
+    this.logger.info(null, TtfCompactFontMaker.class,
+      "Loading font " + pFontName);
+    TtfInputStream is = null;
+    try {
+      is = ttfStreamer.makeInputStream(fntPath);
+      return makeFromIs(pAddParam, ttfFont, is, pUsedCids);
+    } finally {
+      if (is != null) {
+        is.close();
       }
-    } else {
-      throw new ExceptionPdfWr("There is no file "
-        + pFontName + "!");
     }
   }
 
@@ -306,18 +304,35 @@ public class TtfCompactFontMaker implements ITtfCompactFontMaker {
   }
 
   /**
-   * <p>Getter for fontDir.</p>
-   * @return String
+   * <p>Getter for ttfFontsStreamers.</p>
+   * @return Map<String, ITtfSourceStreamer>
    **/
-  public final String getFontDir() {
-    return this.fontDir;
+  public final Map<String, ITtfSourceStreamer> getTtfFontsStreamers() {
+    return this.ttfFontsStreamers;
   }
 
   /**
-   * <p>Setter for fontDir.</p>
-   * @param pFontDir reference
+   * <p>Setter for ttfFontsStreamers.</p>
+   * @param pTtfFontsStreamers reference
    **/
-  public final void setFontDir(final String pFontDir) {
-    this.fontDir = pFontDir;
+  public final void setTtfFontsStreamers(
+    final Map<String, ITtfSourceStreamer> pTtfFontsStreamers) {
+    this.ttfFontsStreamers = pTtfFontsStreamers;
+  }
+
+  /**
+   * <p>Getter for ttfFontsPaths.</p>
+   * @return Map<String, String>
+   **/
+  public final Map<String, String> getTtfFontsPaths() {
+    return this.ttfFontsPaths;
+  }
+
+  /**
+   * <p>Setter for ttfFontsPaths.</p>
+   * @param pTtfFontsPaths reference
+   **/
+  public final void setTtfFontsPaths(final Map<String, String> pTtfFontsPaths) {
+    this.ttfFontsPaths = pTtfFontsPaths;
   }
 }

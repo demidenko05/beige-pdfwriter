@@ -13,6 +13,7 @@ package org.beigesoft.ttf.service;
  */
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
@@ -47,12 +48,11 @@ public class TtfLoaderTest {
     this.logger.setIsShowDebugMessages(true);
     this.logger.setDetailLevel(5);
     this.factory = new PdfFactory();
-    this.factory.setFontDir("/fonts/");
     this.factory.setLogger(this.logger);
     this.factory.init();
     this.ttfLoader = this.factory.lazyGetTtfLoader();
     this.ttfLoader.setLogGtiDelta(5);
-    this.ttfLoader.setLogGids(new ArrayList<Integer>());
+    this.ttfLoader.setLogGids(new LinkedHashSet<Integer>());
     this.ttfLoader.getLogGids().add(0);
     this.ttfLoader.getLogGids().add(3);
     this.ttfLoader.getLogGids().add(19);
@@ -68,13 +68,17 @@ public class TtfLoaderTest {
     this.ttfLoader.getLogGids().add(18268);
     this.ttfLoader.getLogGids().add(18269);
     this.ttfLoader.getLogGids().add(18270);
-    this.ttfLoader.setLogUnicodes(new char[] {(char) 0x31, (char) 0x32, (char) 0x33}); // 1,2,3
+    this.ttfLoader.setLogUnicodes(new LinkedHashSet<Character>());
+    this.ttfLoader.getLogUnicodes().add((char) 0x31);// 1,2,3
+    this.ttfLoader.getLogUnicodes().add((char) 0x32);
+    this.ttfLoader.getLogUnicodes().add((char) 0x33);
   }
 
   @Test
   public void test1() throws Exception {
     //test ttf:
-    TtfFont ttf = this.ttfLoader.loadFontTtf(ERegisteredTtfFont.DEJAVUSANS.toString());
+    TtfFont ttf = this.ttfLoader.loadFontTtf(ERegisteredTtfFont.DEJAVUSANS.toString(),
+      this.factory.getFontDir() + ERegisteredTtfFont.DEJAVUSANS.toString() + ".ttf", this.factory.lazyGetTtfResourceStreamer());
     assertEquals(this.ttfLoader.getTtfConstants().getScalerTypeMsw(), ttf.getScalerType());
     assertEquals(4 + (4 * 2) + (ttf.getNumTables() * 4 * 4), ttf.getTableDirectory().get(0).getOffset());
     int i = 0;
@@ -87,6 +91,8 @@ public class TtfLoaderTest {
     //assertEquals((char) 948, ttf.getCmap().getUniToCid().get((char) 0x41F).charValue()); //П
     assertEquals(0.0, ttf.getPost().getItalicAngle(), 0);
     assertEquals(1303, (int) ttf.getHmtx().getWidths()[19]);
+    //ttf = this.ttfLoader.loadFontTtf("DejaVuSansMono");
+    //ttf = this.ttfLoader.loadFontTtf("pdf417");
     /*ttf = this.ttfLoader.loadFontTtf(ERegisteredTtfFont.VL_GOTHIC_REGULAR.toString());
     assertEquals(this.ttfLoader.getTtfConstants().getScalerTypeMsw(), ttf.getScalerType());
     assertEquals(4 + (4 * 2) + (ttf.getNumTables() * 4 * 4), ttf.getTableDirectory().get(0).getOffset());

@@ -19,6 +19,7 @@ import org.beigesoft.zlib.IZLibStreamer;
 import org.beigesoft.doc.model.Document;
 import org.beigesoft.doc.model.DocLine;
 import org.beigesoft.doc.model.DocString;
+import org.beigesoft.doc.model.DocTable;
 import org.beigesoft.doc.model.DocRectangle;
 import org.beigesoft.doc.model.IElement;
 import org.beigesoft.doc.service.IFctDocument;
@@ -27,7 +28,12 @@ import org.beigesoft.doc.service.IDocumentMaker;
 import org.beigesoft.doc.service.IElementWriter;
 import org.beigesoft.doc.service.UomHelper;
 import org.beigesoft.doc.service.ToHexCoder;
-import org.beigesoft.ttf.service.TtfLoader;
+import org.beigesoft.doc.service.IEvalCharWidth;
+import org.beigesoft.doc.service.IEvalMetricsString;
+import org.beigesoft.doc.service.IDeriverElements;
+import org.beigesoft.doc.service.IFctDocTable;
+import org.beigesoft.ttf.service.ITtfLoader;
+import org.beigesoft.ttf.service.ITtfSourceStreamer;
 import org.beigesoft.ttf.service.ITtfCompactFontMaker;
 import org.beigesoft.ttf.service.TdeMaker;
 import org.beigesoft.ttf.service.TableMakerFc;
@@ -146,10 +152,10 @@ public interface IPdfFactory<WI> {
 
   /**
    * <p>Getter for ttfLoader.</p>
-   * @return TtfLoader
+   * @return ITtfLoader
    * @throws Exception an Exception
    **/
-  TtfLoader lazyGetTtfLoader() throws Exception;
+  ITtfLoader lazyGetTtfLoader() throws Exception;
 
   /**
    * <p>Getter for zLibStreamer.</p>
@@ -331,4 +337,47 @@ public interface IPdfFactory<WI> {
    **/
   IWriterPdfObject<PdfFontType1S14>
     lazyGetWriterPdfFontType1S14() throws Exception;
+
+
+  /**
+   * <p>Getter for fctDocTable.</p>
+   * @return FctDocTable<HasPdfContent>
+   * @throws Exception an Exception
+   **/
+  IFctDocTable<WI> lazyGetFctDocTable() throws Exception;
+
+  /**
+   * <p>Getter for deriverElTable.</p>
+   * @return DeriverElTable<HasPdfContent>
+   * @throws Exception an Exception
+   **/
+  IDeriverElements<WI, DocTable<WI>> lazyGetDeriverElTable() throws Exception;
+
+  /**
+   * <p>Getter for evalMetricsString.</p>
+   * @return EvalMetricsString
+   * @throws Exception an Exception
+   **/
+  IEvalMetricsString lazyGetEvalMetricsString() throws Exception;
+
+  /**
+   * <p>Getter for evalCharWidth.</p>
+   * @return EvalCharWidth
+   * @throws Exception an Exception
+   **/
+  IEvalCharWidth lazyGetEvalCharWidth() throws Exception;
+
+  /**
+   * <p>Getter for ResourceStreamer.</p>
+   * @return ResourceStreamer
+   * @throws Exception an Exception
+   **/
+  ITtfSourceStreamer lazyGetTtfResourceStreamer() throws Exception;
+
+  /**
+   * <p>Getter for FileStreamer.</p>
+   * @return FileStreamer
+   * @throws Exception an Exception
+   **/
+  ITtfSourceStreamer lazyGetTtfFileStreamer() throws Exception;
 }

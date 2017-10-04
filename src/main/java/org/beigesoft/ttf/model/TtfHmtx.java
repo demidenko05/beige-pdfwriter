@@ -55,7 +55,7 @@ public class TtfHmtx {
    **/
   public final char getWidthForGid(final char pGid) {
     if (pGid > this.widths.length - 1) {
-      // master width glyph:
+      // master monospace width glyph:
       return this.widths[this.widths.length - 1];
     }
     return this.widths[pGid];

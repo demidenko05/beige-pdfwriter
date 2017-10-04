@@ -15,9 +15,11 @@ package org.beigesoft.pdf.service;
 import java.util.Comparator;
 import java.util.Collections;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 
 import org.beigesoft.doc.model.IElement;
 import org.beigesoft.pdf.model.ETextState;
+import org.beigesoft.pdf.model.EGraphicState;
 import org.beigesoft.pdf.model.PdfContent;
 import org.beigesoft.pdf.model.IHasPdfContent;
 
@@ -53,18 +55,23 @@ public class WriterPdfContent extends AWriterPdfStream<PdfContent, PdfContent> {
     for (IElement el : pContent.getPage().getElements()) {
       el.write(wi);
     }
-    endTextIfNeed(pContent);
+    handleEnd(pContent);
   }
 
   //Utils:
   /**
-   * <p>End text if need.</p>
+   * <p>End text/graphic/etc if need.</p>
    * @param pContent PdfContent
    * @throws Exception an Exception
    **/
-  public final void endTextIfNeed(final PdfContent pContent) throws Exception {
+  public final void handleEnd(final PdfContent pContent) throws Exception {
     if (pContent.getTextState().equals(ETextState.STARTED)) {
       pContent.getBuffer().write("ET\n".getBytes(getWriteHelper().getAscii()));
+      pContent.setTextState(ETextState.ENDED);
+    }
+    if (pContent.getGraphicState().equals(EGraphicState.STARTED)) {
+      pContent.getBuffer().write("S\n".getBytes(getWriteHelper().getAscii()));
+      pContent.setGraphicState(EGraphicState.ENDED);
     }
   }
 
@@ -75,11 +82,13 @@ public class WriterPdfContent extends AWriterPdfStream<PdfContent, PdfContent> {
    **/
   public final void resetWriteState(
     final PdfContent pContent) throws Exception {
+    pContent.setGraphicState(EGraphicState.ENDED);
     pContent.setTextState(ETextState.ENDED);
+    pContent.setX(null);
+    pContent.setY(null);
     pContent.setFontNumber(0);
-    pContent.setFontSize(0.0f);
-    pContent.setX(0.0);
-    pContent.setY(0.0);
+    pContent.setFontSize(BigDecimal.ZERO);
+    pContent.setLineWidth(BigDecimal.ZERO);
   }
 
   //Simple getters and setters:

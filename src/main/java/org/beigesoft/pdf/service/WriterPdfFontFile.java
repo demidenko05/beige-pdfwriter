@@ -48,7 +48,7 @@ public class WriterPdfFontFile extends AWriterPdfObject<PdfFontFile> {
   public final int write(final PdfFontFile pPdfObj,
     final OutputStream pOut) throws Exception {
     byte[] fntCompact = this.compactFontMaker
-      .make(null, pPdfObj.getFileName(), pPdfObj.getToUnicode().getUsedCids());
+      .make(null, pPdfObj.getFontName(), pPdfObj.getToUnicode().getUsedCids());
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     ByteArrayInputStream is = new ByteArrayInputStream(fntCompact);
     this.zLibStreamer.compress(null, is, os);

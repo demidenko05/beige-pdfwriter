@@ -12,6 +12,7 @@ package org.beigesoft.pdf.service;
  * http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
  */
 
+import java.util.LinkedHashSet;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Date;
@@ -68,9 +69,13 @@ public class WritePdfExample {
     String argTxt = args[0];
     String argFnt = args[1];
     String argFile = args[2];
-    float fntSz = 6.0f;
+    double fntSz = 3.6;
     if (args.length > 3) {
       fntSz = Float.valueOf(args[3]);
+    }
+    String argTxt2 = null;
+    if (args.length > 4) {
+      argTxt2 = args[4];
     }
     boolean isCompressed = args.length > 4;
     LoggerSimple logger = new LoggerSimple();
@@ -80,12 +85,12 @@ public class WritePdfExample {
     factory.setLogger(logger);
     factory.init();
     char[] unis = new char[argTxt.length()];
+    factory.lazyGetTtfLoader().setLogUnicodes(new LinkedHashSet<Character>());
     for (int i = 0; i < argTxt.length(); i++) {
-      unis[i] = argTxt.charAt(i);
+      factory.lazyGetTtfLoader().getLogUnicodes().add(argTxt.charAt(i));
     }
-    factory.lazyGetTtfLoader().setLogUnicodes(unis);
     factory.lazyGetTtfLoader().setLogGtiDelta(3);
-    factory.lazyGetTtfLoader().setLogGids(new ArrayList<Integer>());
+    factory.lazyGetTtfLoader().setLogGids(new LinkedHashSet<Integer>());
     factory.lazyGetTtfLoader().getLogGids().add(0);
     factory.lazyGetTtfLoader().getLogGids().add(1);
     factory.lazyGetTtfLoader().getLogGids().add(2);
@@ -103,6 +108,9 @@ public class WritePdfExample {
     pdfMaker.addFontTtf(docPdf, argFnt);
     docMaker.setFontSize(doc, fntSz);
     docMaker.addString(doc, argTxt, 30, 150);
+    if (argTxt2 != null) {
+      docMaker.addString(doc, argTxt2, 30, 150 + fntSz);
+    }
     FileOutputStream fos = null;
     pdfMaker.prepareBeforeWrite(docPdf);
     pdfMaker.setIsCompressed(docPdf, false);

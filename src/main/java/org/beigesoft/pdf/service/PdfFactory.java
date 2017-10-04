@@ -20,17 +20,21 @@ import org.beigesoft.log.ILogger;
 import org.beigesoft.log.LoggerFile;
 import org.beigesoft.zlib.ZLibStreamer;
 import org.beigesoft.doc.model.Document;
-import org.beigesoft.doc.model.DocLine;
 import org.beigesoft.doc.model.DocRectangle;
 import org.beigesoft.doc.model.CmpElementIdxGrp;
 import org.beigesoft.doc.service.DocumentMaker;
 import org.beigesoft.doc.service.FctDocument;
 import org.beigesoft.doc.service.FctElement;
+import org.beigesoft.doc.service.FctDocTable;
+import org.beigesoft.doc.service.DeriverElTable;
+import org.beigesoft.doc.service.EvalMetricsString;
 import org.beigesoft.doc.service.IElementWriter;
 import org.beigesoft.doc.service.UomHelper;
 import org.beigesoft.doc.service.ToHexCoder;
 import org.beigesoft.ttf.model.TtfConstants;
 import org.beigesoft.ttf.service.TtfLoader;
+import org.beigesoft.ttf.service.TtfResourceStreamer;
+import org.beigesoft.ttf.service.TtfFileStreamer;
 import org.beigesoft.ttf.service.TtfCompactFontMaker;
 import org.beigesoft.ttf.service.TdeMaker;
 import org.beigesoft.ttf.service.TableMakerFc;
@@ -244,9 +248,44 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
   private WriterPdfFontType1S14 writerPdfFontType1S14;
 
   /**
+   * <p>App-scoped factory DocTable.</p>
+   **/
+  private FctDocTable<HasPdfContent> fctDocTable;
+
+  /**
+   * <p>App-scoped deriver table elements.</p>
+   **/
+  private DeriverElTable<HasPdfContent> deriverElTable;
+
+  /**
+   * <p>App-scoped deriver metrics string evaluator.</p>
+   **/
+  private EvalMetricsString evalMetricsString;
+
+  /**
+   * <p>App-scoped deriver chars width evaluator.</p>
+   **/
+  private EvalCharWidth evalCharWidth;
+
+  /**
    * <p>Font directory in resources.</p>
    **/
-  private String fontDir = "/";
+  private String fontDir = "/fonts/";
+
+  /**
+   * <p>Line Writer.</p>
+   **/
+  private LineWriter lineWriter;
+
+  /**
+   * <p>Resource streamer.</p>
+   **/
+  private TtfResourceStreamer ttfResourceStreamer;
+
+  /**
+   * <p>File streamer.</p>
+   **/
+  private TtfFileStreamer ttfFileStreamer;
 
   /**
    * <p>Simple non-leasy initialization.
@@ -265,7 +304,6 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
     }
     this.compactFontMaker = new TtfCompactFontMaker();
     this.compactFontMaker.setLogger(this.logger);
-    this.compactFontMaker.setFontDir(this.fontDir);
     this.tdeMaker = new TdeMaker();
     this.tableMakerFc = new TableMakerFc();
     this.tableMakerFc.setLogger(this.logger);
@@ -283,7 +321,6 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
     this.tableMakerHhea.setLogger(this.logger);
     this.ttfConstants = new TtfConstants();
     this.ttfLoader = new TtfLoader();
-    this.ttfLoader.setFontDir(this.fontDir);
     this.ttfLoader.setTdeMaker(this.tdeMaker);
     this.ttfLoader.setTableMakerFc(this.tableMakerFc);
     this.ttfLoader.setTableMakerHmtx(this.tableMakerHmtx);
@@ -334,7 +371,12 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
     this.writerPdfContent.setZLibStreamer(this.zLibStreamer);
     this.writerPdfContent.setCmpElement(this.cmpElement);
     this.writerPdfContent.setFctHasPdfContent(this.fctHasPdfContent);
+    this.ttfResourceStreamer = new TtfResourceStreamer();
+    this.ttfFileStreamer = new TtfFileStreamer();
     this.pdfMaker = new PdfMaker<HasPdfContent>();
+    this.pdfMaker.setFontDir(this.fontDir);
+    this.pdfMaker.setTtfResourceStreamer(this.ttfResourceStreamer);
+    this.pdfMaker.setTtfFileStreamer(this.ttfFileStreamer);
     this.pdfMaker.setUomHelper(this.uomHelper);
     this.pdfMaker.setTtfLoader(this.ttfLoader);
     this.pdfMaker.setWriterPdfContent(this.writerPdfContent);
@@ -346,6 +388,9 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
     this.pdfMaker.setWriterPdfToUnicode(this.writerPdfToUnicode);
     this.pdfMaker.setWriterPdfPage(this.writerPdfPage);
     this.compactFontMaker.setTtfFonts(this.pdfMaker.getTtfFonts());
+    this.compactFontMaker
+      .setTtfFontsStreamers(this.pdfMaker.getTtfFontsStreamers());
+    this.compactFontMaker.setTtfFontsPaths(this.pdfMaker.getTtfFontsPaths());
     this.fctDocument = new FctDocument<HasPdfContent>();
     this.fctElement = new FctElement<HasPdfContent>();
     this.stringWriter = new StringWriter();
@@ -354,7 +399,21 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
     this.stringWriter.setWriteHelper(this.writeHelper);
     this.fctElement.setWriterString(stringWriter);
     this.documentMaker = new DocumentMaker<HasPdfContent>();
+    this.lineWriter = new LineWriter();
+    this.lineWriter.setUomHelper(this.uomHelper);
+    this.lineWriter.setWriteHelper(this.writeHelper);
+    this.fctElement.setWriterLine(lineWriter);
+    this.documentMaker = new DocumentMaker<HasPdfContent>();
     this.documentMaker.setElementFactory(this.fctElement);
+    this.evalCharWidth = new EvalCharWidth();
+    this.evalCharWidth.setTtfFonts(this.pdfMaker.getTtfFonts());
+    this.evalMetricsString = new EvalMetricsString();
+    this.evalMetricsString.setEvalCharWidth(this.evalCharWidth);
+    this.deriverElTable = new DeriverElTable<HasPdfContent>();
+    this.deriverElTable.setElementFactory(this.fctElement);
+    this.deriverElTable.setEvalMetricsString(this.evalMetricsString);
+    this.fctDocTable = new FctDocTable<HasPdfContent>();
+    this.fctDocTable.setDeriverElements(this.deriverElTable);
   }
 
   /**
@@ -410,13 +469,12 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
 
   /**
    * <p>Getter for Line writer.</p>
-   * @return IElementWriter<DocLine<HasPdfContent>, HasPdfContent>
+   * @return LineWriter
    * @throws Exception an Exception
    **/
   @Override
-  public final IElementWriter<DocLine<HasPdfContent>, HasPdfContent>
-    lazyGetLineWriter() throws Exception {
-    throw new ExceptionPdfWr("Not yet implemented!");
+  public final LineWriter lazyGetLineWriter() throws Exception {
+    return this.lineWriter;
   }
 
   /**
@@ -773,6 +831,69 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
   public final WriterPdfFontType1S14
     lazyGetWriterPdfFontType1S14() throws Exception {
     return this.writerPdfFontType1S14;
+  }
+
+  /**
+   * <p>Getter for fctDocTable.</p>
+   * @return FctDocTable<HasPdfContent>
+   * @throws Exception an Exception
+   **/
+  @Override
+  public final FctDocTable<HasPdfContent>
+    lazyGetFctDocTable() throws Exception {
+    return this.fctDocTable;
+  }
+
+  /**
+   * <p>Getter for deriverElTable.</p>
+   * @return DeriverElTable<HasPdfContent>
+   * @throws Exception an Exception
+   **/
+  @Override
+  public final DeriverElTable<HasPdfContent>
+    lazyGetDeriverElTable() throws Exception {
+    return this.deriverElTable;
+  }
+
+  /**
+   * <p>Getter for evalMetricsString.</p>
+   * @return EvalMetricsString
+   * @throws Exception an Exception
+   **/
+  @Override
+  public final EvalMetricsString lazyGetEvalMetricsString() throws Exception {
+    return this.evalMetricsString;
+  }
+
+  /**
+   * <p>Getter for evalCharWidth.</p>
+   * @return EvalCharWidth
+   * @throws Exception an Exception
+   **/
+  @Override
+  public final EvalCharWidth lazyGetEvalCharWidth() throws Exception {
+    return this.evalCharWidth;
+  }
+
+  /**
+   * <p>Getter for TtfResourceStreamer.</p>
+   * @return TtfResourceStreamer
+   * @throws Exception an Exception
+   **/
+  @Override
+  public final TtfResourceStreamer
+    lazyGetTtfResourceStreamer() throws Exception {
+    return this.ttfResourceStreamer;
+  }
+
+  /**
+   * <p>Getter for TtfFileStreamer.</p>
+   * @return TtfFileStreamer
+   * @throws Exception an Exception
+   **/
+  @Override
+  public final TtfFileStreamer lazyGetTtfFileStreamer() throws Exception {
+    return this.ttfFileStreamer;
   }
 
   //SGS:

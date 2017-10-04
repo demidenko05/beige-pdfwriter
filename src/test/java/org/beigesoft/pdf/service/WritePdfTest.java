@@ -13,6 +13,7 @@ package org.beigesoft.pdf.service;
  */
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Date;
 import java.util.Calendar;
@@ -61,17 +62,21 @@ public class WritePdfTest {
     this.logger.setIsShowDebugMessages(true);
     this.logger.setDetailLevel(115);
     this.factory = new PdfFactory();
-    this.factory.setFontDir("/fonts/");
     this.factory.setLogger(this.logger);
     this.factory.init();
     this.factory.lazyGetTtfLoader().setLogGtiDelta(5);
-    this.factory.lazyGetTtfLoader().setLogGids(new ArrayList<Integer>());
+    this.factory.lazyGetTtfLoader().setLogGids(new LinkedHashSet<Integer>());
     this.factory.lazyGetTtfLoader().getLogGids().add(0);
     this.factory.lazyGetTtfLoader().getLogGids().add(3);
     this.factory.lazyGetTtfLoader().getLogGids().add(946);
     //Привет G = 041F 0440 0438 0432 0435 0442 0020 0047
-    this.factory.lazyGetTtfLoader().setLogUnicodes(
-      new char[] {(char) 0x41F, (char) 0x0440, (char) 0x0438, (char) 0x0432, (char) 0x0435, (char) 0x0442});
+    this.factory.lazyGetTtfLoader().setLogUnicodes(new LinkedHashSet<Character>());
+    this.factory.lazyGetTtfLoader().getLogUnicodes().add((char) 0x41F);
+    this.factory.lazyGetTtfLoader().getLogUnicodes().add((char) 0x0440);
+    this.factory.lazyGetTtfLoader().getLogUnicodes().add((char) 0x0438);
+    this.factory.lazyGetTtfLoader().getLogUnicodes().add((char) 0x0432);
+    this.factory.lazyGetTtfLoader().getLogUnicodes().add((char) 0x0435);
+    this.factory.lazyGetTtfLoader().getLogUnicodes().add((char) 0x0442);
     this.pdfMaker = this.factory.lazyGetPdfMaker();
     this.docMaker = this.factory.lazyGetDocumentMaker();
   }
@@ -158,7 +163,7 @@ public class WritePdfTest {
       char cid = entry.getKey();
       char chr = entry.getValue();
       System.out.println("CID/uni/char/width: " + ((int) cid) + "/"
-        + ((int) chr) + "/" + chr + "/" + ((int) ttfOri.getHmtx().getWidths()[cid]));
+        + ((int) chr) + "/" + chr + "/" + ((int) ttfOri.getHmtx().getWidthForGid(cid)));
     }
     TtfCompactFontMaker compactFontMaker = this.factory.lazyGetCompactFontMaker();
     //this.logger.setDetailLevel(1315);
@@ -176,7 +181,7 @@ public class WritePdfTest {
         chr = docPdf.getPdfToUnicodes().get(0).getUsedCidToUni().get(cid);
       }
       assertEquals("widths equals for CID " + ((int) cid),
-        ttfOri.getHmtx().getWidths()[cid], ttf.getHmtx().getWidths()[cid]);
+        ttfOri.getHmtx().getWidthForGid(cid), ttf.getHmtx().getWidthForGid(cid));
       int ofst;
       int len;
       if (ttf.getLoca().getOffsets16() != null) {
@@ -187,7 +192,67 @@ public class WritePdfTest {
         len = (int) (ttf.getLoca().getOffsets32()[cid + 1] - ttf.getLoca().getOffsets32()[cid]);
       }
       System.out.println("CID/char/width/offset/length: " + ((int) cid) + "/"
-        + chr + "/" + ((int) ttf.getHmtx().getWidths()[cid]) + "/" + ofst + "/" + len);
+        + chr + "/" + ((int) ttf.getHmtx().getWidthForGid(cid)) + "/" + ofst + "/" + len);
+    }
+  }
+  
+  //@Test
+  public void testDejavuMono() throws Exception {
+    Document<HasPdfContent> doc = this.factory.lazyGetFctDocument().createDoc(EPageSize.A4, EPageOrientation.PORTRAIT);
+    PdfDocument<HasPdfContent> docPdf = this.factory.createPdfDoc(doc);
+    this.pdfMaker.addFontTtf(docPdf, "DejaVuSansMono");
+    this.docMaker.setFontSize(doc, 6);
+    this.docMaker.addString(doc, "Привет G", 100, 150);
+    FileOutputStream fos = null;
+    this.pdfMaker.prepareBeforeWrite(docPdf);
+    this.pdfMaker.setIsCompressed(docPdf, false);
+    try {
+      fos = new FileOutputStream("test-dejavu-mono.pdf");
+      this.factory.lazyGetPdfWriter().write(null, docPdf, fos);
+      fos.flush();
+      fos.close();
+    } finally {
+      if (fos != null) {
+        fos.close();
+      }
+    }
+    assertEquals(11, docPdf.getPdfToUnicodes().get(0).getUsedCids().size()); //with null and compound "p" and "e"
+    System.out.println("Used CIDS:");
+    TtfFont ttfOri = this.pdfMaker.getTtfFonts().get("DejaVuSansMono");
+    for (Map.Entry<Character, Character> entry : docPdf.getPdfToUnicodes().get(0).getUsedCidToUni().entrySet()) {
+      char cid = entry.getKey();
+      char chr = entry.getValue();
+      System.out.println("CID/uni/char/width: " + ((int) cid) + "/"
+        + ((int) chr) + "/" + chr + "/" + ((int) ttfOri.getHmtx().getWidthForGid(cid)));
+    }
+    TtfCompactFontMaker compactFontMaker = this.factory.lazyGetCompactFontMaker();
+    //this.logger.setDetailLevel(1315);
+    byte[] compDjv = compactFontMaker.make(null, "DejaVuSansMono", docPdf.getPdfToUnicodes().get(0).getUsedCids());
+    ByteArrayInputStream bais = new ByteArrayInputStream(compDjv);
+    TtfInputStream is = new TtfInputStream(bais);
+    TtfFont ttf = new TtfFont();
+    ttf.setFileName("DejaVuSansMono");
+    this.logger.info(null, WritePdfTest.class, "Loading from byte array DejaVu mono:");
+    this.factory.lazyGetTtfLoader().loadFontTtfFrom(ttf, is);
+    this.factory.lazyGetTtfLoader().prepareAfterLoading(ttf);
+    for (char cid : docPdf.getPdfToUnicodes().get(0).getUsedCids()) {
+      char chr = 0;
+      if (docPdf.getPdfToUnicodes().get(0).getUsedCidToUni().get(cid) != null) {
+        chr = docPdf.getPdfToUnicodes().get(0).getUsedCidToUni().get(cid);
+      }
+      assertEquals("widths equals for CID " + ((int) cid),
+        ttfOri.getHmtx().getWidthForGid(cid), ttf.getHmtx().getWidthForGid(cid));
+      int ofst;
+      int len;
+      if (ttf.getLoca().getOffsets16() != null) {
+        ofst = ttf.getLoca().getOffsets16()[cid];
+        len = ttf.getLoca().getOffsets16()[cid + 1] - ttf.getLoca().getOffsets16()[cid];
+      } else {
+        ofst = (int) ttf.getLoca().getOffsets32()[cid];
+        len = (int) (ttf.getLoca().getOffsets32()[cid + 1] - ttf.getLoca().getOffsets32()[cid]);
+      }
+      System.out.println("CID/char/width/offset/length: " + ((int) cid) + "/"
+        + chr + "/" + ((int) ttf.getHmtx().getWidthForGid(cid)) + "/" + ofst + "/" + len);
     }
   }
 }

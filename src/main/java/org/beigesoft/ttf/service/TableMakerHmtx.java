@@ -73,7 +73,8 @@ public class TableMakerHmtx implements ITableMaker<TableForEmbeddingHmtx> {
         pOs.writeSInt16(shz, pTde, pCurrLongChksum);
       }
     }
-    for (int i = 0; i < numGlyphs - widthsLen; i++) {
+    //add bearing:
+    for (int i = widthsLen; i < numGlyphs; i++) {
       if (pGls.get(i) != null) {
         pOs.writeSInt16(pTfe.getTtf().getHmtx().getLeftSideBearingAdd()[i],
           pTde, pCurrLongChksum);

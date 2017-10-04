@@ -20,9 +20,9 @@ package org.beigesoft.pdf.model;
 public class PdfFontFile extends APdfObject<PdfFontFile> {
 
   /**
-   * <p>Font file name.</p>
+   * <p>Font font name.</p>
    **/
-  private String fileName;
+  private String fontName;
 
   /**
    * <p>To unicode map.</p>
@@ -31,19 +31,19 @@ public class PdfFontFile extends APdfObject<PdfFontFile> {
 
   //Simple getters and setters:
   /**
-   * <p>Getter for fileName.</p>
+   * <p>Getter for fontName.</p>
    * @return String
    **/
-  public final String getFileName() {
-    return this.fileName;
+  public final String getFontName() {
+    return this.fontName;
   }
 
   /**
-   * <p>Setter for fileName.</p>
-   * @param pFileName reference
+   * <p>Setter for fontName.</p>
+   * @param pFontName reference
    **/
-  public final void setFileName(final String pFileName) {
-    this.fileName = pFileName;
+  public final void setFontName(final String pFontName) {
+    this.fontName = pFontName;
   }
 
   /**

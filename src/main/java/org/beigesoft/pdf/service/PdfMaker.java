@@ -23,7 +23,8 @@ import org.beigesoft.doc.model.IFont;
 import org.beigesoft.doc.service.UomHelper;
 import org.beigesoft.ttf.model.TtfFont;
 import org.beigesoft.ttf.model.CompoundGlyph;
-import org.beigesoft.ttf.service.TtfLoader;
+import org.beigesoft.ttf.service.ITtfLoader;
+import org.beigesoft.ttf.service.ITtfSourceStreamer;
 import org.beigesoft.pdf.model.EFontS14;
 import org.beigesoft.pdf.model.PdfFontDescriptor;
 import org.beigesoft.pdf.model.PdfDocument;
@@ -55,7 +56,7 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
   /**
    * <p>App-scoped to TTF loader.</p>
    **/
-  private TtfLoader ttfLoader;
+  private ITtfLoader ttfLoader;
 
   /**
    * <p>Writer of PdfContent.</p>
@@ -103,10 +104,37 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
   private final Map<String, TtfFont> ttfFonts = new HashMap<String, TtfFont>();
 
   /**
+   * <p>App-scoped TTF fonts name to streamer method map.</p>
+   **/
+  private final Map<String, ITtfSourceStreamer> ttfFontsStreamers =
+    new HashMap<String, ITtfSourceStreamer>();
+
+  /**
+   * <p>App-scoped TTF fonts name to path map.</p>
+   **/
+  private final Map<String, String> ttfFontsPaths =
+    new HashMap<String, String>();
+
+  /**
    * <p>App-scoped TTF PdfFontDescriptor map.</p>
    **/
   private final Map<String, PdfFontDescriptor> ttfFontDescriptors =
     new HashMap<String, PdfFontDescriptor>();
+
+  /**
+   * <p>Font directory in resources.</p>
+   **/
+  private String fontDir;
+
+  /**
+   * <p>Resource streamer.</p>
+   **/
+  private ITtfSourceStreamer ttfTtfResourceStreamer;
+
+  /**
+   * <p>File streamer.</p>
+   **/
+  private ITtfSourceStreamer ttfTtfFileStreamer;
 
   /**
    * <p>Prepare before write.</p>
@@ -254,7 +282,7 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
   }
 
   /**
-   * <p>Add international friendly TTF font.</p>
+   * <p>Add international friendly TTF font from resources.</p>
    * @param pDoc document
    * @param pFontName to add
    * @throws Exception an Exception
@@ -285,7 +313,7 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
     pDoc.getCidType2Fonts().add(cidFnt);
     PdfFontFile ff = new PdfFontFile();
     ff.setWriter(this.writerPdfFontFile);
-    ff.setFileName(pFontName);
+    ff.setFontName(pFontName);
     ff.setToUnicode(toUni);
     pDoc.getFontFiles().add(ff);
     TtfFont ttfFont = lazyGetTtfFontAndDescriptor(pFontName);
@@ -302,9 +330,9 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
   }
 
   /**
-   * <p>Get in lazy mode TTF data and font descriptor.
+   * <p>Get in lazy mode TTF data from file resource and font descriptor.
    * This is actually private (for internal usage) method.
-   * It's public for tests purposes.</p>
+   * It's public for tests purposes. Font placed in resources.</p>
    * @param pFontName to add
    * @return TTF font data
    * @throws Exception an Exception
@@ -316,7 +344,9 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
       synchronized (this) {
         fnt = this.ttfFonts.get(pFontName);
         if (fnt == null) {
-          fnt = this.ttfLoader.loadFontTtf(pFontName);
+          String path = this.fontDir + pFontName + ".ttf";
+          fnt = this.ttfLoader.
+            loadFontTtf(pFontName, path, this.ttfTtfResourceStreamer);
           PdfFontDescriptor fd = new PdfFontDescriptor();
           fd.setWriter(this.writerPdfFontDescriptor);
           fd.setFontName(pFontName);
@@ -356,6 +386,8 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
           }
           fd.evalFlags();
           this.ttfFonts.put(pFontName, fnt);
+          this.ttfFontsPaths.put(pFontName, path);
+          this.ttfFontsStreamers.put(pFontName, this.ttfTtfResourceStreamer);
           this.ttfFontDescriptors.put(pFontName, fd);
         }
       }
@@ -363,16 +395,31 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
     return fnt;
   }
 
-  //Synchronized SGS:
+  //Simple getters and setters:
   /**
    * <p>Getter for ttfFonts.</p>
    * @return Map<String, TtfFont>
    **/
-  public final synchronized Map<String, TtfFont> getTtfFonts() {
+  public final Map<String, TtfFont> getTtfFonts() {
     return this.ttfFonts;
   }
 
-  //Simple getters and setters:
+  /**
+   * <p>Getter for ttfFontsStreamers.</p>
+   * @return Map<String, ITtfSourceStreamer>
+   **/
+  public final Map<String, ITtfSourceStreamer> getTtfFontsStreamers() {
+    return this.ttfFontsStreamers;
+  }
+
+  /**
+   * <p>Getter for ttfFontsPaths.</p>
+   * @return Map<String, String>
+   **/
+  public final Map<String, String> getTtfFontsPaths() {
+    return this.ttfFontsPaths;
+  }
+
   /**
    * <p>Getter for uomHelper.</p>
    * @return UomHelper
@@ -391,18 +438,18 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
 
   /**
    * <p>Getter for ttfLoader.</p>
-   * @return TtfLoader
+   * @return ITtfLoader
    **/
-  public final TtfLoader getTtfLoader() {
+  public final ITtfLoader getTtfLoader() {
     return this.ttfLoader;
   }
 
   /**
    * <p>Setter for ttfLoader.</p>
-   * @param pTtfLoader reference
+   * @param pITtfLoader reference
    **/
-  public final void setTtfLoader(final TtfLoader pTtfLoader) {
-    this.ttfLoader = pTtfLoader;
+  public final void setTtfLoader(final ITtfLoader pITtfLoader) {
+    this.ttfLoader = pITtfLoader;
   }
 
   /**
@@ -538,5 +585,55 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
   public final void setWriterPdfFontType1S14(
     final WriterPdfFontType1S14 pWriterPdfFontType1S14) {
     this.writerPdfFontType1S14 = pWriterPdfFontType1S14;
+  }
+
+  /**
+   * <p>Getter for fontDir.</p>
+   * @return String
+   **/
+  public final String getFontDir() {
+    return this.fontDir;
+  }
+
+  /**
+   * <p>Setter for fontDir.</p>
+   * @param pFontDir reference
+   **/
+  public final void setFontDir(final String pFontDir) {
+    this.fontDir = pFontDir;
+  }
+
+  /**
+   * <p>Getter for ttfTtfResourceStreamer.</p>
+   * @return ITtfSourceStreamer
+   **/
+  public final ITtfSourceStreamer getTtfResourceStreamer() {
+    return this.ttfTtfResourceStreamer;
+  }
+
+  /**
+   * <p>Setter for ttfTtfResourceStreamer.</p>
+   * @param pTtfResourceStreamer reference
+   **/
+  public final void setTtfResourceStreamer(
+    final ITtfSourceStreamer pTtfResourceStreamer) {
+    this.ttfTtfResourceStreamer = pTtfResourceStreamer;
+  }
+
+  /**
+   * <p>Getter for ttfTtfFileStreamer.</p>
+   * @return ITtfSourceStreamer
+   **/
+  public final ITtfSourceStreamer getTtfFileStreamer() {
+    return this.ttfTtfFileStreamer;
+  }
+
+  /**
+   * <p>Setter for ttfTtfFileStreamer.</p>
+   * @param pTtfFileStreamer reference
+   **/
+  public final void setTtfFileStreamer(
+    final ITtfSourceStreamer pTtfFileStreamer) {
+    this.ttfTtfFileStreamer = pTtfFileStreamer;
   }
 }

@@ -12,6 +12,9 @@ package org.beigesoft.pdf.service;
  * http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
  */
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import org.beigesoft.doc.model.DocString;
 import org.beigesoft.doc.service.UomHelper;
 import org.beigesoft.doc.service.ToHexCoder;
@@ -59,36 +62,49 @@ public class StringWriter
     PdfContent wi = pWi.getPdfContent();
     if (wi.getTextState().equals(ETextState.ENDED)) {
       wi.getBuffer().write("BT\n".getBytes(getWriteHelper().getAscii()));
+      wi.setTextState(ETextState.STARTED);
     }
     StringBuffer sb = new StringBuffer();
-    double strFntSz = this.uomHelper.toPoints(pStr.getFontSize(), wi
+    double strFntSzd = this.uomHelper.toPoints(pStr.getFontSize(), wi
       .getDocument().getMainDoc().getResolutionDpi(),
         wi.getDocument().getMainDoc().getUnitOfMeasure());
+    BigDecimal strFntSz = BigDecimal.valueOf(strFntSzd)
+      .setScale(2, RoundingMode.HALF_UP);
     if (wi.getFontNumber() != pStr.getFontNumber()
-      || wi.getFontSize() != strFntSz) {
+      || wi.getFontSize().compareTo(strFntSz) != 0) {
       wi.setFontNumber(pStr.getFontNumber());
-      wi.setFontSize((float) strFntSz);
+      wi.setFontSize(strFntSz);
       String fntStr = "/F" + wi.getFontNumber() + " " + strFntSz
         + " Tf\n";
       wi.getBuffer().write(fntStr.getBytes(getWriteHelper().getAscii()));
     }
-    double strX = this.uomHelper.toPoints(pStr.getX1(), wi.getDocument()
+    double strXd = this.uomHelper.toPoints(pStr.getX1(), wi.getDocument()
       .getMainDoc().getResolutionDpi(), wi.getDocument().getMainDoc()
         .getUnitOfMeasure());
-    double strUlY = this.uomHelper.toPoints(pStr.getY1(), wi.getDocument()
+    double strUlY = this.uomHelper.toPoints(pStr.getY2(), wi.getDocument()
       .getMainDoc().getResolutionDpi(), wi.getDocument().getMainDoc()
         .getUnitOfMeasure());
     double pageHeight = this.uomHelper.toPoints(wi.getPage().getHeight(),
       wi.getDocument().getMainDoc().getResolutionDpi(), wi.getDocument()
         .getMainDoc().getUnitOfMeasure());
-    double strY = pageHeight - strUlY;
-    if (Math.abs(wi.getX() - strX) > 0.0000001
-      || Math.abs(wi.getY() - strY) > 0.0000001) {
-      String tdStr = String.valueOf(strX) + " " + strY + " Td\n";
-      wi.getBuffer().write(tdStr.getBytes(getWriteHelper().getAscii()));
-      wi.setX(strX);
-      wi.setY(strY);
+    double strYd = pageHeight - strUlY;
+    BigDecimal strX = BigDecimal.valueOf(strXd)
+      .setScale(2, RoundingMode.HALF_UP);
+    BigDecimal strY = BigDecimal.valueOf(strYd)
+      .setScale(2, RoundingMode.HALF_UP);
+    BigDecimal strDtX;
+    BigDecimal strDtY;
+    if (wi.getX() == null && wi.getY() == null) {
+      strDtX = strX;
+      strDtY = strY;
+    } else {
+      strDtX = strX.subtract(wi.getX());
+      strDtY = strY.subtract(wi.getY());
     }
+    wi.setX(strX);
+    wi.setY(strY);
+    String tdStr = String.valueOf(strDtX) + " " + strDtY + " Td\n";
+    wi.getBuffer().write(tdStr.getBytes(getWriteHelper().getAscii()));
     IPdfObject fnt = wi.getDocument().getResources()
       .getFonts().get(wi.getFontNumber() - 1);
     if (fnt instanceof PdfFontType1S14) {

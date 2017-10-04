@@ -12,6 +12,8 @@ package org.beigesoft.pdf.model;
  * http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
  */
 
+import java.math.BigDecimal;
+
 import org.beigesoft.doc.model.DocPage;
 
 /**
@@ -36,14 +38,14 @@ public class PdfContent extends APdfStream<PdfContent> {
   //if there is no current "BT".
   //Page current state during writing:
   /**
-   * <p>Current X position in dots.</p>
+   * <p>Current text position X, null means 0 (start).</p>
    **/
-  private double x;
+  private BigDecimal x;
 
   /**
-   * <p>Current Y position in dots.</p>
+   * <p>Current text position Y, null means 0 (start).</p>
    **/
-  private double y;
+  private BigDecimal y;
 
   /**
    * <p>Current font# (from 1).</p>
@@ -53,12 +55,23 @@ public class PdfContent extends APdfStream<PdfContent> {
   /**
    * <p>Current font size.</p>
    **/
-  private float fontSize;
+  private BigDecimal fontSize = BigDecimal.ZERO;
 
   /**
    * <p>Current text state.</p>
    **/
   private ETextState textState;
+
+  //current graphic state:
+
+  /**
+   * <p>Current graphic state.</p>
+   **/
+  private EGraphicState graphicState;
+  /**
+   * <p>Current line width.</p>
+   **/
+  private BigDecimal lineWidth = BigDecimal.ZERO;
 
   //Simple getters and setters:
   /**
@@ -96,9 +109,9 @@ public class PdfContent extends APdfStream<PdfContent> {
 
   /**
    * <p>Getter for x.</p>
-   * @return double
+   * @return BigDecimal
    **/
-  public final double getX() {
+  public final BigDecimal getX() {
     return this.x;
   }
 
@@ -106,15 +119,15 @@ public class PdfContent extends APdfStream<PdfContent> {
    * <p>Setter for x.</p>
    * @param pX reference
    **/
-  public final void setX(final double pX) {
+  public final void setX(final BigDecimal pX) {
     this.x = pX;
   }
 
   /**
    * <p>Getter for y.</p>
-   * @return double
+   * @return BigDecimal
    **/
-  public final double getY() {
+  public final BigDecimal getY() {
     return this.y;
   }
 
@@ -122,7 +135,7 @@ public class PdfContent extends APdfStream<PdfContent> {
    * <p>Setter for y.</p>
    * @param pY reference
    **/
-  public final void setY(final double pY) {
+  public final void setY(final BigDecimal pY) {
     this.y = pY;
   }
 
@@ -144,9 +157,9 @@ public class PdfContent extends APdfStream<PdfContent> {
 
   /**
    * <p>Getter for fontSize.</p>
-   * @return float
+   * @return BigDecimal
    **/
-  public final float getFontSize() {
+  public final BigDecimal getFontSize() {
     return this.fontSize;
   }
 
@@ -154,7 +167,7 @@ public class PdfContent extends APdfStream<PdfContent> {
    * <p>Setter for fontSize.</p>
    * @param pFontSize reference
    **/
-  public final void setFontSize(final float pFontSize) {
+  public final void setFontSize(final BigDecimal pFontSize) {
     this.fontSize = pFontSize;
   }
 
@@ -172,5 +185,37 @@ public class PdfContent extends APdfStream<PdfContent> {
    **/
   public final void setTextState(final ETextState pTextState) {
     this.textState = pTextState;
+  }
+
+  /**
+   * <p>Getter for graphicState.</p>
+   * @return EGraphicState
+   **/
+  public final EGraphicState getGraphicState() {
+    return this.graphicState;
+  }
+
+  /**
+   * <p>Setter for graphicState.</p>
+   * @param pGraphicState reference
+   **/
+  public final void setGraphicState(final EGraphicState pGraphicState) {
+    this.graphicState = pGraphicState;
+  }
+
+  /**
+   * <p>Getter for lineWidth.</p>
+   * @return BigDecimal
+   **/
+  public final BigDecimal getLineWidth() {
+    return this.lineWidth;
+  }
+
+  /**
+   * <p>Setter for lineWidth.</p>
+   * @param pLineWidth reference
+   **/
+  public final void setLineWidth(final BigDecimal pLineWidth) {
+    this.lineWidth = pLineWidth;
   }
 }

@@ -12,6 +12,7 @@ package org.beigesoft.pdf.service;
  * http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
  */
 
+import java.util.LinkedHashSet;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Date;
@@ -64,7 +65,7 @@ public class WriteLiberationPdfTest {
     this.factory.setLogger(this.logger);
     this.factory.init();
     this.factory.lazyGetTtfLoader().setLogGtiDelta(-5);
-    this.factory.lazyGetTtfLoader().setLogGids(new ArrayList<Integer>());
+    this.factory.lazyGetTtfLoader().setLogGids(new LinkedHashSet<Integer>());
     this.factory.lazyGetTtfLoader().getLogGids().add(0);
     this.factory.lazyGetTtfLoader().getLogGids().add(1);
     this.factory.lazyGetTtfLoader().getLogGids().add(2);
@@ -76,8 +77,13 @@ public class WriteLiberationPdfTest {
     this.factory.lazyGetTtfLoader().getLogGids().add(8);
     this.factory.lazyGetTtfLoader().getLogGids().add(946);
     //Привет G = 041F 0440 0438 0432 0435 0442 0020 0047
-    this.factory.lazyGetTtfLoader().setLogUnicodes(
-      new char[] {(char) 0x41F, (char) 0x0440, (char) 0x0438, (char) 0x0432, (char) 0x0435, (char) 0x0442});
+    this.factory.lazyGetTtfLoader().setLogUnicodes(new LinkedHashSet<Character>());
+    this.factory.lazyGetTtfLoader().getLogUnicodes().add((char) 0x41F);
+    this.factory.lazyGetTtfLoader().getLogUnicodes().add((char) 0x0440);
+    this.factory.lazyGetTtfLoader().getLogUnicodes().add((char) 0x0438);
+    this.factory.lazyGetTtfLoader().getLogUnicodes().add((char) 0x0432);
+    this.factory.lazyGetTtfLoader().getLogUnicodes().add((char) 0x0435);
+    this.factory.lazyGetTtfLoader().getLogUnicodes().add((char) 0x0442);
     this.pdfMaker = this.factory.lazyGetPdfMaker();
     this.docMaker = this.factory.lazyGetDocumentMaker();
   }

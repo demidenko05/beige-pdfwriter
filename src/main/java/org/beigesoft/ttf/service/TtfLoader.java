@@ -12,8 +12,7 @@ package org.beigesoft.ttf.service;
  * http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
  */
 
-import java.net.URL;
-import java.util.List;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,12 +56,12 @@ import org.beigesoft.pdf.exception.ExceptionPdfWr;
  * consist of not 4bytes aligned glyths and loca is after glyf.
  * Use this loader trough PdfFactory. That factory ensure properly usage
  * of this loader, i.e. lazy initializing of TTF and other
- * multi-threading aspects. Chars widths are not scaled.
+ * multi-threading aspects. Chars widths in TtfHmtx are not scaled.
  * </p>
  *
  * @author Yury Demidenko
  */
-public class TtfLoader {
+public class TtfLoader implements ITtfLoader {
 
   /**
    * <p>Logger.</p>
@@ -134,7 +133,7 @@ public class TtfLoader {
   /**
    * <p>Debug GIDs list.</p>
    **/
-  private List<Integer> logGids;
+  private Set<Integer> logGids;
 
   /**
    * <p>Debug GTI delta according GIDs list.</p>
@@ -144,7 +143,7 @@ public class TtfLoader {
   /**
    * <p>Logs unicodes.</p>
    **/
-  private char[] logUnicodes;
+  private Set<Character> logUnicodes;
 
   /**
    * <p>Glyph index in Glyf table at which occurred error.</p>
@@ -152,29 +151,23 @@ public class TtfLoader {
   private int wrongGti;
 
   /**
-   * <p>Font directory in resources.</p>
-   **/
-  private String fontDir = "/";
-
-  /**
-   * <p>Load TTF font from resource file.</p>
-   * @param pFileName without extension from classpath to load
+   * <p>Load TTF font from resource/file.</p>
+   * @param pName font name
+   * @param pPath path
+   * @param pStreamer stream maker
    * @return loaded TTF font
    * @throws Exception an Exception
    **/
-  public final TtfFont loadFontTtf(
-    final String pFileName) throws Exception {
-    String fntFlNm = this.fontDir + pFileName + ".ttf";
-    URL url = TtfLoader.class
-      .getResource(fntFlNm);
-    if (url != null) {
+  @Override
+  public final TtfFont loadFontTtf(final String pName, final String pPath,
+    final ITtfSourceStreamer pStreamer) throws Exception {
+    if (pStreamer.isExists(pPath)) {
       TtfFont ttf = new TtfFont();
-      ttf.setFileName(pFileName);
-      this.logger.info(null, TtfLoader.class, "Loading font " + pFileName);
+      ttf.setFileName(pName);
+      this.logger.info(null, TtfLoader.class, "Loading font " + pName);
       TtfInputStream is = null;
       try {
-        is = new TtfInputStream(TtfLoader.class
-          .getResourceAsStream(fntFlNm));
+        is = pStreamer.makeInputStream(pPath);
         loadFontTtfFrom(ttf, is);
       } finally {
         if (is != null) {
@@ -185,8 +178,7 @@ public class TtfLoader {
         // this should never happen
         //glyf is not 4bytes aligned and loca is after glyph, so go 2-nd round:
         try {
-          is = new TtfInputStream(TtfLoader.class
-            .getResourceAsStream(fntFlNm));
+          is = pStreamer.makeInputStream(pPath);
           ttf.getGlyf().getGlyphs().clear(); //clean trash
           TtfTableDirEntry hmtx = null;
           if (ttf.getHmtx() == null) { // not loaded without longHorMetrics
@@ -222,8 +214,7 @@ public class TtfLoader {
         this.cmpTableForEmbeddingTag);
       return ttf;
     } else {
-      throw new ExceptionPdfWr("There is no file "
-        + pFileName + "!");
+      throw new ExceptionPdfWr("There is no file " + pPath + "!");
     }
   }
 
@@ -376,28 +367,32 @@ public class TtfLoader {
         nextOfst = pTtf.getLoca().getOffsets32()[gid + 1];
       }
       if (ofst != nextOfst) { // if exist in glyf
-        // may be already at the start of glyph if there is no zero-padding:
-        pIs.goAhead(glyf.getTableDirEntry().getOffset() + ofst);
-        short numberOfContours = pIs.readSInt16();
-        Glyph glyph;
+        short numberOfContours = 12321;
+        short xMin = 12321;
+        short yMin = 12321;
+        short xMax = 12321;
+        Glyph glyph = null;
         CompoundGlyph cGlyph = null;
-        if (numberOfContours < 0) { //compound
-          cGlyph = new CompoundGlyph();
-          cGlyph.setPartsGids(new HashSet<Character>());
-          glyph = cGlyph;
-          glyf.getCompoundGlyphs().add(cGlyph);
-        } else {
-          glyph = new Glyph();
-          glyf.getGlyphs().add(glyph);
-        }
-        glyph.setOffset(ofst);
-        glyph.setLength(nextOfst - ofst);
-        glyph.setGid((char) gid);
-        short xMin = pIs.readFWord();
-        short yMin = pIs.readFWord();
-        short xMax = pIs.readFWord();
-        glyph.setMaxY(pIs.readFWord());
         try {
+          // may be already at the start of glyph if there is no zero-padding:
+          pIs.goAhead(glyf.getTableDirEntry().getOffset() + ofst);
+          numberOfContours = pIs.readSInt16();
+          if (numberOfContours < 0) { //compound
+            cGlyph = new CompoundGlyph();
+            cGlyph.setPartsGids(new HashSet<Character>());
+            glyph = cGlyph;
+            glyf.getCompoundGlyphs().add(cGlyph);
+          } else {
+            glyph = new Glyph();
+            glyf.getGlyphs().add(glyph);
+          }
+          glyph.setOffset(ofst);
+          glyph.setLength(nextOfst - ofst);
+          glyph.setGid((char) gid);
+          xMin = pIs.readFWord();
+          yMin = pIs.readFWord();
+          xMax = pIs.readFWord();
+          glyph.setMaxY(pIs.readFWord());
           if (numberOfContours < 0) { //compound
             loadCompoundGlyph(cGlyph, pIs);
             if (this.isShowDebugMessages && 4 <= this.logDetailLevel
@@ -431,11 +426,13 @@ public class TtfLoader {
                     + glyf.getGlyphs().get(i).getOffset()
                       + "/" + glyf.getGlyphs().get(i).getLength());
           }
+          if (glyph != null) {
             this.logger.error(null, TtfLoader.class,
               "Wrong glyph, gid/contours/xMin/yMin/xMax/yMax/offset/length: "
                 + gid + "/" + numberOfContours + "/" + xMin + "/" + yMin + "/"
                   + xMax + "/" + glyph.getMaxY() + "/" + glyph.getOffset()
                     + "/" + glyph.getLength());
+          }
           return;
         }
       }
@@ -782,7 +779,7 @@ public class TtfLoader {
       pIs.goAhead(pTde.getOffset());
       hmtx.setWidths(new char[widthsCount]);
       hmtx.setLeftSideBearing(new short[widthsCount]);
-      int lsbAddLen = (int) (pTde.getLength() / 4 - widthsCount) / 2;
+      int lsbAddLen = (int) (pTde.getLength() - (widthsCount * 4)) / 2;
       if (lsbAddLen > 0) {
         hmtx.setLeftSideBearingAdd(new short[lsbAddLen]);
       }
@@ -809,6 +806,7 @@ public class TtfLoader {
             }
           }
         }
+        sb.append("; lsbAddLen = " + lsbAddLen);
         this.logger.debug(null, TtfLoader.class, sb.toString());
       }
     } else {
@@ -1297,13 +1295,20 @@ public class TtfLoader {
     if (this.isShowDebugMessages) {
       this.logger.debug(null, TtfLoader.class, "UniToCid count = "
         + pTtf.getCmap().getUniToCid().size());
-      if (this.logDetailLevel > 0 && this.logUnicodes != null) {
+      if (this.logDetailLevel > 0 && this.logUnicodes != null
+        && pTtf.getCmap() != null && pTtf.getCmap().getUniToCid() != null) {
         for (char uni : this.logUnicodes) {
-          int gid = pTtf.getCmap().getUniToCid().get(uni);
-          this.logger.debug(null, TtfLoader.class, "UniToCid "
-            + ((int) uni) + " - " + gid);
-          if (this.logGids != null && !this.logGids.contains(gid)) {
-            this.logGids.add(gid);
+          Character gid = pTtf.getCmap().getUniToCid().get(uni);
+          if (gid != null) {
+            int gidi = (int) gid.charValue();
+            this.logger.debug(null, TtfLoader.class, "UniToCid "
+              + ((int) uni) + " - " + gidi);
+            if (this.logGids != null && !this.logGids.contains(gidi)) {
+              this.logGids.add(gidi);
+            }
+          } else {
+            this.logger.debug(null, TtfLoader.class, "There is no gid for uni "
+              + ((int) uni));
           }
         }
       }
@@ -1473,9 +1478,9 @@ public class TtfLoader {
 
   /**
    * <p>Getter for logUnicodes.</p>
-   * @return char[]
+   * @return Set<Character>
    **/
-  public final char[] getLogUnicodes() {
+  public final Set<Character> getLogUnicodes() {
     return this.logUnicodes;
   }
 
@@ -1483,15 +1488,15 @@ public class TtfLoader {
    * <p>Setter for logUnicodes.</p>
    * @param pLogUnicodes reference
    **/
-  public final void setLogUnicodes(final char[] pLogUnicodes) {
+  public final void setLogUnicodes(final Set<Character> pLogUnicodes) {
     this.logUnicodes = pLogUnicodes;
   }
 
   /**
    * <p>Getter for logGids.</p>
-   * @return List<Integer>
+   * @return Set<Integer>
    **/
-  public final List<Integer> getLogGids() {
+  public final Set<Integer> getLogGids() {
     return this.logGids;
   }
 
@@ -1499,7 +1504,7 @@ public class TtfLoader {
    * <p>Setter for logGids.</p>
    * @param pLogGids reference
    **/
-  public final void setLogGids(final List<Integer> pLogGids) {
+  public final void setLogGids(final Set<Integer> pLogGids) {
     this.logGids = pLogGids;
   }
 
@@ -1525,22 +1530,5 @@ public class TtfLoader {
    **/
   public final int getWrongGti() {
     return this.wrongGti;
-  }
-
-
-  /**
-   * <p>Getter for fontDir.</p>
-   * @return String
-   **/
-  public final String getFontDir() {
-    return this.fontDir;
-  }
-
-  /**
-   * <p>Setter for fontDir.</p>
-   * @param pFontDir reference
-   **/
-  public final void setFontDir(final String pFontDir) {
-    this.fontDir = pFontDir;
   }
 }
