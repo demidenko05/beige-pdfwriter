@@ -46,7 +46,11 @@ public class EvalCharWidth implements IEvalCharWidth {
       throw new ExceptionPdfWr(
         "Metrics of standard 14 fonts not yet implemented!!!");
     }
-    char gid = ttf.getCmap().getUniToCid().get(pSource);
+    Character gid = ttf.getCmap().getUniToCid().get(pSource);
+    if (gid == null) {
+      throw new ExceptionPdfWr(
+        "Can't find GID for char/uni: " + pSource + "/" + ((int) pSource));
+    }
     double wdp = ttf.getHmtx().getWidthForGid(gid);
     double upe = ttf.getHead().getUnitsPerEm();
     return pFntSize * wdp / upe;

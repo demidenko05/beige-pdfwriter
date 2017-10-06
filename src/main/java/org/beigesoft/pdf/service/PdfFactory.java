@@ -398,7 +398,6 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
     this.stringWriter.setToHexCoder(this.toHexCoder);
     this.stringWriter.setWriteHelper(this.writeHelper);
     this.fctElement.setWriterString(stringWriter);
-    this.documentMaker = new DocumentMaker<HasPdfContent>();
     this.lineWriter = new LineWriter();
     this.lineWriter.setUomHelper(this.uomHelper);
     this.lineWriter.setWriteHelper(this.writeHelper);
@@ -412,8 +411,10 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
     this.deriverElTable = new DeriverElTable<HasPdfContent>();
     this.deriverElTable.setElementFactory(this.fctElement);
     this.deriverElTable.setEvalMetricsString(this.evalMetricsString);
+    this.deriverElTable.setDocumentMaker(this.documentMaker);
     this.fctDocTable = new FctDocTable<HasPdfContent>();
     this.fctDocTable.setDeriverElements(this.deriverElTable);
+    this.documentMaker.setDocTableFactory(this.fctDocTable);
   }
 
   /**

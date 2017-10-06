@@ -37,6 +37,8 @@ import org.beigesoft.doc.model.MetricsString;
 import org.beigesoft.doc.model.EUnitOfMeasure;
 import org.beigesoft.doc.model.Document;
 import org.beigesoft.doc.model.DocTable;
+import org.beigesoft.doc.model.TableCell;
+import org.beigesoft.doc.model.EAlignHorizontal;
 import org.beigesoft.doc.model.EPageSize;
 import org.beigesoft.doc.model.EPageOrientation;
 import org.beigesoft.ttf.model.TtfFont;
@@ -81,16 +83,34 @@ public class WritePdfTableTest {
     this.pdfMaker.addFontTtf(docPdf, ERegisteredTtfFont.DEJAVUSANS.toString());
     this.docMaker.setFontSize(doc, 3.6);
     double width1dot = this.factory.lazyGetUomHelper().fromPoints(1.0, doc.getResolutionDpi(), doc.getUnitOfMeasure());
-    DocTable<HasPdfContent> dtbl = this.factory.lazyGetFctDocTable().createDocTable(doc, doc.getPages().get(0), 1, 2, width1dot, 1);
-    dtbl.getItsCells().get(0).setItsContent("cell1 cell1 cell1 cell1 cell1 cell1 cell1 cell1 cell1 cell1 cell1");
-    dtbl.getItsCells().get(1).setItsContent("cell2 cell2 cell2 cell2 cell2 cell2 cell2 cell2 cell2 cell2 cell2");
+    doc.setBorder(width1dot);
+    doc.setContentPadding(1.0);
+    DocTable<HasPdfContent> dtbl = this.docMaker.addDocTable(doc, 2, 1);
+    dtbl.getItsCells().get(0).setItsContent("Cell1 Cell1 Cell1 Cell1 Cell1 Cell1 Cell1 Cell1 Cell1 Cell1 Cell1");
+    dtbl.getItsCells().get(1).setItsContent("Cell2 Cell2 Cell2 Cell2 Cell2 Cell2 Cell2 Cell2 Cell2 Cell2 Cell2");
     String fntNm = dtbl.getDocument().getFonts().get(0).getItsName();
     assertEquals(1, dtbl.getItsCells().get(0).getFontNumber());
     assertEquals(fntNm, ERegisteredTtfFont.DEJAVUSANS.toString());
     //unis: c-46 e-48 l-4f gids: 63, 65, 6c
-    MetricsString msTst = this.factory.lazyGetEvalMetricsString().eval("cell1 cell1 cell1 cell1 cell1 cell1",
+    MetricsString msTst = this.factory.lazyGetEvalMetricsString().eval("Cell1 Cell1 Cell1 Cell1 Cell1 Cell1",
       fntNm, dtbl.getItsCells().get(0).getFontSize(), 10000.0, 0.0);
-    assertEquals(56, msTst.getWidth(), 1);
+    assertEquals(60, msTst.getWidth(), 1);
+    DocTable<HasPdfContent> dtbl1 = this.docMaker.addDocTable(doc, 3, 2);
+    dtbl1.getItsCells().get(0).setItsContent("Cell0 Cell0 Cell0 Cell0 Cell0 Cell0 Cell0 Cell0 Cell0 Cell0 Cell0");
+    dtbl1.getItsCells().get(1).setItsContent("Cell1 Cell1 Cell1 Cell1 Cell1 Cell1 Cell1 Cell1 Cell1 Cell1 Cell1");
+    dtbl1.getItsCells().get(2).setItsContent("Cell2 Cell2 Cell2 Cell2 Cell2 Cell2 Cell2 Cell2 Cell2 Cell2 Cell2");
+    dtbl1.getItsCells().get(3).setItsContent("Cell3 Cell3 Cell3 Cell3 Cell3 Cell3 Cell3 Cell3 Cell3 Cell3 Cell3");
+    dtbl1.getItsCells().get(4).setItsContent("Cell4 Cell4 Cell4 Cell4 Cell4 Cell4 Cell4 Cell4 Cell4 Cell4 Cell4");
+    dtbl1.getItsCells().get(5).setItsContent("Cell5 Cell5 Cell5 Cell5 Cell5 Cell5 Cell5 Cell5 Cell5 Cell5 Cell5");
+    dtbl1.getItsCells().get(1).setAlignHorizontal(EAlignHorizontal.CENTER);
+    dtbl1.getItsCells().get(2).setAlignHorizontal(EAlignHorizontal.RIGHT);
+    DocTable<HasPdfContent> dtbl2 = this.docMaker.addDocTable(doc, 3, 3);
+    int i = 0;
+    for (TableCell cel : dtbl2.getItsCells()) {
+      cel.setItsContent("Cell Cell Cell Cell Cell Cell Cell Cell Cell Cell Cell Cell Cell" + (i++));
+    }
+    dtbl2.setY1(297.0 - 20.0 - 13);
+    dtbl2.setIsY1Fixed(true);
     this.docMaker.deriveElements(doc);
     FileOutputStream fos = null;
     this.pdfMaker.prepareBeforeWrite(docPdf);

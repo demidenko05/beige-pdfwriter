@@ -103,13 +103,26 @@ public class WriterPdfCidFontType2 extends AWriterPdfObject<PdfCidFontType2> {
         cidEnd = cid;
         wdthsArr.add(width);
       } else if (cid - cidEnd == 1) {
+        cidEnd = cid;
         // continue second and more char:
-        if (wdthsArr.size() == 1
-          && width - wdthsArr.get(0) == 0) {
-          cidEnd = cid; // e.g. 100 110 456 (chars from 100 to 110 has 456)
-        } else {
-          cidEnd = cid; // e.g. 100 [456 523](char 100 has 456, 101 has 523)
+        if (wdthsArr.size() > 1
+          || (width != wdthsArr.get(0) && cid - cidStart == 1)) {
+          // e.g. 100 [456 523](char 100 has 456, 101 has 523)
           wdthsArr.add(width);
+          cidEnd = cid;
+        } else if (wdthsArr.size() == 1
+          && width != wdthsArr.get(0) && cid - cidStart != 1) {
+          // was mono-space row
+          finishWidthsEntry(pPdfObj, cidStart, cidEnd, wdthsArr);
+          //continue new:
+          cidStart = cid;
+          cidEnd = cid;
+          wdthsArr.clear();
+          wdthsArr.add(width);
+          wdthsArr.add(width);
+        } else {
+          //e.g. 100 110 456 (chars from 100 to 110 has 456)
+          cidEnd = cid;
         }
       } else {
         finishWidthsEntry(pPdfObj, cidStart, cidEnd, wdthsArr);
