@@ -12,6 +12,9 @@ package org.beigesoft.pdf.sample;
  * http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
  */
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 /**
  * <p>Invoice line model generic sample.</p>
  *
@@ -32,17 +35,17 @@ public class InvoiceLineModel {
   /**
    * <p>Price.</p>
    **/
-  private String price;
+  private BigDecimal price;
 
   /**
    * <p>Quantity.</p>
    **/
-  private String quantity;
+  private BigDecimal quantity;
 
   /**
    * <p>Subtotal.</p>
    **/
-  private String subtotal;
+  private BigDecimal subtotal;
 
   /**
    * <p>Taxes.</p>
@@ -52,12 +55,12 @@ public class InvoiceLineModel {
   /**
    * <p>Total taxes.</p>
    **/
-  private String totalTaxes;
+  private BigDecimal totalTaxes;
 
   /**
    * <p>Total.</p>
    **/
-  private String total;
+  private BigDecimal total;
 
   /**
    * <p>Constructor default.</p>
@@ -66,20 +69,45 @@ public class InvoiceLineModel {
   }
 
   /**
-   * <p>Constructor.</p>
-   * @param pItem reference
+   * <p>Constructor full.</p>
+   * @param pItem item
+   * @param pUom UOM
+   * @param pPrice price
+   * @param pQuantity quantity
+   * @param pTaxes taxes
+   * @param pTotalTaxes Total Taxes
    **/
   public InvoiceLineModel(final String pItem, final String pUom,
-    final String pPrice, final String pQuantity, final String pSubtotal,
-      final String pTaxes, final String pTotalTaxes, final String pTotal) {
-    this.total = pTotal;
-    this.totalTaxes = pTotalTaxes;
-    this.taxes = pTaxes;
-    this.subtotal = pSubtotal;
+    final BigDecimal pPrice, final BigDecimal pQuantity,
+      final String pTaxes, final BigDecimal pTotalTaxes) {
+    this.item = pItem;
+    this.uom = pUom;
     this.quantity = pQuantity;
     this.price = pPrice;
-    this.uom = pUom;
+    this.taxes = pTaxes;
+    this.totalTaxes = pTotalTaxes;
+    this.subtotal = this.price.multiply(this.quantity)
+      .setScale(2, RoundingMode.HALF_UP);
+    this.total = this.subtotal.add(this.totalTaxes);
+  }
+
+  /**
+   * <p>Constructor with taxes==0.</p>
+   * @param pItem item
+   * @param pUom UOM
+   * @param pPrice price
+   * @param pQuantity quantity
+   **/
+  public InvoiceLineModel(final String pItem, final String pUom,
+    final BigDecimal pPrice, final BigDecimal pQuantity) {
     this.item = pItem;
+    this.uom = pUom;
+    this.quantity = pQuantity;
+    this.price = pPrice;
+    this.totalTaxes = BigDecimal.ZERO;
+    this.subtotal = this.price.multiply(this.quantity)
+      .setScale(2, RoundingMode.HALF_UP);
+    this.total = this.subtotal.add(this.totalTaxes);
   }
 
   //Simple getters and setters:
@@ -117,9 +145,9 @@ public class InvoiceLineModel {
 
   /**
    * <p>Getter for price.</p>
-   * @return String
+   * @return BigDecimal
    **/
-  public final String getPrice() {
+  public final BigDecimal getPrice() {
     return this.price;
   }
 
@@ -127,15 +155,15 @@ public class InvoiceLineModel {
    * <p>Setter for price.</p>
    * @param pPrice reference
    **/
-  public final void setPrice(final String pPrice) {
+  public final void setPrice(final BigDecimal pPrice) {
     this.price = pPrice;
   }
 
   /**
    * <p>Getter for quantity.</p>
-   * @return String
+   * @return BigDecimal
    **/
-  public final String getQuantity() {
+  public final BigDecimal getQuantity() {
     return this.quantity;
   }
 
@@ -143,15 +171,15 @@ public class InvoiceLineModel {
    * <p>Setter for quantity.</p>
    * @param pQuantity reference
    **/
-  public final void setQuantity(final String pQuantity) {
+  public final void setQuantity(final BigDecimal pQuantity) {
     this.quantity = pQuantity;
   }
 
   /**
    * <p>Getter for subtotal.</p>
-   * @return String
+   * @return BigDecimal
    **/
-  public final String getSubtotal() {
+  public final BigDecimal getSubtotal() {
     return this.subtotal;
   }
 
@@ -159,7 +187,7 @@ public class InvoiceLineModel {
    * <p>Setter for subtotal.</p>
    * @param pSubtotal reference
    **/
-  public final void setSubtotal(final String pSubtotal) {
+  public final void setSubtotal(final BigDecimal pSubtotal) {
     this.subtotal = pSubtotal;
   }
 
@@ -181,9 +209,9 @@ public class InvoiceLineModel {
 
   /**
    * <p>Getter for totalTaxes.</p>
-   * @return String
+   * @return BigDecimal
    **/
-  public final String getTotalTaxes() {
+  public final BigDecimal getTotalTaxes() {
     return this.totalTaxes;
   }
 
@@ -191,15 +219,15 @@ public class InvoiceLineModel {
    * <p>Setter for totalTaxes.</p>
    * @param pTotalTaxes reference
    **/
-  public final void setTotalTaxes(final String pTotalTaxes) {
+  public final void setTotalTaxes(final BigDecimal pTotalTaxes) {
     this.totalTaxes = pTotalTaxes;
   }
 
   /**
    * <p>Getter for total.</p>
-   * @return String
+   * @return BigDecimal
    **/
-  public final String getTotal() {
+  public final BigDecimal getTotal() {
     return this.total;
   }
 
@@ -207,7 +235,7 @@ public class InvoiceLineModel {
    * <p>Setter for total.</p>
    * @param pTotal reference
    **/
-  public final void setTotal(final String pTotal) {
+  public final void setTotal(final BigDecimal pTotal) {
     this.total = pTotal;
   }
 }

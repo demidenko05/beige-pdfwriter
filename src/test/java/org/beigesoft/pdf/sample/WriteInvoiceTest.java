@@ -14,13 +14,16 @@ package org.beigesoft.pdf.sample;
 
 import java.util.Date;
 import java.util.ArrayList;
+import java.math.BigDecimal;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import org.beigesoft.log.LoggerSimple;
+import org.beigesoft.pdf.model.HasPdfContent;
 import org.beigesoft.pdf.service.PdfFactory;
+import org.beigesoft.doc.service.DocumentMaker;
 
 /**
  * <p>Write Invoice tests.</p>
@@ -41,6 +44,11 @@ public class WriteInvoiceTest {
   
   @Test
   public void testToPdf() throws Exception {
+    assertTrue("Factory's paging deriver must not be null!!!",
+      this.factory.lazyGetDeriverElPagination() != null);
+    DocumentMaker<HasPdfContent> dm =
+      (DocumentMaker<HasPdfContent>) this.factory.lazyGetDocumentMaker();
+    assertTrue("DocMaker's paging deriver must not be null!!!", dm != null);
     InvoiceModel im = new InvoiceModel();
     im.setItsNumber("A-68687687");
     im.setItsDate(new Date());
@@ -60,9 +68,19 @@ public class WriteInvoiceTest {
     im.getCustomerInfo().add("State: NY");
     im.setItems(new ArrayList<InvoiceLineModel>());
     im.getItems().add(new InvoiceLineModel("Pizza with cheese frozen",
-      "each", "7.99", "6.0", "47.94", "Fake Sales Tax 6.0%=2.88", "2.88", "50.82"));
+      "each", new BigDecimal("7.99"), new BigDecimal("6.0"),
+        "Fake Sales Tax 6.0%=2.88",  new BigDecimal("2.88")));
     im.getItems().add(new InvoiceLineModel("Pizza with bacon frozen", "each",
-      "7.99", "6.0", "47.94", " ", " ", "47.94"));
+      new BigDecimal("7.99"), new BigDecimal("6.0")));
+    for (int i = 0; i < 85; i++) {
+      im.getItems().add(new InvoiceLineModel("Pizza#" + i, "each",
+      new BigDecimal("7.19"), new BigDecimal("1.0")));
+    }
+    for (InvoiceLineModel ilm : im.getItems()) {
+      im.setSubtotal(im.getSubtotal().add(ilm.getSubtotal()));
+      im.setTotalTaxes(im.getTotalTaxes().add(ilm.getTotalTaxes()));
+      im.setTotal(im.getTotal().add(ilm.getTotal()));
+    }
     InvoiceReport ir = new InvoiceReport();
     ir.setFactory(this.factory);
     ir.makePdf(im);

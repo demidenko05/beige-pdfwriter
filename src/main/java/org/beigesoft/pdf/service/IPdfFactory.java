@@ -21,6 +21,7 @@ import org.beigesoft.doc.model.DocLine;
 import org.beigesoft.doc.model.DocString;
 import org.beigesoft.doc.model.DocTable;
 import org.beigesoft.doc.model.DocRectangle;
+import org.beigesoft.doc.model.Pagination;
 import org.beigesoft.doc.model.IElement;
 import org.beigesoft.doc.service.IFctDocument;
 import org.beigesoft.doc.service.IFctElement;
@@ -348,10 +349,18 @@ public interface IPdfFactory<WI> {
 
   /**
    * <p>Getter for deriverElTable.</p>
-   * @return DeriverElTable<HasPdfContent>
+   * @return DeriverElTable<WI>
    * @throws Exception an Exception
    **/
   IDeriverElements<WI, DocTable<WI>> lazyGetDeriverElTable() throws Exception;
+
+  /**
+   * <p>Getter for deriverElPagination.</p>
+   * @return DeriverElTable<WI>
+   * @throws Exception an Exception
+   **/
+  IDeriverElements<WI, Pagination<WI>>
+    lazyGetDeriverElPagination() throws Exception;
 
   /**
    * <p>Getter for evalMetricsString.</p>

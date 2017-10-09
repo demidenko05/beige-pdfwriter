@@ -14,11 +14,14 @@ package org.beigesoft.pdf.sample;
 
 import java.io.FileOutputStream;
 import java.text.DateFormat;
+import java.util.Date;
 
 import org.beigesoft.doc.model.EUnitOfMeasure;
 import org.beigesoft.doc.model.Document;
 import org.beigesoft.doc.model.DocTable;
+import org.beigesoft.doc.model.Pagination;
 import org.beigesoft.doc.model.EWraping;
+import org.beigesoft.doc.model.MetricsString;
 import org.beigesoft.doc.model.EAlignHorizontal;
 import org.beigesoft.doc.model.EPageSize;
 import org.beigesoft.doc.model.EPageOrientation;
@@ -75,6 +78,7 @@ public class InvoiceReport<WI> {
     tblTitle.getItsCells().get(0).setItsContent(title);
     tblTitle.getItsCells().get(0).setFontNumber(1);
     tblTitle.setAlignHorizontal(EAlignHorizontal.CENTER);
+    doc.setContainerMarginBottom(1.0);
     this.factory.lazyGetDocumentMaker().makeDocTableWrapping(tblTitle);
     DocTable<WI> tblCustomer = this.factory.lazyGetDocumentMaker()
       .addDocTableNoBorder(doc, 1, pInvoice.getCustomerInfo().size());
@@ -83,6 +87,7 @@ public class InvoiceReport<WI> {
         .setItsContent(pInvoice.getCustomerInfo().get(i));
     }
     tblCustomer.getItsCells().get(0).setFontNumber(1);
+    doc.setContainerMarginBottom(2.0);
     DocTable<WI> tblTiGoods = this.factory.lazyGetDocumentMaker()
       .addDocTableNoBorder(doc, 1, 1);
     tblTiGoods.getItsCells().get(0).setItsContent("Goods:");
@@ -92,14 +97,33 @@ public class InvoiceReport<WI> {
     doc.setContentPadding(1.0);
     DocTable<WI> tblGoods = this.factory.lazyGetDocumentMaker()
       .addDocTable(doc, 8, pInvoice.getItems().size() + 1);
+    tblGoods.setIsRepeatHead(true);
+    tblGoods.getItsRows().get(0).setIsHead(true);
     tblGoods.getItsCells().get(0).setItsContent("Item");
+    tblGoods.getItsColumns().get(0).setIsWidthFixed(true);
+    tblGoods.getItsColumns().get(0).setWidthInPercentage(60.0);
     tblGoods.getItsCells().get(1).setItsContent("UOM");
+    tblGoods.getItsColumns().get(1).setWraping(EWraping.WRAP_CONTENT);
     tblGoods.getItsCells().get(2).setItsContent("Price");
+    tblGoods.getItsColumns().get(2).setWraping(EWraping.WRAP_CONTENT);
     tblGoods.getItsCells().get(3).setItsContent("Quantity");
+    tblGoods.getItsColumns().get(3).setWraping(EWraping.WRAP_CONTENT);
     tblGoods.getItsCells().get(4).setItsContent("Subtotal");
+    tblGoods.getItsColumns().get(4).setWraping(EWraping.WRAP_CONTENT);
     tblGoods.getItsCells().get(5).setItsContent("Taxes");
-    tblGoods.getItsCells().get(6).setItsContent("Total taxes");
+    // good trick for wrapping multistring:
+    tblGoods.getItsCells().get(6).setItsContent("Total\ntaxes");
+    tblGoods.getItsColumns().get(6).setWraping(EWraping.WRAP_CONTENT);
+    // it's allowed too:
+    //tblGoods.getItsCells().get(6).setItsContent("Total taxes");
+    //tblGoods.getItsColumns().get(6).setWraping(null);
+    //tblGoods.getItsColumns().get(6).setIsWidthFixed(true);
+    //MetricsString msTxs = this.factory.lazyGetEvalMetricsString()
+      //.eval("taxes", ERegisteredTtfFont.DEJAVUSANS_BOLD.toString(),
+        //3.5, 300.0, 0.0);
+    //tblGoods.getItsColumns().get(6).setWidth(msTxs.getWidth() + 4);
     tblGoods.getItsCells().get(7).setItsContent("Total");
+    tblGoods.getItsColumns().get(7).setWraping(EWraping.WRAP_CONTENT);
     for (int i = 0; i < 8; i++) {
       tblGoods.getItsCells().get(i).setFontNumber(1);
       tblGoods.getItsCells().get(i).setAlignHorizontal(EAlignHorizontal.CENTER);
@@ -109,14 +133,29 @@ public class InvoiceReport<WI> {
       int i = 0;
       tblGoods.getItsCells().get(j * 8 + i++).setItsContent(ln.getItem());
       tblGoods.getItsCells().get(j * 8 + i++).setItsContent(ln.getUom());
-      tblGoods.getItsCells().get(j * 8 + i++).setItsContent(ln.getPrice());
-      tblGoods.getItsCells().get(j * 8 + i++).setItsContent(ln.getQuantity());
-      tblGoods.getItsCells().get(j * 8 + i++).setItsContent(ln.getSubtotal());
+      tblGoods.getItsCells().get(j * 8 + i++).setItsContent(ln.getPrice().toString());
+      tblGoods.getItsCells().get(j * 8 + i++).setItsContent(ln.getQuantity().toString());
+      tblGoods.getItsCells().get(j * 8 + i++).setItsContent(ln.getSubtotal().toString());
       tblGoods.getItsCells().get(j * 8 + i++).setItsContent(ln.getTaxes());
-      tblGoods.getItsCells().get(j * 8 + i++).setItsContent(ln.getTotalTaxes());
-      tblGoods.getItsCells().get(j * 8 + i++).setItsContent(ln.getTotal());
+      tblGoods.getItsCells().get(j * 8 + i++).setItsContent(ln.getTotalTaxes().toString());
+      tblGoods.getItsCells().get(j * 8 + i++).setItsContent(ln.getTotal().toString());
       j++;
     }
+    doc.setAlignHoriCont(EAlignHorizontal.RIGHT);
+    DocTable<WI> tblRez = this.factory.lazyGetDocumentMaker()
+      .addDocTableNoBorder(doc, 1, 3);
+    tblRez.getItsCells().get(0).setFontNumber(1);
+    tblRez.getItsCells().get(0).setItsContent("Subtotal: " + pInvoice.getSubtotal());
+    tblRez.getItsCells().get(1).setFontNumber(1);
+    tblRez.getItsCells().get(1).setItsContent("Total taxes: " + pInvoice.getTotalTaxes());
+    tblRez.getItsCells().get(2).setFontNumber(1);
+    tblRez.getItsCells().get(2).setItsContent("Total: " + pInvoice.getTotal());
+    tblRez.setAlignHorizontal(EAlignHorizontal.RIGHT);
+    this.factory.lazyGetDocumentMaker().makeDocTableWrapping(tblRez);
+    // Add it at the end, make sure that 1 is current page!:
+    Pagination<WI> paging = this.factory.lazyGetDocumentMaker().addPagination(doc);
+    //paging.setTitle(this.dateFormat.format(new Date()) + ",    Page ");
+    //paging.setFrom(" from ");
     this.factory.lazyGetDocumentMaker().deriveElements(doc);
     this.factory.lazyGetPdfMaker().prepareBeforeWrite(docPdf);
     //this.factory.lazyGetPdfMaker().setIsCompressed(docPdf, false);

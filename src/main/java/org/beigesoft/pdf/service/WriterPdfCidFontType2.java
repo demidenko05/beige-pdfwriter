@@ -106,7 +106,7 @@ public class WriterPdfCidFontType2 extends AWriterPdfObject<PdfCidFontType2> {
         cidEnd = cid;
         // continue second and more char:
         if (wdthsArr.size() > 1
-          || (width != wdthsArr.get(0) && cid - cidStart == 1)) {
+          || width != wdthsArr.get(0) && cid - cidStart == 1) {
           // e.g. 100 [456 523](char 100 has 456, 101 has 523)
           wdthsArr.add(width);
           cidEnd = cid;

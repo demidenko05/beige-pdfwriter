@@ -26,6 +26,7 @@ import org.beigesoft.doc.service.DocumentMaker;
 import org.beigesoft.doc.service.FctDocument;
 import org.beigesoft.doc.service.FctElement;
 import org.beigesoft.doc.service.FctDocTable;
+import org.beigesoft.doc.service.DeriverElPagination;
 import org.beigesoft.doc.service.DeriverElTable;
 import org.beigesoft.doc.service.EvalMetricsString;
 import org.beigesoft.doc.service.IElementWriter;
@@ -258,6 +259,11 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
   private DeriverElTable<HasPdfContent> deriverElTable;
 
   /**
+   * <p>App-scoped deriver pagination elements.</p>
+   **/
+  private DeriverElPagination<HasPdfContent> deriverElPagination;
+
+  /**
    * <p>App-scoped deriver metrics string evaluator.</p>
    **/
   private EvalMetricsString evalMetricsString;
@@ -415,6 +421,11 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
     this.fctDocTable = new FctDocTable<HasPdfContent>();
     this.fctDocTable.setDeriverElements(this.deriverElTable);
     this.documentMaker.setDocTableFactory(this.fctDocTable);
+    this.deriverElPagination = new DeriverElPagination<HasPdfContent>();
+    this.deriverElPagination.setElementFactory(this.fctElement);
+    this.deriverElPagination.setEvalMetricsString(this.evalMetricsString);
+    this.deriverElPagination.setDocumentMaker(this.documentMaker);
+    this.documentMaker.setDeriverElPagination(this.deriverElPagination);
   }
 
   /**
@@ -854,6 +865,17 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
   public final DeriverElTable<HasPdfContent>
     lazyGetDeriverElTable() throws Exception {
     return this.deriverElTable;
+  }
+
+  /**
+   * <p>Getter for deriverElPagination.</p>
+   * @return DeriverElPagination<HasPdfContent>
+   * @throws Exception an Exception
+   **/
+  @Override
+  public final DeriverElPagination<HasPdfContent>
+    lazyGetDeriverElPagination() throws Exception {
+    return this.deriverElPagination;
   }
 
   /**

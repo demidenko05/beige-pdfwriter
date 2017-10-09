@@ -14,6 +14,7 @@ package org.beigesoft.pdf.sample;
 
 import java.util.Date;
 import java.util.List;
+import java.math.BigDecimal;
 
 /**
  * <p>Invoice model generic sample.</p>
@@ -43,6 +44,21 @@ public class InvoiceModel {
    * <p>Number of invoice.</p>
    **/
   private Date itsDate;
+
+  /**
+   * <p>Subtotal.</p>
+   **/
+  private BigDecimal subtotal = BigDecimal.ZERO;
+
+  /**
+   * <p>Total taxes.</p>
+   **/
+  private BigDecimal totalTaxes = BigDecimal.ZERO;
+
+  /**
+   * <p>Total.</p>
+   **/
+  private BigDecimal total = BigDecimal.ZERO;
 
   /**
    * <p>Items.</p>
@@ -112,6 +128,54 @@ public class InvoiceModel {
    **/
   public final void setItsDate(final Date pItsDate) {
     this.itsDate = pItsDate;
+  }
+
+  /**
+   * <p>Getter for subtotal.</p>
+   * @return BigDecimal
+   **/
+  public final BigDecimal getSubtotal() {
+    return this.subtotal;
+  }
+
+  /**
+   * <p>Setter for subtotal.</p>
+   * @param pSubtotal reference
+   **/
+  public final void setSubtotal(final BigDecimal pSubtotal) {
+    this.subtotal = pSubtotal;
+  }
+
+  /**
+   * <p>Getter for totalTaxes.</p>
+   * @return BigDecimal
+   **/
+  public final BigDecimal getTotalTaxes() {
+    return this.totalTaxes;
+  }
+
+  /**
+   * <p>Setter for totalTaxes.</p>
+   * @param pTotalTaxes reference
+   **/
+  public final void setTotalTaxes(final BigDecimal pTotalTaxes) {
+    this.totalTaxes = pTotalTaxes;
+  }
+
+  /**
+   * <p>Getter for total.</p>
+   * @return BigDecimal
+   **/
+  public final BigDecimal getTotal() {
+    return this.total;
+  }
+
+  /**
+   * <p>Setter for total.</p>
+   * @param pTotal reference
+   **/
+  public final void setTotal(final BigDecimal pTotal) {
+    this.total = pTotal;
   }
 
   /**
