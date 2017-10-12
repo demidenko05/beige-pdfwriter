@@ -448,8 +448,8 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
     doc.setFontFiles(new ArrayList<PdfFontFile>());
     PdfInfo pdfInfo = new PdfInfo();
     pdfInfo.setCreationDate(new Date());
-    pdfInfo.setModDate(pdfInfo.getCreationDate());
     pdfInfo.setWriter(this.writerPdfInfo);
+    doc.setPdfInfo(pdfInfo);
     doc.getPdfObjects().add(pdfInfo);
     doc.getPdfTrailer().setInfo(pdfInfo);
     PdfCatalog pdfCatalog = new PdfCatalog();

@@ -90,6 +90,10 @@
      <Bug pattern="EI_EXPOSE_REP2" />
   </Match>
   <Match>
+     <Class name="org.beigesoft.pdf.model.PdfInfo" />
+     <Bug pattern="SS_SHOULD_BE_STATIC" />
+  </Match>
+  <Match>
      <Class name="org.beigesoft.pdf.service.PdfWriteHelper" />
      <Bug pattern="SS_SHOULD_BE_STATIC" />
   </Match>

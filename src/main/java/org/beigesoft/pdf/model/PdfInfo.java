@@ -24,12 +24,12 @@ public class PdfInfo extends APdfObject<PdfInfo> {
   /**
    * <p>Creator.</p>
    **/
-  private String creator = "Beigesoft (TM) PDF Writer";
+  private final String creator = "Beigesoft (TM) Document Writer";
 
   /**
    * <p>Producer.</p>
    **/
-  private String producer;
+  private final String producer = "Beigesoft (TM) PDF Writer";
 
   /**
    * <p>Title.</p>
@@ -71,27 +71,11 @@ public class PdfInfo extends APdfObject<PdfInfo> {
   }
 
   /**
-   * <p>Setter for creator.</p>
-   * @param pCreator reference
-   **/
-  public final void setCreator(final String pCreator) {
-    this.creator = pCreator;
-  }
-
-  /**
    * <p>Getter for producer.</p>
    * @return String
    **/
   public final String getProducer() {
     return this.producer;
-  }
-
-  /**
-   * <p>Setter for producer.</p>
-   * @param pProducer reference
-   **/
-  public final void setProducer(final String pProducer) {
-    this.producer = pProducer;
   }
 
   /**

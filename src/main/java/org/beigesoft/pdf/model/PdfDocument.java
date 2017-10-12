@@ -79,6 +79,11 @@ public class PdfDocument<WI> {
    **/
   private Boolean isCompressed = true;
 
+  /**
+   * <p>PDF info for external initialization.</p>
+   **/
+  private PdfInfo pdfInfo;
+
   //Simple getters and setters:
   /**
    * <p>Getter for version.</p>
@@ -256,5 +261,21 @@ public class PdfDocument<WI> {
    **/
   public final void setIsCompressed(final Boolean pIsCompressed) {
     this.isCompressed = pIsCompressed;
+  }
+
+  /**
+   * <p>Getter for pdfInfo.</p>
+   * @return PdfInfo
+   **/
+  public final PdfInfo getPdfInfo() {
+    return this.pdfInfo;
+  }
+
+  /**
+   * <p>Setter for pdfInfo.</p>
+   * @param pPdfInfo reference
+   **/
+  public final void setPdfInfo(final PdfInfo pPdfInfo) {
+    this.pdfInfo = pPdfInfo;
   }
 }

@@ -15,6 +15,7 @@ package org.beigesoft.pdf.sample;
 import java.util.Date;
 import java.util.ArrayList;
 import java.math.BigDecimal;
+import java.io.FileOutputStream;
 
 import static org.junit.Assert.assertTrue;
 
@@ -83,6 +84,14 @@ public class WriteInvoiceTest {
     }
     InvoiceReport ir = new InvoiceReport();
     ir.setFactory(this.factory);
-    ir.makePdf(im);
+    FileOutputStream fos = null;
+    try {
+      fos = new FileOutputStream("invoice" + im.getItsNumber() + ".pdf");
+      ir.makePdf(im, fos);
+    } finally {
+      if (fos != null) {
+        fos.close();
+      }
+    }
   }
 }

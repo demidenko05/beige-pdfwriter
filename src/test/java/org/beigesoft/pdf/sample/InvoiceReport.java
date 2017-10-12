@@ -12,7 +12,7 @@ package org.beigesoft.pdf.sample;
  * http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
  */
 
-import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.util.Date;
 
@@ -25,13 +25,16 @@ import org.beigesoft.doc.model.MetricsString;
 import org.beigesoft.doc.model.EAlignHorizontal;
 import org.beigesoft.doc.model.EPageSize;
 import org.beigesoft.doc.model.EPageOrientation;
+import org.beigesoft.doc.service.IDocumentMaker;
 import org.beigesoft.pdf.model.ERegisteredTtfFont;
 import org.beigesoft.pdf.model.PdfDocument;
 import org.beigesoft.pdf.service.IPdfFactory;
+import org.beigesoft.pdf.service.IPdfMaker;
 
 /**
  * <p>Invoice report generic sample.</p>
  *
+ * @param <WI> writing instrument type
  * @author Yury Demidenko
  */
 public class InvoiceReport<WI> {
@@ -47,40 +50,46 @@ public class InvoiceReport<WI> {
   private DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
 
   /**
-   * <p>Make PDF file for given invoice.</p>
+   * <p>Write PDF report for given invoice to output stream.</p>
+   * @param pInvoice Invoice
+   * @param pOus output stream
    **/
-  public final void makePdf(final InvoiceModel pInvoice) throws Exception {
+  public final void makePdf(final InvoiceModel pInvoice,
+    final OutputStream pOus) throws Exception {
     Document<WI> doc = this.factory.lazyGetFctDocument()
       .createDoc(EPageSize.A4, EPageOrientation.PORTRAIT);
     PdfDocument<WI> docPdf = this.factory.createPdfDoc(doc);
-    this.factory.lazyGetPdfMaker()
-      .addFontTtf(docPdf, ERegisteredTtfFont.DEJAVUSANS_BOLD.toString());
-    this.factory.lazyGetPdfMaker()
-      .addFontTtf(docPdf, ERegisteredTtfFont.DEJAVUSANS.toString());
-    double width1dot = this.factory.lazyGetUomHelper()
-      .fromPoints(1.0, doc.getResolutionDpi(), doc.getUnitOfMeasure());
-    doc.setBorder(width1dot);
+    docPdf.getPdfInfo().setAuthor("Beigesoft (TM) Tester");
+    IDocumentMaker docMaker = this.factory.lazyGetDocumentMaker();
+    IPdfMaker<WI> pdfMaker = this.factory.lazyGetPdfMaker();
+    pdfMaker.addFontTtf(docPdf, ERegisteredTtfFont.DEJAVUSANS_BOLD.toString());
+    pdfMaker.addFontTtf(docPdf, ERegisteredTtfFont.DEJAVUSANS.toString());
+    double widthNdot = this.factory.lazyGetUomHelper()
+      //.fromPoints(1.0, doc.getResolutionDpi(), doc.getUnitOfMeasure());
+      .fromPoints(2.0, 300.0, doc.getUnitOfMeasure()); //printer resolution
+    doc.setBorder(widthNdot);
     doc.setContentPadding(0.0);
-    doc.setContentPaddingBottom(0.3);
-    DocTable<WI> tblOwner = this.factory.lazyGetDocumentMaker()
-      .addDocTableNoBorder(doc, 1, pInvoice.getOwnerInfo().size());
-    for (int i = 0; i < pInvoice.getOwnerInfo().size(); i++) {
+    doc.setContentPaddingBottom(0.5);
+    DocTable<WI> tblOwner = docMaker.addDocTableNoBorder(doc, 1, 1);
+    tblOwner.getItsCells().get(0)
+      .setItsContent(pInvoice.getOwnerInfo().get(0));
+    for (int i = 1; i < pInvoice.getOwnerInfo().size(); i++) {
+      docMaker.addRowToDocTable(tblOwner);
       tblOwner.getItsCells().get(i)
         .setItsContent(pInvoice.getOwnerInfo().get(i));
     }
     tblOwner.getItsCells().get(0).setFontNumber(1);
     tblOwner.setAlignHorizontal(EAlignHorizontal.RIGHT);
-    this.factory.lazyGetDocumentMaker().makeDocTableWrapping(tblOwner);
-    DocTable<WI> tblTitle = this.factory.lazyGetDocumentMaker()
-      .addDocTableNoBorder(doc, 1, 1);
+    docMaker.makeDocTableWrapping(tblOwner);
+    DocTable<WI> tblTitle = docMaker.addDocTableNoBorder(doc, 1, 1);
     String title = "Invoice #" + pInvoice.getItsNumber() + " "
       + this.dateFormat.format(pInvoice.getItsDate());
     tblTitle.getItsCells().get(0).setItsContent(title);
     tblTitle.getItsCells().get(0).setFontNumber(1);
     tblTitle.setAlignHorizontal(EAlignHorizontal.CENTER);
+    docMaker.makeDocTableWrapping(tblTitle);
     doc.setContainerMarginBottom(1.0);
-    this.factory.lazyGetDocumentMaker().makeDocTableWrapping(tblTitle);
-    DocTable<WI> tblCustomer = this.factory.lazyGetDocumentMaker()
+    DocTable<WI> tblCustomer = docMaker
       .addDocTableNoBorder(doc, 1, pInvoice.getCustomerInfo().size());
     for (int i = 0; i < pInvoice.getCustomerInfo().size(); i++) {
       tblCustomer.getItsCells().get(i)
@@ -88,14 +97,14 @@ public class InvoiceReport<WI> {
     }
     tblCustomer.getItsCells().get(0).setFontNumber(1);
     doc.setContainerMarginBottom(2.0);
-    DocTable<WI> tblTiGoods = this.factory.lazyGetDocumentMaker()
+    DocTable<WI> tblTiGoods = docMaker
       .addDocTableNoBorder(doc, 1, 1);
     tblTiGoods.getItsCells().get(0).setItsContent("Goods:");
     tblTiGoods.getItsCells().get(0).setFontNumber(1);
     tblTiGoods.setAlignHorizontal(EAlignHorizontal.CENTER);
-    this.factory.lazyGetDocumentMaker().makeDocTableWrapping(tblTiGoods);
+    docMaker.makeDocTableWrapping(tblTiGoods);
     doc.setContentPadding(1.0);
-    DocTable<WI> tblGoods = this.factory.lazyGetDocumentMaker()
+    DocTable<WI> tblGoods = docMaker
       .addDocTable(doc, 8, pInvoice.getItems().size() + 1);
     tblGoods.setIsRepeatHead(true);
     tblGoods.getItsRows().get(0).setIsHead(true);
@@ -142,7 +151,7 @@ public class InvoiceReport<WI> {
       j++;
     }
     doc.setAlignHoriCont(EAlignHorizontal.RIGHT);
-    DocTable<WI> tblRez = this.factory.lazyGetDocumentMaker()
+    DocTable<WI> tblRez = docMaker
       .addDocTableNoBorder(doc, 1, 3);
     tblRez.getItsCells().get(0).setFontNumber(1);
     tblRez.getItsCells().get(0).setItsContent("Subtotal: " + pInvoice.getSubtotal());
@@ -151,25 +160,15 @@ public class InvoiceReport<WI> {
     tblRez.getItsCells().get(2).setFontNumber(1);
     tblRez.getItsCells().get(2).setItsContent("Total: " + pInvoice.getTotal());
     tblRez.setAlignHorizontal(EAlignHorizontal.RIGHT);
-    this.factory.lazyGetDocumentMaker().makeDocTableWrapping(tblRez);
+    docMaker.makeDocTableWrapping(tblRez);
     // Add it at the end, make sure that 1 is current page!:
-    Pagination<WI> paging = this.factory.lazyGetDocumentMaker().addPagination(doc);
+    Pagination<WI> paging = docMaker.addPagination(doc);
     //paging.setTitle(this.dateFormat.format(new Date()) + ",    Page ");
     //paging.setFrom(" from ");
-    this.factory.lazyGetDocumentMaker().deriveElements(doc);
-    this.factory.lazyGetPdfMaker().prepareBeforeWrite(docPdf);
-    //this.factory.lazyGetPdfMaker().setIsCompressed(docPdf, false);
-    FileOutputStream fos = null;
-    try {
-      fos = new FileOutputStream("invoice" + pInvoice.getItsNumber() + ".pdf");
-      this.factory.lazyGetPdfWriter().write(null, docPdf, fos);
-      fos.flush();
-      fos.close();
-    } finally {
-      if (fos != null) {
-        fos.close();
-      }
-    }
+    docMaker.deriveElements(doc);
+    pdfMaker.prepareBeforeWrite(docPdf);
+    //pdfMaker.setIsCompressed(docPdf, false);
+    this.factory.lazyGetPdfWriter().write(null, docPdf, pOus);
   }
 
   //Simple getters and setters:

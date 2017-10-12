@@ -42,12 +42,10 @@ public class WriterPdfInfo extends AWriterPdfObject<PdfInfo> {
     bytesWritten += getWriteHelper().writeBytes(btsGenNumSp, pOut);
     bytesWritten += getWriteHelper()
       .writeBytes(getWriteHelper().getStartObj(), pOut);
-    if (pPdfObj.getCreator() != null) {
-      String creatorStr = "/Creator (" + getWriteHelper()
-        .escapePdf(pPdfObj.getCreator()) + ")\n";
-      bytesWritten += getWriteHelper()
-        .writeBytes(creatorStr.getBytes(getWriteHelper().getAscii()), pOut);
-    }
+    String creatorStr = "/Creator (" + getWriteHelper()
+      .escapePdf(pPdfObj.getCreator()) + ")\n";
+    bytesWritten += getWriteHelper()
+      .writeBytes(creatorStr.getBytes(getWriteHelper().getAscii()), pOut);
     if (pPdfObj.getProducer() != null) {
       String producerStr = "/Producer (" + getWriteHelper()
         .escapePdf(pPdfObj.getProducer()) + ")\n";
