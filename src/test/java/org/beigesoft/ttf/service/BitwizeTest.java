@@ -51,6 +51,39 @@ public class BitwizeTest {
   }
 
   @Test
+  public void testBufStr() throws Exception {
+    byte[] buffer = new byte[] {(byte) 0x12, (byte) 0xFF, (byte) 0xBF, (byte) 0xFA};
+    TtfBufferInputStream tbis = new TtfBufferInputStream(buffer, 10);
+    tbis.goAhead(10L);
+    assertEquals(10L, tbis.getOffset());
+    int byte0 = tbis.read();
+    assertEquals(0x00000012, byte0);
+    int byteff = tbis.read();
+    assertEquals(0x000000FF, byteff);
+    tbis.read();
+    tbis.read();
+    boolean wasEx = true;
+    try {
+      tbis.read();
+      wasEx = false;
+    } catch (Exception e) {
+      assertTrue(wasEx);
+    }
+    tbis.setCurrentOffset(0L);
+    short sint161 = tbis.readSInt16();
+    assertEquals((short) 0x000012FF, sint161);
+    int uint161 = tbis.readUInt16();
+    assertEquals(0x0000BFFA, uint161);
+    tbis.setCurrentOffset(0L);
+    tbis.skip(2);
+    uint161 = tbis.readUInt16();
+    assertEquals(0x0000BFFA, uint161);
+    tbis.setCurrentOffset(0L);
+    long intd = tbis.readUInt32();
+    assertEquals(0x0000000012FFBFFAL, intd);
+  }
+
+  @Test
   public void test1() throws Exception {
     //test bitwise:
     char chMax = (char) 0xffff;

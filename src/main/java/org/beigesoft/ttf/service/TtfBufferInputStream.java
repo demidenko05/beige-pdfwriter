@@ -12,34 +12,42 @@ package org.beigesoft.ttf.service;
  * http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
  */
 
-import java.io.InputStream;
 import java.io.IOException;
 
 /**
- * <p>One way reader of TTF data from input stream (file).
- * For single thread only (bean per client's request).
- * For caching file use dedicated multithread TtfCachedFile.</p>
+ * <p>One way reader of TTF data from buffer byte[].
+ * The buffer contains of full TTF table. To be simulate real file
+ * there is offsetData - offset buffer from start of file
+ * (same table reader for buffer and file).</p>
  *
  * @author Yury Demidenko
  */
-public class TtfInputStream implements ITtfInputStream {
+public class TtfBufferInputStream implements ITtfInputStream {
 
   /**
-   * <p>Current offset.</p>
+   * <p>Current offset in buffer.</p>
    **/
   private long currentOffset = 0;
 
   /**
-   * <p>Wrapped IS.</p>
+   * <p>Simulate offset data e.g. TTF table one from start of file.</p>
    **/
-  private final InputStream inputStream;
+  private final long offsetData;
+
+  /**
+   * <p>Buffer.</p>
+   **/
+  private byte[] buffer;
 
   /**
    * <p>Only constructor.</p>
-   * @param pInputStream reference
+   * @param pBuffer Buffer
+   * @param pOffsetData Offset Ttf Table
    **/
-  public TtfInputStream(final InputStream pInputStream) {
-    this.inputStream = pInputStream;
+  public TtfBufferInputStream(final byte[] pBuffer,
+    final long pOffsetData) {
+    this.buffer = pBuffer;
+    this.offsetData = pOffsetData;
   }
 
   /**
@@ -49,39 +57,29 @@ public class TtfInputStream implements ITtfInputStream {
    **/
   @Override
   public final int read() throws IOException {
-    int byte1 = this.inputStream.read();
+    int byte1 = this.buffer[(int) this.currentOffset];
+    byte1 &= 0x000000FF;
     this.currentOffset++;
     return byte1;
   }
 
   /**
-   * <p>Read byte array in Java standard.</p>
+   * <p>Read byte array.</p>
    * @param pBuffer byte array buffer
    * @return read total
    * @throws IOException an IOException
    **/
   @Override
   public final int read(final byte[] pBuffer) throws IOException {
-    int total = this.inputStream.read(pBuffer);
-    if (total == -1) {
-      throw new IOException("Cant read anything to array!");
+    if (this.currentOffset + pBuffer.length > this.buffer.length - 1) {
+      throw new IOException("Cant copy array array len/offset/buffer len: "
+        + pBuffer.length + "/" + this.currentOffset + "/" + this.buffer.length);
     }
-    if (total != pBuffer.length) {
-      //it happen on LiberationSans-Regular copy prep 835
-      //but it read 632
-      while (total != pBuffer.length) {
-        int byte1 = this.inputStream.read();
-        if (byte1 < 0) {
-          throw new IOException(
-            "Cant read full array! required/read/offsetStart: "
-              + pBuffer.length + "/" + total + "/" + this.currentOffset);
-        }
-        pBuffer[total] = (byte) byte1;
-        total++;
-      }
+    for (int i = 0; i < pBuffer.length; i++) {
+      pBuffer[i] = this.buffer[(int) this.currentOffset];
+      this.currentOffset++;
     }
-    this.currentOffset += total;
-    return total;
+    return pBuffer.length;
   }
 
   /**
@@ -91,10 +89,13 @@ public class TtfInputStream implements ITtfInputStream {
    **/
   @Override
   public final int readUInt16() throws IOException {
-    int byte1 = this.inputStream.read();
+    int byte1 = this.buffer[(int) this.currentOffset];
+    byte1 &= 0x000000FF;
+    this.currentOffset++;
     byte1 <<= 8;
-    int byte2 = this.inputStream.read();
-    this.currentOffset += 2;
+    int byte2 = this.buffer[(int) this.currentOffset];
+    byte2 &= 0x000000FF;
+    this.currentOffset++;
     return byte1 | byte2;
   }
 
@@ -180,16 +181,23 @@ public class TtfInputStream implements ITtfInputStream {
    **/
   @Override
   public final long readUInt32() throws IOException {
-    int byte1 = this.inputStream.read();
-    int byte2 = this.inputStream.read();
-    int byte3 = this.inputStream.read();
-    int byte4 = this.inputStream.read();
+    int byte1 = this.buffer[(int) this.currentOffset];
+    byte1 &= 0x000000FF;
+    this.currentOffset++;
+    int byte2 = this.buffer[(int) this.currentOffset];
+    byte2 &= 0x000000FF;
+    this.currentOffset++;
+    int byte3 = this.buffer[(int) this.currentOffset];
+    byte3 &= 0x000000FF;
+    this.currentOffset++;
+    int byte4 = this.buffer[(int) this.currentOffset];
+    byte4 &= 0x000000FF;
+    this.currentOffset++;
     long lbyte1 = byte1;
     lbyte1 <<= 24;
     long lbyte2 = byte2 << 16;
     long lbyte3 = byte3 << 8;
     long lbyte4 = byte4;
-    this.currentOffset += 4;
     return lbyte1 | lbyte2 | lbyte3 | lbyte4;
   }
 
@@ -200,16 +208,23 @@ public class TtfInputStream implements ITtfInputStream {
    **/
   @Override
   public final byte[] readTag() throws IOException {
-    int byte1 = this.inputStream.read();
-    int byte2 = this.inputStream.read();
-    int byte3 = this.inputStream.read();
-    int byte4 = this.inputStream.read();
+    int byte1 = this.buffer[(int) this.currentOffset];
+    byte1 &= 0x000000FF;
+    this.currentOffset++;
+    int byte2 = this.buffer[(int) this.currentOffset];
+    byte2 &= 0x000000FF;
+    this.currentOffset++;
+    int byte3 = this.buffer[(int) this.currentOffset];
+    byte3 &= 0x000000FF;
+    this.currentOffset++;
+    int byte4 = this.buffer[(int) this.currentOffset];
+    byte4 &= 0x000000FF;
+    this.currentOffset++;
     byte[] result = new byte[4];
     result[0] = (byte) byte1;
     result[1] = (byte) byte2;
     result[2] = (byte) byte3;
     result[3] = (byte) byte4;
-    this.currentOffset += 4;
     return result;
   }
 
@@ -253,14 +268,30 @@ public class TtfInputStream implements ITtfInputStream {
    **/
   @Override
   public final long readLongDateTime() throws IOException {
-    int byte1 = this.inputStream.read();
-    int byte2 = this.inputStream.read();
-    int byte3 = this.inputStream.read();
-    int byte4 = this.inputStream.read();
-    int byte5 = this.inputStream.read();
-    int byte6 = this.inputStream.read();
-    int byte7 = this.inputStream.read();
-    int byte8 = this.inputStream.read();
+    int byte1 = this.buffer[(int) this.currentOffset];
+    byte1 &= 0x000000FF;
+    this.currentOffset++;
+    int byte2 = this.buffer[(int) this.currentOffset];
+    byte2 &= 0x000000FF;
+    this.currentOffset++;
+    int byte3 = this.buffer[(int) this.currentOffset];
+    byte3 &= 0x000000FF;
+    this.currentOffset++;
+    int byte4 = this.buffer[(int) this.currentOffset];
+    byte4 &= 0x000000FF;
+    this.currentOffset++;
+    int byte5 = this.buffer[(int) this.currentOffset];
+    byte5 &= 0x000000FF;
+    this.currentOffset++;
+    int byte6 = this.buffer[(int) this.currentOffset];
+    byte6 &= 0x000000FF;
+    this.currentOffset++;
+    int byte7 = this.buffer[(int) this.currentOffset];
+    byte7 &= 0x000000FF;
+    this.currentOffset++;
+    int byte8 = this.buffer[(int) this.currentOffset];
+    byte8 &= 0x000000FF;
+    this.currentOffset++;
     long lbyte1 = byte1;
     lbyte1 <<= 56;
     long lbyte2 = byte2;
@@ -276,7 +307,6 @@ public class TtfInputStream implements ITtfInputStream {
     long lbyte7 = byte7;
     lbyte7 <<= 8;
     long lbyte8 = byte8;
-    this.currentOffset += 8;
     return lbyte1 | lbyte2 | lbyte3 | lbyte4 | lbyte5
       | lbyte6 | lbyte7 | lbyte8;
   }
@@ -288,14 +318,11 @@ public class TtfInputStream implements ITtfInputStream {
    **/
   @Override
   public final void skip(final int pCount) throws IOException {
-    for (int i = 0; i < pCount; i++) {
-      int byte1 = this.inputStream.read();
-      if (byte1 == -1) {
-        throw new IOException("Cant get to offsetTo/current: " + pCount
-          + "/" + this.currentOffset);
-      }
-      this.currentOffset++;
+    if (this.currentOffset + pCount > this.buffer.length - 1) {
+      throw new IOException("Cant skip count/offset/buffer len: "
+        + pCount + "/" + this.currentOffset + "/" + this.buffer.length);
     }
+    this.currentOffset += pCount;
   }
 
   /**
@@ -305,27 +332,25 @@ public class TtfInputStream implements ITtfInputStream {
    **/
   @Override
   public final void goAhead(final long pOffset) throws IOException {
-    if (this.currentOffset > pOffset) {
+    if (this.offsetData + this.currentOffset > pOffset) {
       throw new IOException("This offset has passed already requested/current: "
-        + pOffset + "/" + this.currentOffset);
+        + pOffset + "/" + (this.offsetData + this.currentOffset));
     }
-    while (this.currentOffset < pOffset) {
-      int rez = this.inputStream.read();
-      if (rez == -1) {
-        throw new IOException("Cant get to offsetTo/current: " + pOffset
-          + "/" + this.currentOffset);
-      }
-      this.currentOffset++;
+    if (pOffset - this.offsetData > this.buffer.length - 1) {
+      throw new IOException("Cant get to offsetTo/current/buffer len: "
+        + pOffset + "/" + (this.offsetData + this.currentOffset)
+          + "/" + this.buffer.length);
     }
+    this.currentOffset = pOffset - this.offsetData;
   }
 
   /**
-   * <p>Closed underlying stream.</p>
+   * <p>End of data reading.</p>
    * @throws IOException an IOException
    **/
   @Override
   public final void close() throws IOException {
-    this.inputStream.close();
+    this.currentOffset = 0L;
   }
 
   /**
@@ -334,15 +359,31 @@ public class TtfInputStream implements ITtfInputStream {
    **/
   @Override
   public final long getOffset() {
-    return this.currentOffset;
+    return this.offsetData + this.currentOffset;
   }
 
   //Simple getters and setters:
   /**
-   * <p>Getter for inputStream.</p>
-   * @return InputStream
+   * <p>Setter for currentOffset (reset start).</p>
+   * @param pCurrentOffset reference
    **/
-  public final InputStream getInputStream() {
-    return this.inputStream;
+  public final void setCurrentOffset(final long pCurrentOffset) {
+    this.currentOffset = pCurrentOffset;
+  }
+
+  /**
+   * <p>Getter for offsetData.</p>
+   * @return long
+   **/
+  public final long getOffsetData() {
+    return this.offsetData;
+  }
+
+  /**
+   * <p>Getter for buffer.</p>
+   * @return byte[]
+   **/
+  public final byte[] getBuffer() {
+    return this.buffer;
   }
 }

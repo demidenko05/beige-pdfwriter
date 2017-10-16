@@ -14,6 +14,7 @@ package org.beigesoft.ttf.model;
 
 import java.util.List;
 
+import org.beigesoft.ttf.service.TtfBufferInputStream;
 
 /**
  * <p>TTF glyf table model.</p>
@@ -38,6 +39,12 @@ public class TtfGlyf {
    * <p>Its TDE.</p>
    **/
   private final TtfTableDirEntry tableDirEntry;
+
+  /**
+   * <p>Buffer that contains of full or part (e.g. through language N)
+   * glyf table. If null then non-cached.</p>
+   **/
+  private TtfBufferInputStream bufferInputStream;
 
   /**
    * <p>Only constractor.</p>
@@ -88,5 +95,22 @@ public class TtfGlyf {
    **/
   public final TtfTableDirEntry getTableDirEntry() {
     return this.tableDirEntry;
+  }
+
+  /**
+   * <p>Getter for bufferInputStream.</p>
+   * @return TtfBufferInputStream
+   **/
+  public final TtfBufferInputStream getBufferInputStream() {
+    return this.bufferInputStream;
+  }
+
+  /**
+   * <p>Setter for bufferInputStream.</p>
+   * @param pBufferInputStream reference
+   **/
+  public final void setBufferInputStream(
+    final TtfBufferInputStream pBufferInputStream) {
+    this.bufferInputStream = pBufferInputStream;
   }
 }

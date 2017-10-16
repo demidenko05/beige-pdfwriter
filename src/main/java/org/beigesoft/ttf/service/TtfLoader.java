@@ -151,6 +151,11 @@ public class TtfLoader implements ITtfLoader {
   private int wrongGti;
 
   /**
+   * <p>If cache glyf table.</p>
+   **/
+  private boolean isCacheGlyf;
+
+  /**
    * <p>Load TTF font from resource/file.</p>
    * @param pName font name
    * @param pPath path
@@ -177,9 +182,14 @@ public class TtfLoader implements ITtfLoader {
       if (this.wrongGti != -1 || ttf.getHmtx() == null) {
         // this should never happen
         //glyf is not 4bytes aligned and loca is after glyph, so go 2-nd round:
+        this.wrongGti = -1;
         try {
           is = pStreamer.makeInputStream(pPath);
           ttf.getGlyf().getGlyphs().clear(); //clean trash
+          ttf.getGlyf().getCompoundGlyphs().clear();
+          if (this.isCacheGlyf) {
+            ttf.getGlyf().getBufferInputStream().setCurrentOffset(0L);
+          }
           TtfTableDirEntry hmtx = null;
           if (ttf.getHmtx() == null) { // not loaded without longHorMetrics
             for (TtfTableDirEntry tde : ttf.getTableDirectory()) {
@@ -190,15 +200,27 @@ public class TtfLoader implements ITtfLoader {
             }
           }
           if (hmtx == null) {
-            loadGlyfWithLoca(ttf, is);
+            if (this.isCacheGlyf) {
+              loadGlyfWithLoca(ttf, ttf.getGlyf().getBufferInputStream());
+            } else {
+              loadGlyfWithLoca(ttf, is);
+            }
           } else if (this.wrongGti != -1) {
             if (hmtx.getOffset() > ttf.getGlyf()
               .getTableDirEntry().getOffset()) {
-              loadGlyfWithLoca(ttf, is);
+              if (this.isCacheGlyf) {
+                loadGlyfWithLoca(ttf, ttf.getGlyf().getBufferInputStream());
+              } else {
+                loadGlyfWithLoca(ttf, is);
+              }
               loadHmtx(ttf, hmtx, is);
             } else {
               loadHmtx(ttf, hmtx, is);
-              loadGlyfWithLoca(ttf, is);
+              if (this.isCacheGlyf) {
+                loadGlyfWithLoca(ttf, ttf.getGlyf().getBufferInputStream());
+              } else {
+                loadGlyfWithLoca(ttf, is);
+              }
             }
           } else {
             loadHmtx(ttf, hmtx, is);
@@ -208,6 +230,9 @@ public class TtfLoader implements ITtfLoader {
             is.close();
           }
         }
+      }
+      if (this.wrongGti != -1) {
+        throw new ExceptionPdfWr("Can't load data from glyf!!!");
       }
       prepareAfterLoading(ttf);
       Collections.sort(ttf.getTablesForEmbedding(),
@@ -304,11 +329,41 @@ public class TtfLoader implements ITtfLoader {
         loadLoca(pTtf, tde, pIs);
       } else if (tde.getTagString()
         .equals(this.ttfConstants.getTagGlyf())) {
-        if (pTtf.getLoca() == null) {
-          // the most used standard
-          loadGlyf4Aligned(pTtf, tde, pIs);
+        TtfGlyf glyf = new TtfGlyf(tde);
+        glyf.setGlyphs(new ArrayList<Glyph>());
+        glyf.setCompoundGlyphs(new ArrayList<CompoundGlyph>());
+        pTtf.setGlyf(glyf);
+        TableForEmbeddingGlyf tfe =
+          new TableForEmbeddingGlyf(tde, pTtf);
+        tfe.setTdeMaker(this.tdeMaker);
+        tfe.setTableMaker(this.tableMakerGlyf);
+        pTtf.getTablesForEmbedding().add(tfe);
+        if (this.isCacheGlyf) {
+          pIs.goAhead(tde.getOffset());
+          byte[] buf = new byte[(int) tde.getLength()];
+          pIs.read(buf);
+          glyf.setBufferInputStream(
+            new TtfBufferInputStream(buf, tde.getOffset()));
+          if (this.isShowDebugMessages) {
+            this.logger.debug(null, TtfLoader.class,
+              "Glyf copied into buffer Length: "
+                + glyf.getBufferInputStream().getBuffer().length);
+          }
+        }
+        if (this.isCacheGlyf) {
+          if (pTtf.getLoca() == null) {
+            // the most used standard
+            loadGlyf4Aligned(pTtf, glyf.getBufferInputStream());
+          } else {
+            loadGlyfWithLoca(pTtf, glyf.getBufferInputStream());
+          }
         } else {
-          loadGlyfWithLoca(pTtf, tde, pIs);
+          if (pTtf.getLoca() == null) {
+            // the most used standard
+            loadGlyf4Aligned(pTtf, pIs);
+          } else {
+            loadGlyfWithLoca(pTtf, pIs);
+          }
         }
       } else if (tde.getTagString()
         .equals(this.ttfConstants.getTagHmtx())) {
@@ -320,33 +375,11 @@ public class TtfLoader implements ITtfLoader {
   /**
    * <p>Glyf loader with loca.</p>
    * @param pTtf font
-   * @param pTde table entry
    * @param pIs input stream
    * @throws Exception an Exception
    **/
   public final void loadGlyfWithLoca(final TtfFont pTtf,
-    final TtfTableDirEntry pTde,
-      final TtfInputStream pIs) throws Exception {
-    TtfGlyf glyf = new TtfGlyf(pTde);
-    glyf.setGlyphs(new ArrayList<Glyph>());
-    glyf.setCompoundGlyphs(new ArrayList<CompoundGlyph>());
-    pTtf.setGlyf(glyf);
-    TableForEmbeddingGlyf tfe =
-      new TableForEmbeddingGlyf(pTde, pTtf);
-    tfe.setTdeMaker(this.tdeMaker);
-    tfe.setTableMaker(this.tableMakerGlyf);
-    pTtf.getTablesForEmbedding().add(tfe);
-    loadGlyfWithLoca(pTtf, pIs);
-  }
-
-  /**
-   * <p>Glyf loader with loca.</p>
-   * @param pTtf font
-   * @param pIs input stream
-   * @throws Exception an Exception
-   **/
-  public final void loadGlyfWithLoca(final TtfFont pTtf,
-      final TtfInputStream pIs) throws Exception {
+      final ITtfInputStream pIs) throws Exception {
     TtfGlyf glyf = pTtf.getGlyf();
     int gidsTotal;
     if (pTtf.getMaxp() != null) {
@@ -415,6 +448,7 @@ public class TtfLoader implements ITtfLoader {
           }
         } catch (Exception e) {
           e.printStackTrace();
+          this.wrongGti = gid;
           this.logger.error(null, TtfLoader.class,
           "Error during process glyf from loca, wrong GID: " + gid);
           int start = Math.max(0, glyf.getGlyphs().size() - 6);
@@ -449,38 +483,29 @@ public class TtfLoader implements ITtfLoader {
    * NanumGothic has Œ glyph#18269 length 154 bytes (not 4bytes aligned)
    * but loca is placed before glyf.</p>
    * @param pTtf font
-   * @param pTde table entry
    * @param pIs input stream
    * @throws Exception an Exception
    **/
   public final void loadGlyf4Aligned(final TtfFont pTtf,
-    final TtfTableDirEntry pTde,
-      final TtfInputStream pIs) throws Exception {
-    TtfGlyf glyf = new TtfGlyf(pTde);
-    glyf.setGlyphs(new ArrayList<Glyph>());
-    glyf.setCompoundGlyphs(new ArrayList<CompoundGlyph>());
-    pTtf.setGlyf(glyf);
-    TableForEmbeddingGlyf tfe =
-      new TableForEmbeddingGlyf(pTde, pTtf);
-    tfe.setTdeMaker(this.tdeMaker);
-    tfe.setTableMaker(this.tableMakerGlyf);
-    pTtf.getTablesForEmbedding().add(tfe);
-    pIs.goAhead(pTde.getOffset());
+    final ITtfInputStream pIs) throws Exception {
+    pIs.goAhead(pTtf.getGlyf().getTableDirEntry().getOffset());
     int gti = 0;
-    while (pIs.getOffset() - pTde.getOffset() < pTde.getLength()) {
+    while (pIs.getOffset() - pTtf.getGlyf().getTableDirEntry()
+      .getOffset() < pTtf.getGlyf().getTableDirEntry().getLength()) {
       // offset from begin of the glyf
-      long ofst = pIs.getOffset() - pTde.getOffset();
+      long ofst = pIs.getOffset() - pTtf.getGlyf().getTableDirEntry()
+        .getOffset();
       short numberOfContours = pIs.readSInt16();
       Glyph glyph;
       CompoundGlyph cGlyph = null;
       if (numberOfContours < 0) { //compound
         cGlyph = new CompoundGlyph();
         cGlyph.setPartsGids(new HashSet<Character>());
-        glyf.getCompoundGlyphs().add(cGlyph);
+        pTtf.getGlyf().getCompoundGlyphs().add(cGlyph);
         glyph = cGlyph;
       } else {
         glyph = new Glyph();
-        glyf.getGlyphs().add(glyph);
+        pTtf.getGlyf().getGlyphs().add(glyph);
       }
       glyph.setOffset(ofst);
       short xMin = pIs.readFWord();
@@ -494,7 +519,8 @@ public class TtfLoader implements ITtfLoader {
           skipSimpleGlyph(glyph, pIs, numberOfContours, gti + this.logGtiDelta);
         }
         // padding zeros at the end of glyph for 4byte aligned
-        int mod4 = (int) (pIs.getOffset() - pTde.getOffset()) % 4;
+        int mod4 = (int) (pIs.getOffset() - pTtf.getGlyf().getTableDirEntry()
+          .getOffset()) % 4;
         if (mod4 != 0) {
           pIs.readUInt8Arr(4 - mod4);
           if (this.isShowDebugMessages && 4 <= this.logDetailLevel
@@ -504,8 +530,8 @@ public class TtfLoader implements ITtfLoader {
               "Added padding zeros/gti " + (4 - mod4) + "/" + gti);
           }
         }
-        glyph.setLength(pIs.getOffset() - pTde.getOffset()
-          - glyph.getOffset());
+        glyph.setLength(pIs.getOffset() - pTtf.getGlyf().getTableDirEntry()
+          .getOffset() - glyph.getOffset());
         if (this.isShowDebugMessages && 4 <= this.logDetailLevel
           && this.logGids != null
             && this.logGids.contains(gti + this.logGtiDelta)) {
@@ -528,11 +554,11 @@ public class TtfLoader implements ITtfLoader {
         this.logger.error(null, TtfLoader.class,
         "Error during process glyf, wrongGti: " + this.wrongGti);
         int start = Math.max(0, gti + this.logGtiDelta);
-        for (int i = start; i < glyf.getGlyphs().size() - 1; i++) {
+        for (int i = start; i < pTtf.getGlyf().getGlyphs().size() - 1; i++) {
           this.logger.error(null, TtfLoader.class,
-            "glyph, gti/yMax/offset/length: " + i + "/" + glyf.getGlyphs()
-              .get(i).getMaxY() + "/" + glyf.getGlyphs().get(i).getOffset()
-                + "/" + glyf.getGlyphs().get(i).getLength());
+        "glyph, gti/yMax/offset/length: " + i + "/" + pTtf.getGlyf().getGlyphs()
+        .get(i).getMaxY() + "/" + pTtf.getGlyf().getGlyphs().get(i).getOffset()
+          + "/" + pTtf.getGlyf().getGlyphs().get(i).getLength());
         }
         this.logger.error(null, TtfLoader.class,
           "Wrong glyph, gti/contours/xMin/yMin/xMax/yMax/offset/length: "
@@ -558,22 +584,23 @@ public class TtfLoader implements ITtfLoader {
    * @throws Exception an Exception
    **/
   public final void skipSimpleGlyph(final Glyph pGlyph,
-    final TtfInputStream pIs,
+    final ITtfInputStream pIs,
       final int pNumContours, final int pGti) throws Exception {
     int[] endPtsOfContours = pIs.readUInt16Arr(pNumContours);
     int totalPoints = endPtsOfContours[pNumContours - 1] + 1; //points#from 0
-    if (this.isShowDebugMessages && 4 <= this.logDetailLevel
-      && this.logGids != null && this.logGids.contains(pGti)) {
-      this.logger.debug(null, TtfLoader.class,
-      "simple glyph gti + delta/numContours/points/delta " + pGti + "/"
-        + pNumContours + "/" + totalPoints + "/" + this.logGtiDelta);
-    }
     if (pNumContours == 1 && totalPoints == 0xFFFF) {
       //they say someone marks empty glyph in that way
       return;
     }
     int instructionLength = pIs.readUInt16();
     //uint8 instructions[instructionLength]
+    if (this.isShowDebugMessages && 4 <= this.logDetailLevel
+      && this.logGids != null && this.logGids.contains(pGti)) {
+      this.logger.debug(null, TtfLoader.class,
+      "simple glyph gti + delta/numContours/points/delta/instrLen " + pGti + "/"
+        + pNumContours + "/" + totalPoints + "/" + this.logGtiDelta
+          + "/" + instructionLength);
+    }
     pIs.skip(instructionLength);
     int[] flags = new int[totalPoints];
     for (int i = 0; i < totalPoints; i++) {
@@ -615,7 +642,7 @@ public class TtfLoader implements ITtfLoader {
    * @throws Exception an Exception
    **/
   public final void loadCompoundGlyph(final CompoundGlyph pGlyph,
-      final TtfInputStream pIs) throws Exception {
+      final ITtfInputStream pIs) throws Exception {
     boolean hasMore = false;
     do {
       int flags = pIs.readUInt16();
@@ -1530,5 +1557,21 @@ public class TtfLoader implements ITtfLoader {
    **/
   public final int getWrongGti() {
     return this.wrongGti;
+  }
+
+  /**
+   * <p>Getter for isCacheGlyf.</p>
+   * @return boolean
+   **/
+  public final boolean getIsCacheGlyf() {
+    return this.isCacheGlyf;
+  }
+
+  /**
+   * <p>Setter for isCacheGlyf.</p>
+   * @param pIsCacheGlyf reference
+   **/
+  public final void setIsCacheGlyf(final boolean pIsCacheGlyf) {
+    this.isCacheGlyf = pIsCacheGlyf;
   }
 }

@@ -14,6 +14,7 @@ package org.beigesoft.ttf.service;
 
 import java.util.Map;
 import java.util.List;
+import java.util.Arrays;
 
 import org.beigesoft.log.ILogger;
 import org.beigesoft.ttf.model.Glyph;
@@ -74,16 +75,30 @@ public class TableMakerGlyf implements ITableMaker<TableForEmbeddingGlyf> {
           .getOffsets32()[gid + 1] - gl.getOffset());
       }
       if (gl.getLength() > 0) {
-        pIs.goAhead(pTfe.getSourceTde().getOffset()
-          + gl.getOffset());
-        if (this.isShowDebugMessages && this.logDetailLevel > 114) {
-          this.logger.debug(null, TableMakerGlyf.class,
-            "Copy GID/offsetIs/offsetOs/offset/length " + ((int) gid)
-              + "/" + pIs.getOffset() + "/" + pOs.getSize() + "/"
-                + gl.getOffset() + "/" + gl.getLength());
+        if (pIs != null) {
+          pIs.goAhead(pTfe.getSourceTde().getOffset()
+            + gl.getOffset());
+          if (this.isShowDebugMessages && this.logDetailLevel > 114) {
+            this.logger.debug(null, TableMakerGlyf.class,
+              "Copy GID/offsetIs/offsetOs/offset/length " + ((int) gid)
+                + "/" + pIs.getOffset() + "/" + pOs.getSize() + "/"
+                  + gl.getOffset() + "/" + gl.getLength());
+          }
+          gl.setOffset(pOs.getSize() - pTde.getOffset()); //new CTTF offset
+          pOs.copyBytes(pIs, gl.getLength(), pTde, pCurrLongChksum);
+        } else {
+          if (this.isShowDebugMessages && this.logDetailLevel > 114) {
+            this.logger.debug(null, TableMakerGlyf.class,
+              "Try to copy GID/offsetOs/offset/length " + ((int) gid)
+                + "/" + pOs.getSize() + "/"
+                  + gl.getOffset() + "/" + gl.getLength());
+          }
+          // TTF file size is in int scope:
+          byte[] glypfData = Arrays.copyOfRange(pTfe.getTtf().getGlyf()
+            .getBufferInputStream().getBuffer(), (int) gl.getOffset(),
+              (int) (gl.getOffset() + gl.getLength()));
+          pOs.writeByteArr(glypfData, pTde, pCurrLongChksum);
         }
-        gl.setOffset(pOs.getSize() - pTde.getOffset()); //new CTTF offset
-        pOs.copyBytes(pIs, gl.getLength(), pTde, pCurrLongChksum);
         // padding zeros at the end of glyph for 4byte aligned
         int mod4 = (int) gl.getLength() % 4;
         if (mod4 != 0) {

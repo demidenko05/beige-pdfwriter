@@ -39,6 +39,7 @@ import org.beigesoft.doc.model.Document;
 import org.beigesoft.doc.model.DocTable;
 import org.beigesoft.doc.model.TableCell;
 import org.beigesoft.doc.model.EAlignHorizontal;
+import org.beigesoft.doc.model.EWraping;
 import org.beigesoft.doc.model.EPageSize;
 import org.beigesoft.doc.model.EPageOrientation;
 import org.beigesoft.ttf.model.TtfFont;
@@ -68,6 +69,7 @@ public class WritePdfTableTest {
     this.factory = new PdfFactory();
     this.factory.setLogger(this.logger);
     this.factory.init();
+    this.factory.lazyGetTtfLoader().setIsCacheGlyf(true);
     this.factory.lazyGetTtfLoader().setLogGtiDelta(5);
     this.factory.lazyGetTtfLoader().setLogGids(new LinkedHashSet<Integer>());
     this.factory.lazyGetTtfLoader().getLogGids().add(0);
@@ -107,11 +109,42 @@ public class WritePdfTableTest {
     DocTable<HasPdfContent> dtbl2 = this.docMaker.addDocTable(doc, 3, 3);
     int i = 0;
     for (TableCell cel : dtbl2.getItsCells()) {
-      cel.setItsContent("Cell Cell Cell Cell Cell Cell Cell Cell Cell Cell Cell Cell Cell" + (i++));
+      cel.setItsContent("T2 Cell Cell Cell Cell Cell Cell Cell Cell Cell Cell Cell Cell Cell" + (i++));
     }
     dtbl2.setY1(297.0 - 20.0 - 13);
     dtbl2.setIsY1Fixed(true);
+    DocTable<HasPdfContent> dtbl3 = this.docMaker.addDocTable(doc, 3, 3);
+    i = 0;
+    for (TableCell cel : dtbl3.getItsCells()) {
+      if (i != 1 && i != 5) {
+        cel.setItsContent("T3 Cell Cell Cell Cell Cell Cell Cell Cell Cell Cell Cell Cell Cell");
+      }
+      i++;
+    }
+    dtbl3.getItsCells().get(0).setMergedCell(dtbl3.getItsCells().get(1));
+    dtbl3.getItsCells().get(2).setMergedCell(dtbl3.getItsCells().get(5));
+    DocTable<HasPdfContent> dtbl4 = this.docMaker.addDocTableCustomBorder(doc, 4, 1);
+    dtbl4.getItsCells().get(0).setItsContent("Invoice #");
+    dtbl4.getItsCells().get(0).setAlignHorizontal(EAlignHorizontal.RIGHT);
+    dtbl4.getItsColumns().get(0).setWraping(null);
+    dtbl4.getItsColumns().get(0).setIsWidthFixed(true);
+    dtbl4.getItsColumns().get(0).setWidth(50);
+    dtbl4.getItsCells().get(1).setItsContent("AA-68687");
+    dtbl4.getItsCells().get(1).setIsShowBorderBottom(true);
+    dtbl4.getItsCells().get(2).setItsContent("from");
+    dtbl4.getItsColumns().get(2).setWraping(EWraping.WRAP_CONTENT);
+    dtbl4.getItsCells().get(3).setItsContent("27 Jul 2017");
+    dtbl4.getItsCells().get(3).setIsShowBorderBottom(true);
+    dtbl4.setWraping(null);
+    dtbl4.setIsWidthFixed(true);
+    double contMaxWd = dtbl4.getStartPage().getWidth() - dtbl4.getStartPage()
+      .getMarginLeft() - dtbl4.getStartPage().getMarginRight();
+    dtbl4.setWidth(contMaxWd * 0.7);
     this.docMaker.deriveElements(doc);
+    assertTrue(dtbl4.getItsCells().get(3).getIsShowBorderBottom());
+    assertTrue(dtbl4.getIsThereCellWithCustomBorder());
+    assertTrue(dtbl4.getItsRows().get(0).getBorder() > 0.000001);
+    assertEquals(new Integer(2), dtbl4.getItsRows().get(0).getPageNumber());
     FileOutputStream fos = null;
     this.pdfMaker.prepareBeforeWrite(docPdf);
     this.pdfMaker.setIsCompressed(docPdf, false);

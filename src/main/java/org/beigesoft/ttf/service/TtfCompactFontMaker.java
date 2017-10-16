@@ -72,20 +72,6 @@ public class TtfCompactFontMaker implements ITtfCompactFontMaker {
   public final byte[] make(final Map<String, Object> pAddParam,
     final String pFontName,
       final List<Character> pUsedCids) throws Exception {
-    return makeFromFile(pAddParam, pFontName, pUsedCids);
-  }
-
-  /**
-   * <p>It makes compact TTF font for embedding into PDF from resource file.</p>
-   * @param pAddParam additional params
-   * @param pFontName Font Name (same as TTF file name without ".ttf")
-   * @param pUsedCids used chars
-   * @return result compact for for embedding
-   * @throws Exception an Exception
-   **/
-  public final byte[] makeFromFile(final Map<String, Object> pAddParam,
-    final String pFontName,
-      final List<Character> pUsedCids) throws Exception {
     ITtfSourceStreamer ttfStreamer = this.ttfFontsStreamers.get(pFontName);
     TtfFont ttfFont = this.ttfFonts.get(pFontName);
     String fntPath = this.ttfFontsPaths.get(pFontName);
@@ -93,15 +79,19 @@ public class TtfCompactFontMaker implements ITtfCompactFontMaker {
       throw new ExceptionPdfWr("There is no TTF font data for "
         + pFontName + "!");
     }
-    this.logger.info(null, TtfCompactFontMaker.class,
-      "Loading font " + pFontName);
-    TtfInputStream is = null;
-    try {
-      is = ttfStreamer.makeInputStream(fntPath);
-      return makeFromIs(pAddParam, ttfFont, is, pUsedCids);
-    } finally {
-      if (is != null) {
-        is.close();
+    if (ttfFont.getGlyf().getBufferInputStream() != null) {
+      return makeCompact(pAddParam, ttfFont, null, pUsedCids);
+    } else {
+      this.logger.info(null, TtfCompactFontMaker.class,
+        "Make input stream for font " + pFontName);
+      TtfInputStream is = null;
+      try {
+        is = ttfStreamer.makeInputStream(fntPath);
+        return makeCompact(pAddParam, ttfFont, is, pUsedCids);
+      } finally {
+        if (is != null) {
+          is.close();
+        }
       }
     }
   }
@@ -114,12 +104,12 @@ public class TtfCompactFontMaker implements ITtfCompactFontMaker {
    * cvt, fpgm, gasp, glyf, head, hhea, hmtx, loca, maxp, prep</p>
    * @param pAddParam additional params
    * @param pTtf Font data loaded previously
-   * @param pIs input stream
+   * @param pIs input stream, maybe null if TtfGlyf.buffer != null
    * @param pUsedCids used chars
    * @return result compact for for embedding
    * @throws Exception an Exception
    **/
-  public final byte[] makeFromIs(final Map<String, Object> pAddParam,
+  public final byte[] makeCompact(final Map<String, Object> pAddParam,
     final TtfFont pTtf, final TtfInputStream pIs,
       final List<Character> pUsedCids) throws Exception {
     this.isShowDebugMessages = this.logger
