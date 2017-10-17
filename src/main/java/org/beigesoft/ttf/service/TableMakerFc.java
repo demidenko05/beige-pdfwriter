@@ -76,7 +76,8 @@ public class TableMakerFc implements ITableMaker<TableForEmbeddingBf> {
     if (mod4 != 0) {
       pOs.addZeroBytesToCheksum(4 - mod4, tdeCopy, copyLongChksum);
     }
-    if (pTde.getChecksum() != tdeCopy.getChecksum()) {
+    if (this.isShowDebugMessages
+      && pTde.getChecksum() != tdeCopy.getChecksum()) {
       this.logger.warn(null, TableMakerFc.class,
         "Checksums don't equals: tag/checksum source/checksum real: "
           + pTde.getTagString() + "/" + pTde.getChecksum()

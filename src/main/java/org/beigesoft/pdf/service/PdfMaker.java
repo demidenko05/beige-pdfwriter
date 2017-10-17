@@ -116,12 +116,6 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
     new HashMap<String, String>();
 
   /**
-   * <p>App-scoped TTF PdfFontDescriptor map.</p>
-   **/
-  private final Map<String, PdfFontDescriptor> ttfFontDescriptors =
-    new HashMap<String, PdfFontDescriptor>();
-
-  /**
    * <p>Font directory in resources.</p>
    **/
   private String fontDir;
@@ -316,12 +310,49 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
     ff.setFontName(pFontName);
     ff.setToUnicode(toUni);
     pDoc.getFontFiles().add(ff);
-    TtfFont ttfFont = lazyGetTtfFontAndDescriptor(pFontName);
+    TtfFont ttfFont = lazyGetTtfFont(pFontName);
     pdfFn.setCompoundGlyphs(ttfFont.getGlyf().getCompoundGlyphs());
     cidFnt.setHmtx(ttfFont.getHmtx());
     cidFnt.setUnitsPerEm(ttfFont.getHead().getUnitsPerEm());
     toUni.setUniToCid(ttfFont.getCmap().getUniToCid());
-    PdfFontDescriptor fd = this.ttfFontDescriptors.get(pFontName);
+    PdfFontDescriptor fd = new PdfFontDescriptor();
+    fd.setWriter(this.writerPdfFontDescriptor);
+    fd.setFontName(pFontName);
+    float scaling = 1000f / ttfFont.getHead().getUnitsPerEm();
+    fd.setMinX(ttfFont.getHead().getXMin() * scaling);
+    fd.setMaxX(ttfFont.getHead().getXMax() * scaling);
+    fd.setMinY(ttfFont.getHead().getYMin() * scaling);
+    fd.setMaxY(ttfFont.getHead().getYMax() * scaling);
+    if (ttfFont.getOs2() != null) {
+      fd.setFontWeight(ttfFont.getOs2().getUsWeightClass());
+      fd.setCapHeight(ttfFont.getOs2().getSCapHeight() * scaling);
+      fd.setXHeight(ttfFont.getOs2().getSxHeight() * scaling);
+      fd.setIsItalic7((ttfFont.getOs2().getFsSelection() & 0b1) > 0);
+      switch (ttfFont.getOs2().getSFamilyClass()) {
+        case 1: //OldStyle Serifs
+        case 2: //Transitional Serifs
+        case 3: //Modern Serifs
+        case 4: //Clarendon Serifs
+        case 5: //Slab Serifs
+        case 7: //Freeform Serifs
+        fd.setIsSerif2(true);
+        break;
+        case 10: //Scripts
+        fd.setIsScript4(true);
+        break;
+        default:
+        break;
+      }
+    }
+    if (ttfFont.getHhea() != null) {
+      fd.setAscent(ttfFont.getHhea().getAscent() * scaling);
+      fd.setDescent(ttfFont.getHhea().getDescent() * scaling);
+    }
+    if (ttfFont.getPost() != null) {
+      fd.setIsFixedPitch1(ttfFont.getPost().getIsFixedPitch());
+      fd.setItalicAngle(ttfFont.getPost().getItalicAngle());
+    }
+    fd.evalFlags();
     fd.setFontFile2(ff);
     cidFnt.setFontDescriptor(fd);
     pDoc.getMainDoc().getFonts().add(pdfFn);
@@ -330,14 +361,14 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
   }
 
   /**
-   * <p>Get in lazy mode TTF data from file resource and font descriptor.
+   * <p>Get in lazy mode TTF data from file resource.
    * This is actually private (for internal usage) method.
    * It's public for tests purposes. Font placed in resources.</p>
    * @param pFontName to add
    * @return TTF font data
    * @throws Exception an Exception
    **/
-  public final TtfFont lazyGetTtfFontAndDescriptor(
+  public final TtfFont lazyGetTtfFont(
     final String pFontName) throws Exception {
     TtfFont fnt = this.ttfFonts.get(pFontName);
     if (fnt == null) {
@@ -347,48 +378,9 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
           String path = this.fontDir + pFontName + ".ttf";
           fnt = this.ttfLoader.
             loadFontTtf(pFontName, path, this.ttfTtfResourceStreamer);
-          PdfFontDescriptor fd = new PdfFontDescriptor();
-          fd.setWriter(this.writerPdfFontDescriptor);
-          fd.setFontName(pFontName);
-          float scaling = 1000f / fnt.getHead().getUnitsPerEm();
-          fd.setMinX(fnt.getHead().getXMin() * scaling);
-          fd.setMaxX(fnt.getHead().getXMax() * scaling);
-          fd.setMinY(fnt.getHead().getYMin() * scaling);
-          fd.setMaxY(fnt.getHead().getYMax() * scaling);
-          if (fnt.getOs2() != null) {
-            fd.setFontWeight(fnt.getOs2().getUsWeightClass());
-            fd.setCapHeight(fnt.getOs2().getSCapHeight() * scaling);
-            fd.setXHeight(fnt.getOs2().getSxHeight() * scaling);
-            fd.setIsItalic7((fnt.getOs2().getFsSelection() & 0b1) > 0);
-            switch (fnt.getOs2().getSFamilyClass()) {
-              case 1: //OldStyle Serifs
-              case 2: //Transitional Serifs
-              case 3: //Modern Serifs
-              case 4: //Clarendon Serifs
-              case 5: //Slab Serifs
-              case 7: //Freeform Serifs
-              fd.setIsSerif2(true);
-              break;
-              case 10: //Scripts
-              fd.setIsScript4(true);
-              break;
-              default:
-              break;
-            }
-          }
-          if (fnt.getHhea() != null) {
-            fd.setAscent(fnt.getHhea().getAscent() * scaling);
-            fd.setDescent(fnt.getHhea().getDescent() * scaling);
-          }
-          if (fnt.getPost() != null) {
-            fd.setIsFixedPitch1(fnt.getPost().getIsFixedPitch());
-            fd.setItalicAngle(fnt.getPost().getItalicAngle());
-          }
-          fd.evalFlags();
           this.ttfFonts.put(pFontName, fnt);
           this.ttfFontsPaths.put(pFontName, path);
           this.ttfFontsStreamers.put(pFontName, this.ttfTtfResourceStreamer);
-          this.ttfFontDescriptors.put(pFontName, fd);
         }
       }
     }

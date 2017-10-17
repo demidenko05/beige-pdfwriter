@@ -24,21 +24,34 @@ import org.junit.Test;
 
 import org.beigesoft.log.LoggerSimple;
 import org.beigesoft.pdf.model.HasPdfContent;
+import org.beigesoft.pdf.model.ERegisteredTtfFont;
 import org.beigesoft.pdf.service.PdfFactory;
-import org.beigesoft.doc.service.DocumentMaker;
 
 /**
- * <p>Write Invoice speed tests.
- * for ordinal notebook IntelI3/4GB 64 bit linux/JVM:
- * Test speed invoices count/time in ms: 100/4316
- * .</p>
+ * <p>Write Invoice speed tests. Every invoice takes own thread (taking client's request server side behavior).
+ * Result for ordinal notebook IntelI3/4GB, 64bit desktop linux (non-server), JVM8 64Bit:
+ * <b>Test speed invoices count/time in ms: 100/4316.</b>
+ * Usage with Maven example:
+ * <pre>
+ * mvn exec:java -Dexec.mainClass="org.beigesoft.pdf.sample.WriteInvoiceSpeedTest" -Dexec.args="'/tmp/speed100' 100" -Dexec.classpathScope=test
+ * </pre>
+ * </p>
  *
  * @author Yury Demidenko
  */
 public class WriteInvoiceSpeedTest {
 
+  // server scoped services:
   private PdfFactory factory;
+ 
+  private InvoiceReport invoiceReporter;
+  
+  // test vars:
+  private String dirName = "speed";
+  
+  private int total = 100;
 
+  // test results:
   private int countFinished = 0;
 
   private long lastFinishedTime;
@@ -50,31 +63,49 @@ public class WriteInvoiceSpeedTest {
     this.factory.setLogger(logger);
     this.factory.init();
     this.factory.lazyGetTtfLoader().setIsCacheGlyf(true);
+    // load fonts - simulate state "server already full initialized before taking client's requests":
+    this.factory.lazyGetPdfMaker().lazyGetTtfFont(ERegisteredTtfFont.DEJAVUSANS.toString());
+    this.factory.lazyGetPdfMaker().lazyGetTtfFont(ERegisteredTtfFont.DEJAVUSANS_BOLD.toString());
+    this.invoiceReporter = new InvoiceReport();
+    this.invoiceReporter.setFactory(this.factory);
+  }
+  
+  public static void main(String[] args) throws Exception {
+    if (args.length < 2) {
+      System.err.println("usage: " + WriteInvoiceSpeedTest.class.getName() +
+      "<directory_name> <total_invoices>");
+      System.err.println("example: " + WriteInvoiceSpeedTest.class.getName() +
+      "speed100 100");
+      System.exit(1);
+    }
+    WriteInvoiceSpeedTest wist = new WriteInvoiceSpeedTest();
+    wist.dirName = args[0];
+    wist.total = Integer.parseInt(args[1]);
+    wist.testToNPdf();
   }
   
   @Test
   public void testToNPdf() throws Exception {
-    File dir = new File("speed");
+    File dir = new File(this.dirName);
     if (!dir.exists()) {
       dir.mkdir();
     }
-    int total = 100;
     long startTime = System.currentTimeMillis();
-    for (int i = 0; i < total; i++) {
+    for (int i = 0; i < this.total; i++) {
       WriterInvoiceSp wis = new WriterInvoiceSp();
       wis.setIdx(i);
       wis.start();
     }
     boolean isEnded = false;
     while (!isEnded) {
-      Thread.sleep(20);
+      Thread.sleep(200);
       synchronized (this) {
-        isEnded = (this.countFinished >= total);
+        isEnded = (this.countFinished >= this.total);
       }
     }
-    assertTrue(this.countFinished == total);
+    assertTrue(this.countFinished == this.total);
     System.out.println("Test speed invoices count/time in ms: "
-      + total + "/" + (this.lastFinishedTime - startTime));
+      + this.total + "/" + (this.lastFinishedTime - startTime));
   }
   
   public void makePdf(int pIdx) throws Exception {
@@ -110,12 +141,10 @@ public class WriteInvoiceSpeedTest {
       im.setTotalTaxes(im.getTotalTaxes().add(ilm.getTotalTaxes()));
       im.setTotal(im.getTotal().add(ilm.getTotal()));
     }
-    InvoiceReport ir = new InvoiceReport();
-    ir.setFactory(this.factory);
     FileOutputStream fos = null;
     try {
-      fos = new FileOutputStream("speed" + File.separator + "invoice" + im.getItsNumber() + ".pdf");
-      ir.makePdf(im, fos);
+      fos = new FileOutputStream(this.dirName + File.separator + "invoice" + im.getItsNumber() + ".pdf");
+      this.invoiceReporter.makePdf(im, fos);
     } finally {
       if (fos != null) {
         fos.close();
@@ -133,7 +162,7 @@ public class WriteInvoiceSpeedTest {
         WriteInvoiceSpeedTest.this.makePdf(this.idx);
         synchronized (WriteInvoiceSpeedTest.this) {
           WriteInvoiceSpeedTest.this.countFinished++;
-          WriteInvoiceSpeedTest.this.lastFinishedTime = System.currentTimeMillis();;
+          WriteInvoiceSpeedTest.this.lastFinishedTime = System.currentTimeMillis();
         }
       } catch (Exception e) {
         synchronized (WriteInvoiceSpeedTest.this) {

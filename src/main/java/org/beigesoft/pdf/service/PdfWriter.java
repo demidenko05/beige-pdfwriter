@@ -106,9 +106,12 @@ public class PdfWriter<WI> implements IPdfWriter<WI> {
       writenCount += obj.write(pOut);
     }
     // PDF xref:
+    int totalObjects = pDoc.getPdfObjects().size() + pDoc.getPdfToUnicodes()
+      .size() + pDoc.getCidType2Fonts().size()  + pDoc.getFontDescriptors()
+        .size() + pDoc.getFontFiles().size();
     pDoc.getPdfXref().setStart(writenCount);
     getWriteHelper().writeBytes(getWriteHelper().getXrefLf(), pOut);
-    String rangeStr = "0 " + pDoc.getPdfObjects().size() + "\n";
+    String rangeStr = "0 " + (totalObjects + 1) + "\n";
     getWriteHelper()
       .writeBytes(rangeStr.getBytes(getWriteHelper().getAscii()), pOut);
     getWriteHelper().writeBytes(getWriteHelper().getXref1EntryLf(), pOut);
@@ -119,9 +122,37 @@ public class PdfWriter<WI> implements IPdfWriter<WI> {
       getWriteHelper()
         .writeBytes(xrefEntryStr.getBytes(getWriteHelper().getAscii()), pOut);
     }
+    for (IPdfObject obj : pDoc.getPdfToUnicodes()) {
+      String xrefEntryStr =
+        String.format("%010d", obj.getStart()) + " "
+          + String.format("%05d", obj.getGenNumber()) + " n\n";
+      getWriteHelper()
+        .writeBytes(xrefEntryStr.getBytes(getWriteHelper().getAscii()), pOut);
+    }
+    for (IPdfObject obj : pDoc.getCidType2Fonts()) {
+      String xrefEntryStr =
+        String.format("%010d", obj.getStart()) + " "
+          + String.format("%05d", obj.getGenNumber()) + " n\n";
+      getWriteHelper()
+        .writeBytes(xrefEntryStr.getBytes(getWriteHelper().getAscii()), pOut);
+    }
+    for (IPdfObject obj : pDoc.getFontDescriptors()) {
+      String xrefEntryStr =
+        String.format("%010d", obj.getStart()) + " "
+          + String.format("%05d", obj.getGenNumber()) + " n\n";
+      getWriteHelper()
+        .writeBytes(xrefEntryStr.getBytes(getWriteHelper().getAscii()), pOut);
+    }
+    for (IPdfObject obj : pDoc.getFontFiles()) {
+      String xrefEntryStr =
+        String.format("%010d", obj.getStart()) + " "
+          + String.format("%05d", obj.getGenNumber()) + " n\n";
+      getWriteHelper()
+        .writeBytes(xrefEntryStr.getBytes(getWriteHelper().getAscii()), pOut);
+    }
     // PDF trailer:
     getWriteHelper().writeBytes(getWriteHelper().getTrailerStart(), pOut);
-    String sizeStr = String.valueOf(pDoc.getPdfObjects().size()) + "\n";
+    String sizeStr = String.valueOf(totalObjects + 1) + "\n";
     getWriteHelper()
       .writeBytes(sizeStr.getBytes(getWriteHelper().getAscii()), pOut);
     String rootStr = "/Root "
