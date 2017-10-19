@@ -1,7 +1,7 @@
 package org.beigesoft.pdf.service;
 
 /*
- * Copyright (c) 2015-2017 Beigesoft ™
+ * Copyright (c) 2017 Beigesoft ™
  *
  * Licensed under the GNU General Public License (GPL), Version 2.0
  * (the "License");
@@ -50,6 +50,7 @@ import org.beigesoft.pdf.model.PdfCidFontType2;
 import org.beigesoft.pdf.model.PdfContent;
 import org.beigesoft.pdf.model.PdfFontDescriptor;
 import org.beigesoft.pdf.model.PdfFontFile;
+import org.beigesoft.pdf.model.PdfImage;
 import org.beigesoft.pdf.model.PdfFontType0;
 import org.beigesoft.pdf.model.PdfFontType1S14;
 import org.beigesoft.pdf.model.PdfInfo;
@@ -322,6 +323,14 @@ public interface IPdfFactory<WI> {
    **/
   IWriterPdfObject<PdfFontFile>
     lazyGetWriterPdfFontFile() throws Exception;
+
+  /**
+   * <p>Getter for writerPdfImage.</p>
+   * @return WriterPdfImage
+   * @throws Exception an Exception
+   **/
+  IWriterPdfObject<PdfImage>
+    lazyGetWriterPdfImage() throws Exception;
 
   /**
    * <p>Getter for writerPdfFontType0.</p>

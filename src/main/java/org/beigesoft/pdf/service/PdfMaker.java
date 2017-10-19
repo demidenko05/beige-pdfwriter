@@ -1,7 +1,7 @@
 package org.beigesoft.pdf.service;
 
 /*
- * Copyright (c) 2015-2017 Beigesoft ™
+ * Copyright (c) 2017 Beigesoft ™
  *
  * Licensed under the GNU General Public License (GPL), Version 2.0
  * (the "License");
@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Collections;
 
+import org.beigesoft.doc.model.DocImage;
 import org.beigesoft.doc.model.DocString;
 import org.beigesoft.doc.model.DocPage;
 import org.beigesoft.doc.model.IElement;
@@ -34,6 +35,7 @@ import org.beigesoft.pdf.model.IHasPdfContent;
 import org.beigesoft.pdf.model.IPdfObject;
 import org.beigesoft.pdf.model.PdfCidFontType2;
 import org.beigesoft.pdf.model.PdfFontFile;
+import org.beigesoft.pdf.model.PdfImage;
 import org.beigesoft.pdf.model.PdfFontType0;
 import org.beigesoft.pdf.model.PdfFontType1S14;
 import org.beigesoft.pdf.model.APdfStream;
@@ -89,6 +91,11 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
   private WriterPdfFontFile writerPdfFontFile;
 
   /**
+   * <p>Writer of PdfImage.</p>
+   **/
+  private WriterPdfImage writerPdfImage;
+
+  /**
    * <p>Writer of PdfFontType0.</p>
    **/
   private WriterPdfFontType0 writerPdfFontType0;
@@ -123,12 +130,12 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
   /**
    * <p>Resource streamer.</p>
    **/
-  private ITtfSourceStreamer ttfTtfResourceStreamer;
+  private ITtfSourceStreamer ttfResourceStreamer;
 
   /**
    * <p>File streamer.</p>
    **/
-  private ITtfSourceStreamer ttfTtfFileStreamer;
+  private ITtfSourceStreamer ttfFileStreamer;
 
   /**
    * <p>Prepare before write.</p>
@@ -199,6 +206,10 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
     lastIdx += pDoc.getFontDescriptors().size();
     for (int i = 0; i < pDoc.getFontFiles().size(); i++) {
       pDoc.getFontFiles().get(i).setNumber(lastIdx + i + 1);
+    }
+    lastIdx += pDoc.getFontFiles().size();
+    for (int i = 0; i < pDoc.getImages().size(); i++) {
+      pDoc.getImages().get(i).setNumber(lastIdx + i + 1);
     }
   }
 
@@ -273,6 +284,22 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
     pDoc.getMainDoc().setFontNumber(pDoc.getMainDoc().getFonts().size());
     pDoc.getResources().getFonts().add(pdfFn);
     pDoc.getPdfObjects().add(pdfFn);
+  }
+
+  /**
+   * <p>Add DocImage.</p>
+   * @param pDoc document
+   * @param pDocImage DocImage
+   * @throws Exception an Exception
+   **/
+  @Override
+  public final void addImage(final PdfDocument<WI> pDoc,
+    final DocImage pDocImage) throws Exception {
+    PdfImage pdfImage = new PdfImage();
+    pdfImage.setDocImage(pDocImage);
+    pdfImage.setWriter(this.writerPdfImage);
+    pDoc.getImages().add(pdfImage);
+    pDoc.getResources().getImages().add(pdfImage);
   }
 
   /**
@@ -377,10 +404,35 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
         if (fnt == null) {
           String path = this.fontDir + pFontName + ".ttf";
           fnt = this.ttfLoader.
-            loadFontTtf(pFontName, path, this.ttfTtfResourceStreamer);
+            loadFontTtf(pFontName, path, this.ttfResourceStreamer);
           this.ttfFonts.put(pFontName, fnt);
           this.ttfFontsPaths.put(pFontName, path);
-          this.ttfFontsStreamers.put(pFontName, this.ttfTtfResourceStreamer);
+          this.ttfFontsStreamers.put(pFontName, this.ttfResourceStreamer);
+        }
+      }
+    }
+    return fnt;
+  }
+
+  /**
+   * <p>Get in lazy mode TTF data from file.</p>
+   * @param pFontName to add
+   * @param pFilePath path full e.g. /home/DejaVu.ttf
+   * @return TTF font data
+   * @throws Exception an Exception
+   **/
+  public final TtfFont lazyGetTtfFontFromFile(
+    final String pFontName, final String pFilePath) throws Exception {
+    TtfFont fnt = this.ttfFonts.get(pFontName);
+    if (fnt == null) {
+      synchronized (this) {
+        fnt = this.ttfFonts.get(pFontName);
+        if (fnt == null) {
+          fnt = this.ttfLoader.
+            loadFontTtf(pFontName, pFilePath, this.ttfFileStreamer);
+          this.ttfFonts.put(pFontName, fnt);
+          this.ttfFontsPaths.put(pFontName, pFilePath);
+          this.ttfFontsStreamers.put(pFontName, this.ttfFileStreamer);
         }
       }
     }
@@ -596,36 +648,53 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
   }
 
   /**
-   * <p>Getter for ttfTtfResourceStreamer.</p>
+   * <p>Getter for ttfResourceStreamer.</p>
    * @return ITtfSourceStreamer
    **/
   public final ITtfSourceStreamer getTtfResourceStreamer() {
-    return this.ttfTtfResourceStreamer;
+    return this.ttfResourceStreamer;
   }
 
   /**
-   * <p>Setter for ttfTtfResourceStreamer.</p>
+   * <p>Setter for ttfResourceStreamer.</p>
    * @param pTtfResourceStreamer reference
    **/
   public final void setTtfResourceStreamer(
     final ITtfSourceStreamer pTtfResourceStreamer) {
-    this.ttfTtfResourceStreamer = pTtfResourceStreamer;
+    this.ttfResourceStreamer = pTtfResourceStreamer;
   }
 
   /**
-   * <p>Getter for ttfTtfFileStreamer.</p>
+   * <p>Getter for ttfFileStreamer.</p>
    * @return ITtfSourceStreamer
    **/
   public final ITtfSourceStreamer getTtfFileStreamer() {
-    return this.ttfTtfFileStreamer;
+    return this.ttfFileStreamer;
   }
 
   /**
-   * <p>Setter for ttfTtfFileStreamer.</p>
+   * <p>Setter for ttfFileStreamer.</p>
    * @param pTtfFileStreamer reference
    **/
   public final void setTtfFileStreamer(
     final ITtfSourceStreamer pTtfFileStreamer) {
-    this.ttfTtfFileStreamer = pTtfFileStreamer;
+    this.ttfFileStreamer = pTtfFileStreamer;
+  }
+
+
+  /**
+   * <p>Getter for writerPdfImage.</p>
+   * @return WriterPdfImage
+   **/
+  public final WriterPdfImage getWriterPdfImage() {
+    return this.writerPdfImage;
+  }
+
+  /**
+   * <p>Setter for writerPdfImage.</p>
+   * @param pWriterPdfImage reference
+   **/
+  public final void setWriterPdfImage(final WriterPdfImage pWriterPdfImage) {
+    this.writerPdfImage = pWriterPdfImage;
   }
 }

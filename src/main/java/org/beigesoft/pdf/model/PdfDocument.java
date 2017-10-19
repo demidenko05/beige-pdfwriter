@@ -1,7 +1,7 @@
 package org.beigesoft.pdf.model;
 
 /*
- * Copyright (c) 2015-2017 Beigesoft ™
+ * Copyright (c) 2017 Beigesoft ™
  *
  * Licensed under the GNU General Public License (GPL), Version 2.0
  * (the "License");
@@ -30,7 +30,7 @@ public class PdfDocument<WI> {
   private int version = 15;
 
   /**
-   * <p>PDF objects except fonts objects depending of content.</p>
+   * <p>PDF objects except fonts, images and resources.</p>
    **/
   private List<IPdfObject> pdfObjects;
 
@@ -53,6 +53,12 @@ public class PdfDocument<WI> {
    * <p>PDF font files owned by PdfFontDescriptor.</p>
    **/
   private List<PdfFontFile> fontFiles;
+
+  /**
+   * <p>PDF images created by ImageWriter during writing content page,
+   * so they are the last, and must be cleared "before PDF writing".</p>
+   **/
+  private List<PdfImage> images;
 
   /**
    * <p>PDF trailer.</p>
@@ -277,5 +283,21 @@ public class PdfDocument<WI> {
    **/
   public final void setPdfInfo(final PdfInfo pPdfInfo) {
     this.pdfInfo = pPdfInfo;
+  }
+
+  /**
+   * <p>Getter for images.</p>
+   * @return List<PdfImage>
+   **/
+  public final List<PdfImage> getImages() {
+    return this.images;
+  }
+
+  /**
+   * <p>Setter for images.</p>
+   * @param pImages reference
+   **/
+  public final void setImages(final List<PdfImage> pImages) {
+    this.images = pImages;
   }
 }

@@ -1,7 +1,7 @@
 package org.beigesoft.pdf.service;
 
 /*
- * Copyright (c) 2015-2017 Beigesoft ™
+ * Copyright (c) 2017 Beigesoft ™
  *
  * Licensed under the GNU General Public License (GPL), Version 2.0
  * (the "License");
@@ -13,6 +13,7 @@ package org.beigesoft.pdf.service;
  */
 
 import org.beigesoft.doc.model.DocPage;
+import org.beigesoft.doc.model.DocImage;
 import org.beigesoft.pdf.model.PdfDocument;
 import org.beigesoft.pdf.model.EFontS14;
 
@@ -68,4 +69,14 @@ public interface IPdfMaker<WI> {
    **/
   void addFontTtf(PdfDocument<WI> pDoc,
     String pFontName) throws Exception;
+
+
+  /**
+   * <p>Add DocImage.</p>
+   * @param pDoc document
+   * @param pDocImage DocImage
+   * @throws Exception an Exception
+   **/
+  void addImage(PdfDocument<WI> pDoc,
+    DocImage pDocImage) throws Exception;
 }

@@ -12,7 +12,7 @@
   <suppress checks="MagicNumberCheck"
     files="TdeMaker|TableMakerHhea|TableMakerMaxp|TableMakerLoca|TableMakerGlyf|TtfHhea|TtfHead|TtfMaxp|TableMakerFc"/>
   <suppress checks="MagicNumberCheck"
-    files="StringWriter|TtfBufferInputStream"/>
+    files="StringWriter|TtfBufferInputStream|WriterPdfImage"/>
   <!--protected useful for increments e.g. "size++"-->
   <suppress checks="VisibilityModifier"
     files="ATtfOutputStream"/>

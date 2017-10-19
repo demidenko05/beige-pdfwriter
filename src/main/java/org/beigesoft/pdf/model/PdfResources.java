@@ -1,7 +1,7 @@
 package org.beigesoft.pdf.model;
 
 /*
- * Copyright (c) 2015-2017 Beigesoft ™
+ * Copyright (c) 2017 Beigesoft ™
  *
  * Licensed under the GNU General Public License (GPL), Version 2.0
  * (the "License");
@@ -26,6 +26,11 @@ public class PdfResources extends APdfObject<PdfResources> {
    **/
   private List<IPdfObject> fonts;
 
+  /**
+   * <p>Images dictionary.</p>
+   **/
+  private List<IPdfObject> images;
+
   //Simple getters and setters:
   /**
    * <p>Getter for fonts.</p>
@@ -41,5 +46,21 @@ public class PdfResources extends APdfObject<PdfResources> {
    **/
   public final void setFonts(final List<IPdfObject> pFonts) {
     this.fonts = pFonts;
+  }
+
+  /**
+   * <p>Getter for images.</p>
+   * @return List<IPdfObject>
+   **/
+  public final List<IPdfObject> getImages() {
+    return this.images;
+  }
+
+  /**
+   * <p>Setter for images.</p>
+   * @param pImages reference
+   **/
+  public final void setImages(final List<IPdfObject> pImages) {
+    this.images = pImages;
   }
 }

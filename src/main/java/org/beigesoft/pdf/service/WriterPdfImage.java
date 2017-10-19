@@ -17,15 +17,14 @@ import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 
 import org.beigesoft.zlib.IZLibStreamer;
-import org.beigesoft.ttf.service.ITtfCompactFontMaker;
-import org.beigesoft.pdf.model.PdfFontFile;
+import org.beigesoft.pdf.model.PdfImage;
 
 /**
  * <p>PDF font file stream writer.</p>
  *
  * @author Yury Demidenko
  */
-public class WriterPdfFontFile extends AWriterPdfObject<PdfFontFile> {
+public class WriterPdfImage extends AWriterPdfObject<PdfImage> {
 
   /**
    * <p>ZLib Streamer.</p>
@@ -33,24 +32,37 @@ public class WriterPdfFontFile extends AWriterPdfObject<PdfFontFile> {
   private IZLibStreamer zLibStreamer;
 
   /**
-   * <p>It makes compact TTF font for embedding into PDF.</p>
-   **/
-  private ITtfCompactFontMaker compactFontMaker;
-
-  /**
    * <p>Write object to stream and return bytes count.</p>
-   * @param pPdfObj PdfFontFile
+   * @param pPdfObj PdfImage
    * @param pOut stream
    * @return bytes count
    * @throws an Exception
    **/
   @Override
-  public final int write(final PdfFontFile pPdfObj,
+  public final int write(final PdfImage pPdfObj,
     final OutputStream pOut) throws Exception {
-    byte[] fntCompact = this.compactFontMaker
-      .make(null, pPdfObj.getFontName(), pPdfObj.getToUnicode().getUsedCids());
+    int wd = pPdfObj.getDocImage().getImage().getWidth();
+    int ht = pPdfObj.getDocImage().getImage().getHeight();
+    int sz = 3 * wd * ht;
+    byte[] samples = new byte[sz];
+    int smpIdx = 0;
+    for (int y = 0; y < ht; y++) {
+      for (int x = 0; x < wd; x++) {
+        int rgb = pPdfObj.getDocImage().getImage().getRgb(x, y);
+        int red = rgb & 0x00FF0000;
+        red >>= 16;
+        samples[smpIdx] = (byte) red;
+        smpIdx++;
+        int green = rgb & 0x0000FF00;
+        green >>= 8;
+        samples[smpIdx] = (byte) green;
+        smpIdx++;
+        samples[smpIdx] = (byte) (rgb & 0x000000FF);
+        smpIdx++;
+      }
+    }
     ByteArrayOutputStream os = new ByteArrayOutputStream();
-    ByteArrayInputStream is = new ByteArrayInputStream(fntCompact);
+    ByteArrayInputStream is = new ByteArrayInputStream(samples);
     this.zLibStreamer.compress(null, is, os);
     byte[] cont = os.toByteArray();
     //write to stream:
@@ -63,10 +75,21 @@ public class WriterPdfFontFile extends AWriterPdfObject<PdfFontFile> {
     bytesWritten += getWriteHelper().writeBytes(btsGenNumSp, pOut);
     bytesWritten += getWriteHelper()
       .writeBytes(getWriteHelper().getStartObj(), pOut);
+    bytesWritten += getWriteHelper().writeBytes("/Type /XObject\n"
+      .getBytes(getWriteHelper().getAscii()), pOut);
+    bytesWritten += getWriteHelper().writeBytes("/Subtype /Image\n"
+      .getBytes(getWriteHelper().getAscii()), pOut);
+    bytesWritten += getWriteHelper().writeBytes("/BitsPerComponent 8\n"
+      .getBytes(getWriteHelper().getAscii()), pOut);
+    bytesWritten += getWriteHelper().writeBytes(("/Width " + wd + "\n")
+        .getBytes(getWriteHelper().getAscii()), pOut);
+    bytesWritten += getWriteHelper().writeBytes(("/Height " + ht + "\n")
+        .getBytes(getWriteHelper().getAscii()), pOut);
+    bytesWritten += getWriteHelper().writeBytes("/ColorSpace /DeviceRGB\n"
+      .getBytes(getWriteHelper().getAscii()), pOut);
     bytesWritten += getWriteHelper().writeBytes("/Filter /FlateDecode\n"
       .getBytes(getWriteHelper().getAscii()), pOut);
-    String startStr = "/Length " + cont.length + "\n"
-      + "/Length1 " + fntCompact.length;
+    String startStr = "/Length " + cont.length + "\n";
     bytesWritten += getWriteHelper()
       .writeBytes(startStr.getBytes(getWriteHelper().getAscii()), pOut);
     bytesWritten += getWriteHelper()
@@ -97,20 +120,4 @@ public class WriterPdfFontFile extends AWriterPdfObject<PdfFontFile> {
     this.zLibStreamer = pZLibStreamer;
   }
 
-  /**
-   * <p>Getter for compactFontMaker.</p>
-   * @return ITtfCompactFontMaker
-   **/
-  public final ITtfCompactFontMaker getCompactFontMaker() {
-    return this.compactFontMaker;
-  }
-
-  /**
-   * <p>Setter for compactFontMaker.</p>
-   * @param pCompactFontMaker reference
-   **/
-  public final void setCompactFontMaker(
-    final ITtfCompactFontMaker pCompactFontMaker) {
-    this.compactFontMaker = pCompactFontMaker;
-  }
 }

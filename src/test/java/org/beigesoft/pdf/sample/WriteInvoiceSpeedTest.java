@@ -1,7 +1,7 @@
 package org.beigesoft.pdf.sample;
 
 /*
- * Copyright (c) 2015-2017 Beigesoft ™
+ * Copyright (c) 2017 Beigesoft ™
  *
  * Licensed under the GNU General Public License (GPL), Version 2.0
  * (the "License");
@@ -66,6 +66,8 @@ public class WriteInvoiceSpeedTest {
     // load fonts - simulate state "server already full initialized before taking client's requests":
     this.factory.lazyGetPdfMaker().lazyGetTtfFont(ERegisteredTtfFont.DEJAVUSANS.toString());
     this.factory.lazyGetPdfMaker().lazyGetTtfFont(ERegisteredTtfFont.DEJAVUSANS_BOLD.toString());
+    //this.factory.lazyGetPdfMaker().lazyGetTtfFontFromFile(ERegisteredTtfFont.DEJAVUSANS_BOLD.toString(),
+      //"/archive/fonts/Dejavu/dejavu-fonts-ttf-2.37/ttf/DejaVuSans-Bold.ttf");
     this.invoiceReporter = new InvoiceReport();
     this.invoiceReporter.setFactory(this.factory);
   }

@@ -12,32 +12,34 @@ package org.beigesoft.pdf.model;
  * http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
  */
 
+import org.beigesoft.doc.model.DocImage;
+
 /**
- * <p>PDF xref model.</p>
+ * <p>PDF image stream model.</p>
  *
  * @author Yury Demidenko
  */
-public class PdfXref {
+public class PdfImage extends APdfObject<PdfImage> {
 
   /**
-   * <p>Start.</p>
+   * <p>Image.</p>
    **/
-  private Integer start;
+  private DocImage docImage;
 
   //Simple getters and setters:
   /**
-   * <p>Getter for start.</p>
-   * @return Integer
+   * <p>Getter for image.</p>
+   * @return DocImage
    **/
-  public final Integer getStart() {
-    return this.start;
+  public final DocImage getDocImage() {
+    return this.docImage;
   }
 
   /**
-   * <p>Setter for start.</p>
-   * @param pStart reference
+   * <p>Setter for image.</p>
+   * @param pDocImage reference
    **/
-  public final void setStart(final Integer pStart) {
-    this.start = pStart;
+  public final void setDocImage(final DocImage pDocImage) {
+    this.docImage = pDocImage;
   }
 }

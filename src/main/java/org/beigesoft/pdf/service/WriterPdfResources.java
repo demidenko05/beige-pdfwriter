@@ -1,7 +1,7 @@
 package org.beigesoft.pdf.service;
 
 /*
- * Copyright (c) 2015-2017 Beigesoft ™
+ * Copyright (c) 2017 Beigesoft ™
  *
  * Licensed under the GNU General Public License (GPL), Version 2.0
  * (the "License");
@@ -48,6 +48,16 @@ public class WriterPdfResources extends AWriterPdfObject<PdfResources> {
       for (int i = 0; i < pPdfObj.getFonts().size(); i++) {
         sb.append("/F" + (i + 1) + " " + pPdfObj.getFonts().get(i).getNumber()
           + " " + pPdfObj.getFonts().get(i).getGenNumber() + " R ");
+      }
+      sb.append(">>\n");
+      bytesWritten += getWriteHelper()
+        .writeBytes(sb.toString().getBytes(getWriteHelper().getAscii()), pOut);
+    }
+    if (pPdfObj.getImages() != null && pPdfObj.getImages().size() > 0) {
+      sb.append("/XObject << ");
+      for (int i = 0; i < pPdfObj.getImages().size(); i++) {
+        sb.append("/Im" + (i + 1) + " " + pPdfObj.getImages().get(i).getNumber()
+          + " " + pPdfObj.getImages().get(i).getGenNumber() + " R ");
       }
       sb.append(">>\n");
       bytesWritten += getWriteHelper()

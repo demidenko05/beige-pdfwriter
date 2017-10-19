@@ -1,7 +1,7 @@
 package org.beigesoft.pdf.service;
 
 /*
- * Copyright (c) 2015-2017 Beigesoft ™
+ * Copyright (c) 2017 Beigesoft ™
  *
  * Licensed under the GNU General Public License (GPL), Version 2.0
  * (the "License");
@@ -58,6 +58,7 @@ import org.beigesoft.pdf.model.PdfToUnicode;
 import org.beigesoft.pdf.model.PdfCidFontType2;
 import org.beigesoft.pdf.model.PdfFontDescriptor;
 import org.beigesoft.pdf.model.PdfFontFile;
+import org.beigesoft.pdf.model.PdfImage;
 import org.beigesoft.pdf.model.PdfXref;
 import org.beigesoft.pdf.exception.ExceptionPdfWr;
 
@@ -189,6 +190,11 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
   private StringWriter stringWriter;
 
   /**
+   * <p>Image Writer.</p>
+   **/
+  private ImageWriter imageWriter;
+
+  /**
    * <p>Writer of PdfPages.</p>
    **/
   private WriterPdfPages writerPdfPages;
@@ -237,6 +243,11 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
    * <p>Writer of PdfFontFile.</p>
    **/
   private WriterPdfFontFile writerPdfFontFile;
+
+  /**
+   * <p>Writer of PdfImage.</p>
+   **/
+  private WriterPdfImage writerPdfImage;
 
   /**
    * <p>Writer of PdfFontType0.</p>
@@ -372,6 +383,9 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
     this.writerPdfFontFile.setWriteHelper(this.writeHelper);
     this.writerPdfFontFile.setZLibStreamer(this.zLibStreamer);
     this.writerPdfFontFile.setCompactFontMaker(this.compactFontMaker);
+    this.writerPdfImage = new WriterPdfImage();
+    this.writerPdfImage.setWriteHelper(this.writeHelper);
+    this.writerPdfImage.setZLibStreamer(this.zLibStreamer);
     this.writerPdfContent = new WriterPdfContent();
     this.writerPdfContent.setWriteHelper(this.writeHelper);
     this.writerPdfContent.setZLibStreamer(this.zLibStreamer);
@@ -393,6 +407,7 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
     this.pdfMaker.setWriterPdfFontType1S14(this.writerPdfFontType1S14);
     this.pdfMaker.setWriterPdfToUnicode(this.writerPdfToUnicode);
     this.pdfMaker.setWriterPdfPage(this.writerPdfPage);
+    this.pdfMaker.setWriterPdfImage(this.writerPdfImage);
     this.compactFontMaker.setTtfFonts(this.pdfMaker.getTtfFonts());
     this.compactFontMaker
       .setTtfFontsStreamers(this.pdfMaker.getTtfFontsStreamers());
@@ -404,6 +419,10 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
     this.stringWriter.setToHexCoder(this.toHexCoder);
     this.stringWriter.setWriteHelper(this.writeHelper);
     this.fctElement.setWriterString(stringWriter);
+    this.imageWriter = new ImageWriter();
+    this.imageWriter.setUomHelper(this.uomHelper);
+    this.imageWriter.setWriteHelper(this.writeHelper);
+    this.fctElement.setWriterImage(imageWriter);
     this.lineWriter = new LineWriter();
     this.lineWriter.setUomHelper(this.uomHelper);
     this.lineWriter.setWriteHelper(this.writeHelper);
@@ -446,6 +465,7 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
     doc.setCidType2Fonts(new ArrayList<PdfCidFontType2>());
     doc.setFontDescriptors(new ArrayList<PdfFontDescriptor>());
     doc.setFontFiles(new ArrayList<PdfFontFile>());
+    doc.setImages(new ArrayList<PdfImage>());
     PdfInfo pdfInfo = new PdfInfo();
     pdfInfo.setCreationDate(new Date());
     pdfInfo.setWriter(this.writerPdfInfo);
@@ -464,6 +484,7 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
     PdfResources pdfRes = new PdfResources();
     pdfRes.setWriter(this.writerPdfResources);
     pdfRes.setFonts(new ArrayList<IPdfObject>());
+    pdfRes.setImages(new ArrayList<IPdfObject>());
     doc.setResources(pdfRes);
     doc.getPdfObjects().add(pdfRes);
     return doc;
@@ -822,6 +843,16 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
   @Override
   public final WriterPdfFontFile lazyGetWriterPdfFontFile() throws Exception {
     return this.writerPdfFontFile;
+  }
+
+  /**
+   * <p>Getter for writerPdfImage.</p>
+   * @return WriterPdfImage
+   * @throws Exception an Exception
+   **/
+  @Override
+  public final WriterPdfImage lazyGetWriterPdfImage() throws Exception {
+    return this.writerPdfImage;
   }
 
   /**

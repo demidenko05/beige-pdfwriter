@@ -1,7 +1,7 @@
 package org.beigesoft.pdf.service;
 
 /*
- * Copyright (c) 2015-2017 Beigesoft ™
+ * Copyright (c) 2017 Beigesoft ™
  *
  * Licensed under the GNU General Public License (GPL), Version 2.0
  * (the "License");
@@ -21,6 +21,7 @@ import org.beigesoft.pdf.model.PdfCidFontType2;
 import org.beigesoft.pdf.model.PdfFontFile;
 import org.beigesoft.pdf.model.PdfFontDescriptor;
 import org.beigesoft.pdf.model.PdfDocument;
+import org.beigesoft.pdf.model.PdfImage;
 
 /**
  * <p>PDF writer.</p>
@@ -105,10 +106,14 @@ public class PdfWriter<WI> implements IPdfWriter<WI> {
       obj.setStart(writenCount);
       writenCount += obj.write(pOut);
     }
+    for (PdfImage obj : pDoc.getImages()) {
+      obj.setStart(writenCount);
+      writenCount += obj.write(pOut);
+    }
     // PDF xref:
     int totalObjects = pDoc.getPdfObjects().size() + pDoc.getPdfToUnicodes()
       .size() + pDoc.getCidType2Fonts().size()  + pDoc.getFontDescriptors()
-        .size() + pDoc.getFontFiles().size();
+        .size() + pDoc.getFontFiles().size() + pDoc.getImages().size();
     pDoc.getPdfXref().setStart(writenCount);
     getWriteHelper().writeBytes(getWriteHelper().getXrefLf(), pOut);
     String rangeStr = "0 " + (totalObjects + 1) + "\n";
@@ -144,6 +149,13 @@ public class PdfWriter<WI> implements IPdfWriter<WI> {
         .writeBytes(xrefEntryStr.getBytes(getWriteHelper().getAscii()), pOut);
     }
     for (IPdfObject obj : pDoc.getFontFiles()) {
+      String xrefEntryStr =
+        String.format("%010d", obj.getStart()) + " "
+          + String.format("%05d", obj.getGenNumber()) + " n\n";
+      getWriteHelper()
+        .writeBytes(xrefEntryStr.getBytes(getWriteHelper().getAscii()), pOut);
+    }
+    for (IPdfObject obj : pDoc.getImages()) {
       String xrefEntryStr =
         String.format("%010d", obj.getStart()) + " "
           + String.format("%05d", obj.getGenNumber()) + " n\n";

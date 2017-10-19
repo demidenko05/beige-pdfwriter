@@ -15,11 +15,12 @@ package org.beigesoft.pdf.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import org.beigesoft.doc.model.DocLine;
+import org.beigesoft.doc.model.DocImage;
 import org.beigesoft.doc.service.UomHelper;
 import org.beigesoft.doc.service.IElementWriter;
 import org.beigesoft.pdf.model.HasPdfContent;
 import org.beigesoft.pdf.model.PdfContent;
+import org.beigesoft.pdf.model.PdfImage;
 import org.beigesoft.pdf.model.ETextState;
 import org.beigesoft.pdf.model.EGraphicState;
 
@@ -28,8 +29,8 @@ import org.beigesoft.pdf.model.EGraphicState;
  *
  * @author Yury Demidenko
  */
-public class LineWriter
-  implements IElementWriter<DocLine<HasPdfContent>, HasPdfContent> {
+public class ImageWriter
+  implements IElementWriter<DocImage<HasPdfContent>, HasPdfContent> {
 
   /**
    * <p>Write helper.</p>
@@ -43,12 +44,12 @@ public class LineWriter
 
   /**
    * <p>Write element to document page in file.</p>
-   * @param pLn Element
+   * @param pImg Image
    * @param pWi PdfContent
    * @throws Exception an Exception
    **/
   @Override
-  public final void write(final DocLine<HasPdfContent> pLn,
+  public final void write(final DocImage<HasPdfContent> pImg,
     final HasPdfContent pWi) throws Exception {
     PdfContent wi = pWi.getPdfContent();
     if (wi.getTextState().equals(ETextState.STARTED)) {
@@ -57,49 +58,35 @@ public class LineWriter
       wi.setX(null);
       wi.setY(null);
     }
-    if (!wi.getGraphicState().equals(EGraphicState.STARTED)) {
-      wi.getBuffer().write("2 J\n".getBytes(getWriteHelper().getAscii()));
-      wi.setGraphicState(EGraphicState.STARTED);
+    if (wi.getGraphicState().equals(EGraphicState.STARTED)) {
+      wi.getBuffer().write("S\n".getBytes(getWriteHelper().getAscii()));
+      wi.setGraphicState(EGraphicState.ENDED);
     }
-    double lnWdd = this.uomHelper.toPoints(pLn.getWidth(), wi.getDocument()
+    double imgX1d = this.uomHelper.toPoints(pImg.getX1(), wi.getDocument()
       .getMainDoc().getResolutionDpi(), wi.getDocument().getMainDoc()
         .getUnitOfMeasure());
-    BigDecimal lnWd = BigDecimal.valueOf(lnWdd)
+    BigDecimal imgX1 = BigDecimal.valueOf(imgX1d)
       .setScale(2, RoundingMode.HALF_UP);
-    if (wi.getLineWidth().compareTo(lnWd) != 0) {
-      wi.setLineWidth(lnWd);
-      String lnWdStr = lnWd.toString() + " w\n";
-      wi.getBuffer().write(lnWdStr.getBytes(getWriteHelper().getAscii()));
-    }
-    double lnX1d = this.uomHelper.toPoints(pLn.getX1(), wi.getDocument()
-      .getMainDoc().getResolutionDpi(), wi.getDocument().getMainDoc()
-        .getUnitOfMeasure());
-    BigDecimal lnX1 = BigDecimal.valueOf(lnX1d)
-      .setScale(2, RoundingMode.HALF_UP);
-    double lnUY1d = this.uomHelper.toPoints(pLn.getY1(), wi.getDocument()
-      .getMainDoc().getResolutionDpi(), wi.getDocument().getMainDoc()
-        .getUnitOfMeasure());
     double pageHeight = this.uomHelper.toPoints(wi.getPage().getHeight(),
       wi.getDocument().getMainDoc().getResolutionDpi(), wi.getDocument()
         .getMainDoc().getUnitOfMeasure());
-    double lnY1d = pageHeight - lnUY1d;
-    BigDecimal lnY1 = BigDecimal.valueOf(lnY1d)
-      .setScale(2, RoundingMode.HALF_UP);
-    String lnX1Y1Str = lnX1.toString() + " " + lnY1 + " m\n";
-    wi.getBuffer().write(lnX1Y1Str.getBytes(getWriteHelper().getAscii()));
-    double lnX2d = this.uomHelper.toPoints(pLn.getX2(), wi.getDocument()
+    double imgUY1d = this.uomHelper.toPoints(pImg.getY1(), wi.getDocument()
       .getMainDoc().getResolutionDpi(), wi.getDocument().getMainDoc()
         .getUnitOfMeasure());
-    BigDecimal lnX2 = BigDecimal.valueOf(lnX2d)
+    double imgY1d = pageHeight - imgUY1d;
+    BigDecimal imgY1 = BigDecimal.valueOf(imgY1d)
       .setScale(2, RoundingMode.HALF_UP);
-    double lnUY2d = this.uomHelper.toPoints(pLn.getY2(), wi.getDocument()
-      .getMainDoc().getResolutionDpi(), wi.getDocument().getMainDoc()
-        .getUnitOfMeasure());
-    double lnY2d = pageHeight - lnUY2d;
-    BigDecimal lnY2 = BigDecimal.valueOf(lnY2d)
-      .setScale(2, RoundingMode.HALF_UP);
-    String lnX2Y2Str = lnX2.toString() + " " + lnY2 + " l\n";
-    wi.getBuffer().write(lnX2Y2Str.getBytes(getWriteHelper().getAscii()));
+    int imgNum = 1;
+    for (PdfImage pdfImage : wi.getDocument().getImages()) {
+      if (pdfImage.getDocImage().equals(pImg)) {
+        break;
+      }
+      imgNum++;
+    }
+    String img = "q\n" + pImg.getImage().getWidth() * pImg.getScale()
+      + " 0 0 " + pImg.getImage().getHeight() * pImg.getScale()
+        + " " + imgX1 + " " + imgY1 + " cm\n/Im" + imgNum + " Do\nQ\n";
+    wi.getBuffer().write(img.getBytes(getWriteHelper().getAscii()));
   }
 
   //SGS:
