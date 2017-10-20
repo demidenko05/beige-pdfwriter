@@ -25,6 +25,7 @@ import org.beigesoft.log.LoggerSimple;
 import org.beigesoft.pdf.model.HasPdfContent;
 import org.beigesoft.pdf.service.PdfFactory;
 import org.beigesoft.doc.service.DocumentMaker;
+import org.beigesoft.graphic.service.SwingImageLoader;
 
 /**
  * <p>Write Invoice tests.</p>
@@ -41,6 +42,7 @@ public class WriteInvoiceTest {
     this.factory = new PdfFactory();
     this.factory.setLogger(logger);
     this.factory.init();
+    this.factory.lazyGetFctElement().setFctImageRgb(new SwingImageLoader());
   }
   
   @Test
@@ -87,7 +89,7 @@ public class WriteInvoiceTest {
     FileOutputStream fos = null;
     try {
       fos = new FileOutputStream("invoice" + im.getItsNumber() + ".pdf");
-      ir.makePdf(im, fos);
+      ir.makePdf(im, fos, true);
     } finally {
       if (fos != null) {
         fos.close();

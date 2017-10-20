@@ -644,15 +644,22 @@ public class TtfLoader implements ITtfLoader {
   public final void loadCompoundGlyph(final CompoundGlyph pGlyph,
       final ITtfInputStream pIs) throws Exception {
     boolean hasMore = false;
+    //long offsetMax = 9999999999L;
+    //if (pGlyph.getLength() != 0L) { // load with loca, so we can check bounds
+      //offsetMax = pIs.getOffset() + pGlyph.getLength() - 10;
+    //}
     do {
+      //if (pIs.getOffset() + 4 > offsetMax) { break; }
       int flags = pIs.readUInt16();
       int partGid = pIs.readUInt16();
       pGlyph.getPartsGids().add((char) partGid);
       boolean arg1Nad2AreWords = (flags & 0b1) > 0;
       if (arg1Nad2AreWords) {
+        //if (pIs.getOffset() + 4 > offsetMax) { break; }
         pIs.readUInt16(); //argument1
         pIs.readUInt16(); //argument2
       } else {
+        //if (pIs.getOffset() + 2 > offsetMax) { break; }
         pIs.readUInt8(); //argument1
         pIs.readUInt8(); //argument2
       }
@@ -662,11 +669,13 @@ public class TtfLoader implements ITtfLoader {
       } else {
         boolean weHaveAnXAndYScale = (flags & 0b1000000) > 0;
         if (weHaveAnXAndYScale) {
+          //if (pIs.getOffset() + 4 > offsetMax) { break; }
           pIs.readUInt16(); //scale X
           pIs.readUInt16(); //scale Y
         } else {
           boolean weHaveATwoByTo = (flags & 0b10000000) > 0;
           if (weHaveATwoByTo) {
+            //if (pIs.getOffset() + 8 > offsetMax) { break; }
             pIs.readUInt16(); //scale X
             pIs.readUInt16(); //scale01
             pIs.readUInt16(); //scale10
@@ -676,9 +685,11 @@ public class TtfLoader implements ITtfLoader {
       }
       if ((flags & 0b100000000) > 0) {
         int numInstr = pIs.readUInt16();
+        //if (pIs.getOffset() + numInstr > offsetMax) { break; }
         pIs.skip(numInstr); //uint8 instr[numInstr]
       }
       hasMore = (flags & 0b100000) > 0;
+      //if (pIs.getOffset() > offsetMax) { break; }
     } while (hasMore);
   }
 

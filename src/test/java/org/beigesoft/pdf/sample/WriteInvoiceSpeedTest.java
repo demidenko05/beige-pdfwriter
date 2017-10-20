@@ -26,6 +26,7 @@ import org.beigesoft.log.LoggerSimple;
 import org.beigesoft.pdf.model.HasPdfContent;
 import org.beigesoft.pdf.model.ERegisteredTtfFont;
 import org.beigesoft.pdf.service.PdfFactory;
+//import org.beigesoft.graphic.service.SwingImageLoader;
 
 /**
  * <p>Write Invoice speed tests. Every invoice takes own thread (taking client's request server side behavior).
@@ -63,6 +64,7 @@ public class WriteInvoiceSpeedTest {
     this.factory.setLogger(logger);
     this.factory.init();
     this.factory.lazyGetTtfLoader().setIsCacheGlyf(true);
+    //this.factory.lazyGetFctElement().setFctImageRgb(new SwingImageLoader());
     // load fonts - simulate state "server already full initialized before taking client's requests":
     this.factory.lazyGetPdfMaker().lazyGetTtfFont(ERegisteredTtfFont.DEJAVUSANS.toString());
     this.factory.lazyGetPdfMaker().lazyGetTtfFont(ERegisteredTtfFont.DEJAVUSANS_BOLD.toString());
@@ -146,7 +148,7 @@ public class WriteInvoiceSpeedTest {
     FileOutputStream fos = null;
     try {
       fos = new FileOutputStream(this.dirName + File.separator + "invoice" + im.getItsNumber() + ".pdf");
-      this.invoiceReporter.makePdf(im, fos);
+      this.invoiceReporter.makePdf(im, fos, false);
     } finally {
       if (fos != null) {
         fos.close();

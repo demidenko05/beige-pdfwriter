@@ -11,3 +11,5 @@ release.properties
 /maven-central-deploy.sh~
 *.releaseBackup
 *.pdf
+!invoiceA-68687687.pdf
+!test-dejavu-table.pdf

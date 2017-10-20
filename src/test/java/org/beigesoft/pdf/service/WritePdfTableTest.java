@@ -98,6 +98,10 @@ public class WritePdfTableTest {
       fntNm, dtbl.getItsCells().get(0).getFontSize(), 10000.0, 0.0);
     assertEquals(60, msTst.getWidth(), 1);
     DocTable<HasPdfContent> dtbl1 = this.docMaker.addDocTable(doc, 3, 2);
+    dtbl1.getItsColumns().get(0).setPaddingLeft(2);
+    dtbl1.getItsColumns().get(0).setPaddingRight(2);
+    dtbl1.getItsRows().get(0).setPaddingTop(2);
+    dtbl1.getItsRows().get(0).setPaddingBottom(2);
     dtbl1.getItsCells().get(0).setItsContent("Cell0 Cell0 Cell0 Cell0 Cell0 Cell0 Cell0 Cell0 Cell0 Cell0 Cell0");
     dtbl1.getItsCells().get(1).setItsContent("Cell1 Cell1 Cell1 Cell1 Cell1 Cell1 Cell1 Cell1 Cell1 Cell1 Cell1");
     dtbl1.getItsCells().get(2).setItsContent("Cell2 Cell2 Cell2 Cell2 Cell2 Cell2 Cell2 Cell2 Cell2 Cell2 Cell2");

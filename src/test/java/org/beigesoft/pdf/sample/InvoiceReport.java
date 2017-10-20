@@ -19,6 +19,7 @@ import java.util.Date;
 import org.beigesoft.doc.model.EUnitOfMeasure;
 import org.beigesoft.doc.model.Document;
 import org.beigesoft.doc.model.DocTable;
+import org.beigesoft.doc.model.DocImage;
 import org.beigesoft.doc.model.Pagination;
 import org.beigesoft.doc.model.EWraping;
 import org.beigesoft.doc.model.MetricsString;
@@ -53,15 +54,23 @@ public class InvoiceReport<WI> {
    * <p>Write PDF report for given invoice to output stream.</p>
    * @param pInvoice Invoice
    * @param pOus output stream
+   * @param pIsInsertImg if need image demonstration
    **/
   public final void makePdf(final InvoiceModel pInvoice,
-    final OutputStream pOus) throws Exception {
+    final OutputStream pOus, final boolean pIsInsertImg) throws Exception {
     Document<WI> doc = this.factory.lazyGetFctDocument()
       .createDoc(EPageSize.A4, EPageOrientation.PORTRAIT);
     PdfDocument<WI> docPdf = this.factory.createPdfDoc(doc);
     docPdf.getPdfInfo().setAuthor("Beigesoft (TM) Tester");
     IDocumentMaker docMaker = this.factory.lazyGetDocumentMaker();
     IPdfMaker<WI> pdfMaker = this.factory.lazyGetPdfMaker();
+    //just simple image with no mask demonstration:
+    if (pIsInsertImg) {
+      DocImage<WI> dimg2 = docMaker.addImage(doc, "/img/bob-signature.png", 110, 40);
+      dimg2.setScale(0.15);
+      dimg2.setRotateDegrees(10);
+      pdfMaker.addImage(docPdf, dimg2);
+    }
     pdfMaker.addFontTtf(docPdf, ERegisteredTtfFont.DEJAVUSANS_BOLD.toString());
     pdfMaker.addFontTtf(docPdf, ERegisteredTtfFont.DEJAVUSANS.toString());
     double widthNdot = this.factory.lazyGetUomHelper()

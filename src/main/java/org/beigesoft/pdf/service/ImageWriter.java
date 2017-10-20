@@ -83,9 +83,29 @@ public class ImageWriter
       }
       imgNum++;
     }
-    String img = "q\n" + pImg.getImage().getWidth() * pImg.getScale()
-      + " 0 0 " + pImg.getImage().getHeight() * pImg.getScale()
-        + " " + imgX1 + " " + imgY1 + " cm\n/Im" + imgNum + " Do\nQ\n";
+    BigDecimal wd = BigDecimal.valueOf(pImg.getImage().getWidth()
+      * pImg.getScale()).setScale(2, RoundingMode.HALF_UP);
+    BigDecimal ht = BigDecimal.valueOf(pImg.getImage().getHeight()
+      * pImg.getScale()).setScale(2, RoundingMode.HALF_UP);
+    String img;
+    if (pImg.getRotateDegrees() > 0.001) {
+      double rad = Math.toRadians(pImg.getRotateDegrees());
+      BigDecimal cosr = BigDecimal.valueOf(Math.cos(rad))
+        .setScale(4, RoundingMode.HALF_UP);
+      BigDecimal sinr = BigDecimal.valueOf(Math.sin(rad))
+        .setScale(4, RoundingMode.HALF_UP);
+      BigDecimal sinrn = sinr.negate();
+      //translate:
+      img = "q\n 1 0 0 1 " + imgX1 + " " + imgY1 + " cm\n"
+      //rotate:
+        + cosr.toString() + " " + sinr + " " + sinrn + " " + cosr
+          + " " + " 0 0 cm\n"
+      //scale:
+      + wd.toString() + " 0 0 " + ht + " 0 0 cm\n/Im" + imgNum + " Do\nQ\n";
+    } else {
+      img = "q\n" + wd + " 0 0 " + ht + " " + imgX1 + " " + imgY1
+        + " cm\n/Im" + imgNum + " Do\nQ\n";
+    }
     wi.getBuffer().write(img.getBytes(getWriteHelper().getAscii()));
   }
 

@@ -3,10 +3,7 @@ or https://sites.google.com/site/beigesoftware
 
 Beigesoft ™ PDF Writer.
 
-This is light-weight (all JARs size is about 250KB), international friendly and fast PDF writer.
-You will not get performance problems on a high load server application, e.g. if hundred users
-push print (to PDF) button at the same time. It's cross-platform writer - Standard Java and Android.
-There are not 3-d party dependencies except Java, Android and TTF fonts.
+This is light-weight (all JARs size is about 250KB), international friendly and fast PDF writer. You will not get performance problems on a high load server application, e.g. if hundred users push print (to PDF) button at the same time. It's cross-platform writer - Standard Java and Android. There are not 3-d party dependencies except Java, Android and TTF fonts.
 
 For internationalization use free TTF fonts:
 * DejaVu fonts that support a lot of languages - https://dejavu-fonts.github.io
@@ -20,10 +17,11 @@ licenses:
 GNU General Public License version 2
 http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
+Files test-dejavu-table.pdf and invoiceA-68687687.pdf are included into the source code to quickly demonstrate that Beige-PDFWriter can does.
+
 Examples see in the test folder.
 For Android see example https://github.com/demidenko05/beige-graphic-android-test
 org.beigesoft.androidtest.WritePdfImageTest.java
 
-Speed test (org.beigesoft.pdf.sample.WriteInvoiceSpeedTest) shows that 100 invoices (3pages each)
-take less than 4 seconds on ordinal notebook IntelI3/4GB, 64bit desktop linux (non-server), JVM8 64Bit.
+Speed test (org.beigesoft.pdf.sample.WriteInvoiceSpeedTest) shows that 100 invoices (3pages each) take less than 4 seconds on ordinal notebook IntelI3/4GB, 64bit desktop linux (non-server), JVM8 64Bit.
 Doing each invoice takes its own thread.
