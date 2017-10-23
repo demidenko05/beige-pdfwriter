@@ -46,7 +46,7 @@ public class TtfLoaderTest {
   public TtfLoaderTest() throws Exception {
     this.logger = new LoggerSimple();
     this.logger.setIsShowDebugMessages(true);
-    this.logger.setDetailLevel(5);
+    this.logger.setDetailLevel(1005);
     this.factory = new PdfFactory();
     this.factory.setLogger(this.logger);
     this.factory.init();
@@ -54,11 +54,17 @@ public class TtfLoaderTest {
     this.ttfLoader.setLogGtiDelta(5);
     this.ttfLoader.setLogGids(new LinkedHashSet<Integer>());
     this.ttfLoader.getLogGids().add(0);
+    this.ttfLoader.getLogGids().add(1);
+    this.ttfLoader.getLogGids().add(2);
     this.ttfLoader.getLogGids().add(3);
+    this.ttfLoader.getLogGids().add(4);
     this.ttfLoader.getLogGids().add(5);
+    this.ttfLoader.getLogGids().add(6);
+    this.ttfLoader.getLogGids().add(7);
+    this.ttfLoader.getLogGids().add(8);
+    this.ttfLoader.getLogGids().add(9);
     this.ttfLoader.getLogGids().add(10);
     this.ttfLoader.getLogGids().add(15);
-    this.ttfLoader.getLogGids().add(3);
     this.ttfLoader.getLogGids().add(19);
     this.ttfLoader.getLogGids().add(93);
     this.ttfLoader.getLogGids().add(958);
@@ -89,16 +95,22 @@ public class TtfLoaderTest {
     assertEquals((char) 3, ttf.getCmap().getUniToCid().get((char) 32).charValue()); //space
     assertEquals((char) 19, ttf.getCmap().getUniToCid().get((char) 0x30).charValue()); //zero
     assertEquals((char) 93, ttf.getCmap().getUniToCid().get((char) 0x7A).charValue()); //z
-    assertEquals((char) 957, ttf.getCmap().getUniToCid().get((char) 0x429).charValue()); //Щ mvnrepo
-    //assertEquals((char) 958, ttf.getCmap().getUniToCid().get((char) 0x429).charValue()); //Щ new
-    assertEquals((char) 947, ttf.getCmap().getUniToCid().get((char) 0x41F).charValue()); //П
-    //assertEquals((char) 948, ttf.getCmap().getUniToCid().get((char) 0x41F).charValue()); //П
+    //assertEquals((char) 957, ttf.getCmap().getUniToCid().get((char) 0x429).charValue()); //Щ mvnrepo
+    assertEquals((char) 958, ttf.getCmap().getUniToCid().get((char) 0x429).charValue()); //Щ new
+    //assertEquals((char) 947, ttf.getCmap().getUniToCid().get((char) 0x41F).charValue()); //П
+    assertEquals((char) 948, ttf.getCmap().getUniToCid().get((char) 0x41F).charValue()); //П
     assertEquals(0.0, ttf.getPost().getItalicAngle(), 0);
     assertEquals(1303, (int) ttf.getHmtx().getWidths()[19]);
+    ttf = this.ttfLoader.loadFontTtf(ERegisteredTtfFont.DEJAVUSERIF.toString(),
+      this.factory.getFontDir() + ERegisteredTtfFont.DEJAVUSERIF.toString() + ".ttf", this.factory.lazyGetTtfResourceStreamer());
+    ttf = this.ttfLoader.loadFontTtf(ERegisteredTtfFont.DEJAVUSERIF_BOLD.toString(),
+      this.factory.getFontDir() + ERegisteredTtfFont.DEJAVUSERIF_BOLD.toString() + ".ttf", this.factory.lazyGetTtfResourceStreamer());
+    ttf = this.ttfLoader.loadFontTtf("LiberationMono-Regular",
+      this.factory.getFontDir() + "LiberationMono-Regular.ttf", this.factory.lazyGetTtfResourceStreamer());
+    ttf = this.ttfLoader.loadFontTtf("LiberationSerif-Regular",
+      this.factory.getFontDir() + "LiberationSerif-Regular.ttf", this.factory.lazyGetTtfResourceStreamer());
     /*ttf = this.ttfLoader.loadFontTtf("DejaVuSansMono",
       this.factory.getFontDir() + "DejaVuSansMono.ttf", this.factory.lazyGetTtfResourceStreamer());
-    ttf = this.ttfLoader.loadFontTtf("LiberationSans-Regular",
-      this.factory.getFontDir() + "LiberationSans-Regular.ttf", this.factory.lazyGetTtfResourceStreamer());
     ttf = this.ttfLoader.loadFontTtf(ERegisteredTtfFont.VL_GOTHIC_REGULAR.toString(),
       this.factory.getFontDir() + ERegisteredTtfFont.VL_GOTHIC_REGULAR.toString() + ".ttf", this.factory.lazyGetTtfResourceStreamer());
     assertEquals(this.ttfLoader.getTtfConstants().getScalerTypeMsw(), ttf.getScalerType());
@@ -108,14 +120,12 @@ public class TtfLoaderTest {
     //assertEquals((char) 21, ttf.getCmap().getUniToCid().get((char) 0x30).charValue()); //zero
     //assertEquals((char) 95, ttf.getCmap().getUniToCid().get((char) 0x7A).charValue()); //z
     //assertEquals((char) 10516, ttf.getCmap().getUniToCid().get((char) 0x7B72).charValue()); //筲
-    //assertEquals((char) 11367, ttf.getCmap().getUniToCid().get((char) 0x812F).charValue()); //脯*/
+    //assertEquals((char) 11367, ttf.getCmap().getUniToCid().get((char) 0x812F).charValue()); //脯
     /*ttf = this.ttfLoader.loadFontTtf(ERegisteredTtfFont.DEJAVUSERIF.toString(),
       this.factory.getFontDir() + ERegisteredTtfFont.DEJAVUSERIF.toString() + ".ttf", this.factory.lazyGetTtfResourceStreamer());
     ttf = this.ttfLoader.loadFontTtf("SourceHanSans-Regular",
       this.factory.getFontDir() + "SourceHanSans-Regular.ttf", this.factory.lazyGetTtfResourceStreamer());
     ttf = this.ttfLoader.loadFontTtf("NanumGothic",
-      this.factory.getFontDir() + "NanumGothic.ttf", this.factory.lazyGetTtfResourceStreamer());
-    ttf = this.ttfLoader.loadFontTtf("LiberationMono-Regular",
-      this.factory.getFontDir() + "LiberationMono-Regular.ttf", this.factory.lazyGetTtfResourceStreamer());*/
+      this.factory.getFontDir() + "NanumGothic.ttf", this.factory.lazyGetTtfResourceStreamer());*/
   }
 }

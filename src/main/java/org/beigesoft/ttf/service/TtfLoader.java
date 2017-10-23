@@ -179,16 +179,19 @@ public class TtfLoader implements ITtfLoader {
           is.close();
         }
       }
+      is = null;
       if (this.wrongGti != -1 || ttf.getHmtx() == null) {
         // this should never happen
         //glyf is not 4bytes aligned and loca is after glyph, so go 2-nd round:
         this.wrongGti = -1;
         try {
-          is = pStreamer.makeInputStream(pPath);
           ttf.getGlyf().getGlyphs().clear(); //clean trash
           ttf.getGlyf().getCompoundGlyphs().clear();
           if (this.isCacheGlyf) {
-            ttf.getGlyf().getBufferInputStream().setCurrentOffset(0L);
+            ttf.getGlyf().getBufferInputStream().close();
+          }
+          if (ttf.getHmtx() == null || !this.isCacheGlyf) {
+            is = pStreamer.makeInputStream(pPath);
           }
           TtfTableDirEntry hmtx = null;
           if (ttf.getHmtx() == null) { // not loaded without longHorMetrics
@@ -222,8 +225,6 @@ public class TtfLoader implements ITtfLoader {
                 loadGlyfWithLoca(ttf, is);
               }
             }
-          } else {
-            loadHmtx(ttf, hmtx, is);
           }
         } finally {
           if (is != null) {
@@ -431,9 +432,10 @@ public class TtfLoader implements ITtfLoader {
             if (this.isShowDebugMessages && 4 <= this.logDetailLevel
               && this.logGids != null && this.logGids.contains(gid)) {
               this.logger.debug(null, TtfLoader.class,
-                "Added compound glyph, gid/parts size/offset/length: "
-                  + gid + "/" + cGlyph.getPartsGids().size()
-                    + "/" + cGlyph.getOffset() + "/" + cGlyph.getLength());
+      "Added compound glyph, gid/parts size/xMin/yMin/xMax/yMax/offset/length: "
+        + gid + "/" + cGlyph.getPartsGids().size() + "/" + xMin + "/" + yMin
+          + "/" + xMax + "/" + cGlyph.getMaxY() + "/" + cGlyph.getOffset()
+                + "/" + cGlyph.getLength());
             }
           } else { //simple
             // no need to read any more
@@ -525,7 +527,7 @@ public class TtfLoader implements ITtfLoader {
           pIs.readUInt8Arr(4 - mod4);
           if (this.isShowDebugMessages && 4 <= this.logDetailLevel
             && this.logGids != null
-              && this.logGids.contains(gti + this.logGtiDelta)) {
+              && this.logGids.contains(gti)) {
             this.logger.debug(null, TtfLoader.class,
               "Added padding zeros/gti " + (4 - mod4) + "/" + gti);
           }
@@ -533,13 +535,12 @@ public class TtfLoader implements ITtfLoader {
         glyph.setLength(pIs.getOffset() - pTtf.getGlyf().getTableDirEntry()
           .getOffset() - glyph.getOffset());
         if (this.isShowDebugMessages && 4 <= this.logDetailLevel
-          && this.logGids != null
-            && this.logGids.contains(gti + this.logGtiDelta)) {
+          && this.logGids != null && this.logGids.contains(gti)) {
           if (cGlyph != null) {
             this.logger.debug(null, TtfLoader.class,
-              "Added compound glyph, gti/parts size/offset/length: "
-               + gti + "/" + cGlyph.getPartsGids().size()
-                  + "/" + cGlyph.getOffset() + "/" + cGlyph.getLength());
+        "Added compound glyph, gti/parts size/xMin/yMin/xMax/offset/length: "
+          + gti + "/" + cGlyph.getPartsGids().size() + "/" + xMin + "/" + yMin
+            + "/" + xMax + "/" + cGlyph.getOffset() + "/" + cGlyph.getLength());
           } else {
             this.logger.debug(null, TtfLoader.class,
               "Added simple glyph, gti/contours/xMin/yMin/xMax/offset/length: "
@@ -643,39 +644,30 @@ public class TtfLoader implements ITtfLoader {
    **/
   public final void loadCompoundGlyph(final CompoundGlyph pGlyph,
       final ITtfInputStream pIs) throws Exception {
-    boolean hasMore = false;
-    //long offsetMax = 9999999999L;
-    //if (pGlyph.getLength() != 0L) { // load with loca, so we can check bounds
-      //offsetMax = pIs.getOffset() + pGlyph.getLength() - 10;
-    //}
+    int flags = 0;
     do {
-      //if (pIs.getOffset() + 4 > offsetMax) { break; }
-      int flags = pIs.readUInt16();
+      flags = pIs.readUInt16();
       int partGid = pIs.readUInt16();
       pGlyph.getPartsGids().add((char) partGid);
-      boolean arg1Nad2AreWords = (flags & 0b1) > 0;
+      boolean arg1Nad2AreWords = (flags & 0b1) != 0;
       if (arg1Nad2AreWords) {
-        //if (pIs.getOffset() + 4 > offsetMax) { break; }
         pIs.readUInt16(); //argument1
         pIs.readUInt16(); //argument2
       } else {
-        //if (pIs.getOffset() + 2 > offsetMax) { break; }
         pIs.readUInt8(); //argument1
         pIs.readUInt8(); //argument2
       }
-      boolean weHaveScale = (flags & 0b1000) > 0;
+      boolean weHaveScale = (flags & 0b1000) != 0;
       if (weHaveScale) {
         pIs.readUInt16(); //scale X Y
       } else {
-        boolean weHaveAnXAndYScale = (flags & 0b1000000) > 0;
+        boolean weHaveAnXAndYScale = (flags & 0b1000000) != 0;
         if (weHaveAnXAndYScale) {
-          //if (pIs.getOffset() + 4 > offsetMax) { break; }
           pIs.readUInt16(); //scale X
           pIs.readUInt16(); //scale Y
         } else {
-          boolean weHaveATwoByTo = (flags & 0b10000000) > 0;
+          boolean weHaveATwoByTo = (flags & 0b10000000) != 0;
           if (weHaveATwoByTo) {
-            //if (pIs.getOffset() + 8 > offsetMax) { break; }
             pIs.readUInt16(); //scale X
             pIs.readUInt16(); //scale01
             pIs.readUInt16(); //scale10
@@ -683,14 +675,11 @@ public class TtfLoader implements ITtfLoader {
           }
         }
       }
-      if ((flags & 0b100000000) > 0) {
-        int numInstr = pIs.readUInt16();
-        //if (pIs.getOffset() + numInstr > offsetMax) { break; }
-        pIs.skip(numInstr); //uint8 instr[numInstr]
-      }
-      hasMore = (flags & 0b100000) > 0;
-      //if (pIs.getOffset() > offsetMax) { break; }
-    } while (hasMore);
+    } while ((flags & 0b100000) != 0);
+    if ((flags & 0b100000000) != 0) {
+      int numInstr = pIs.readUInt16();
+      pIs.skip(numInstr); //uint8 instr[numInstr]
+    }
   }
 
   /**
@@ -877,9 +866,17 @@ public class TtfLoader implements ITtfLoader {
     } else {
       //16bit
       count = (int) (pTde.getLength() / 2);
-      loca.setOffsets16(new char[count]);
+      loca.setOffsets16(new int[count]);
+      boolean isOverflow = false;
       for (int i = 0; i < count; i++) {
-        loca.getOffsets16()[i] = (char) pIs.readUInt16();
+        loca.getOffsets16()[i] = 2 * pIs.readUInt16();
+        if (!isOverflow && i != 0
+          && loca.getOffsets16()[i] < loca.getOffsets16()[i - 1]) {
+          isOverflow = true;
+        }
+        if (isOverflow) { //old Liberation fonts
+          loca.getOffsets16()[i] += 65536;
+        }
       }
     }
     TableForEmbeddingLoca tfe =
@@ -889,7 +886,13 @@ public class TtfLoader implements ITtfLoader {
     pTtf.getTablesForEmbedding().add(tfe);
     if (this.isShowDebugMessages) {
       StringBuffer sb = new StringBuffer();
-      sb.append("Added loca: size = " + count);
+      sb.append("Added loca ");
+      if (loca.getOffsets16() == null) {
+        sb.append("32");
+      } else {
+        sb.append("16");
+      }
+      sb.append(" bit, size = " + count);
       if (this.logGids != null) {
         for (int i : this.logGids) {
           int gi = -1;
@@ -899,7 +902,7 @@ public class TtfLoader implements ITtfLoader {
             }
           } else {
             if (loca.getOffsets16().length > i) {
-              gi = (int) loca.getOffsets16()[i];
+              gi = loca.getOffsets16()[i];
             }
           }
           if (gi != -1) {
@@ -1568,6 +1571,14 @@ public class TtfLoader implements ITtfLoader {
    **/
   public final int getWrongGti() {
     return this.wrongGti;
+  }
+
+  /**
+   * <p>Setter for wrongGti.</p>
+   * @param pWrongGti Wrong GTI/GID
+   **/
+  public final void setWrongGti(final int pWrongGti) {
+    this.wrongGti = pWrongGti;
   }
 
   /**

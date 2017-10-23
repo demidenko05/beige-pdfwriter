@@ -62,6 +62,10 @@ public class ImageWriter
       wi.getBuffer().write("S\n".getBytes(getWriteHelper().getAscii()));
       wi.setGraphicState(EGraphicState.ENDED);
     }
+    BigDecimal wd = BigDecimal.valueOf(pImg.getImage().getWidth()
+      * pImg.getScale()).setScale(2, RoundingMode.HALF_UP);
+    BigDecimal ht = BigDecimal.valueOf(pImg.getImage().getHeight()
+      * pImg.getScale()).setScale(2, RoundingMode.HALF_UP);
     double imgX1d = this.uomHelper.toPoints(pImg.getX1(), wi.getDocument()
       .getMainDoc().getResolutionDpi(), wi.getDocument().getMainDoc()
         .getUnitOfMeasure());
@@ -73,7 +77,7 @@ public class ImageWriter
     double imgUY1d = this.uomHelper.toPoints(pImg.getY1(), wi.getDocument()
       .getMainDoc().getResolutionDpi(), wi.getDocument().getMainDoc()
         .getUnitOfMeasure());
-    double imgY1d = pageHeight - imgUY1d;
+    double imgY1d = pageHeight - imgUY1d - ht.doubleValue();
     BigDecimal imgY1 = BigDecimal.valueOf(imgY1d)
       .setScale(2, RoundingMode.HALF_UP);
     int imgNum = 1;
@@ -83,10 +87,6 @@ public class ImageWriter
       }
       imgNum++;
     }
-    BigDecimal wd = BigDecimal.valueOf(pImg.getImage().getWidth()
-      * pImg.getScale()).setScale(2, RoundingMode.HALF_UP);
-    BigDecimal ht = BigDecimal.valueOf(pImg.getImage().getHeight()
-      * pImg.getScale()).setScale(2, RoundingMode.HALF_UP);
     String img;
     if (pImg.getRotateDegrees() > 0.001) {
       double rad = Math.toRadians(pImg.getRotateDegrees());

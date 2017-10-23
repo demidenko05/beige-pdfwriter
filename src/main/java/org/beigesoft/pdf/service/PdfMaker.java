@@ -172,13 +172,16 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
                   throw new ExceptionPdfWr("There is no CID for UNI/char: "
                     + ((int) uni) + "/" + uni);
                 }
-                if (fnt0.getToUnicode().getUsedCids().indexOf(cid) == -1) {
+                if (!fnt0.getToUnicode().getUsedCids().contains(cid)) {
                   fnt0.getToUnicode().getUsedCids().add(cid);
                   fnt0.getToUnicode().getUsedCidToUni().put(cid, uni);
                   for (CompoundGlyph cgl : fnt0.getCompoundGlyphs()) {
                     if (cgl.getGid() == cid) {
                       for (char partGid : cgl.getPartsGids()) {
-                        fnt0.getToUnicode().getUsedCids().add(partGid);
+                        if (!fnt0.getToUnicode().getUsedCids()
+                          .contains(partGid)) {
+                          fnt0.getToUnicode().getUsedCids().add(partGid);
+                        }
                       }
                       break;
                     }

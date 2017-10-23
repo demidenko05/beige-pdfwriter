@@ -62,7 +62,11 @@ public class TableMakerLoca implements ITableMaker<TableForEmbeddingLoca> {
     int currOfstInLoca = 0;
     for (int i = 0; i < locaLen; i++) {
       if (pTfe.getLoca().getOffsets16() != null) {
-        pOs.writeUInt16(currOfstInLoca, pTde, pCurrLongChksum);
+        int off = currOfstInLoca / 2;
+        if (currOfstInLoca > 65536) {
+          off -= 65536;
+        }
+        pOs.writeUInt16(off, pTde, pCurrLongChksum);
       } else {
         pOs.writeUInt32(currOfstInLoca, pTde, pCurrLongChksum);
       }
@@ -75,7 +79,7 @@ public class TableMakerLoca implements ITableMaker<TableForEmbeddingLoca> {
     if (mod4 != 0) {
       pOs.addZeroBytesToCheksum(4 - mod4, pTde, pCurrLongChksum);
       if (this.isShowDebugMessages) {
-        this.logger.debug(null, TtfCompactFontMaker.class,
+        this.logger.debug(null, TableMakerLoca.class,
           "loca added zeros to checksum " + (4 - mod4));
       }
     }

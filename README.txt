@@ -10,6 +10,7 @@ For internationalization use free TTF fonts:
 * Japanese VL-Gothic fonts - http://vlgothic.dicey.org
 * Korean Nanum fonts - https://slackbuilds.org/repository/14.0/system/nanum-fonts-ttf/
 * Chinese Han Sans - https://github.com/be5invis/source-han-sans-ttf/releases
+* Liberation fonts - https://pagure.io/liberation-fonts
 
 TTF fonts will be embedded into PDF in compact form, i.e. only used characters will be present.
 
@@ -17,11 +18,10 @@ licenses:
 GNU General Public License version 2
 http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
-Files test-dejavu-table.pdf and invoiceA-68687687.pdf are included into the source code to quickly demonstrate that Beige-PDFWriter can does.
+Files test-dejavu-table.pdf, Platyojka.pdf and invoiceA-68687687.pdf are included into the source code to quickly demonstrate what can Beige-PDFWriter does.
 
 Examples see in the test folder.
 For Android see example https://github.com/demidenko05/beige-graphic-android-test
 org.beigesoft.androidtest.WritePdfImageTest.java
 
-Speed test (org.beigesoft.pdf.sample.WriteInvoiceSpeedTest) shows that 100 invoices (3pages each) take less than 4 seconds on ordinal notebook IntelI3/4GB, 64bit desktop linux (non-server), JVM8 64Bit.
-Doing each invoice takes its own thread.
+Speed test (org.beigesoft.pdf.sample.WriteInvoiceSpeedTest) shows that 100 invoices (3pages each) take less than 4 seconds on ordinal notebook IntelI3/4GB, 64bit desktop linux (non-server), JVM8 64Bit. Doing each invoice takes its own thread.

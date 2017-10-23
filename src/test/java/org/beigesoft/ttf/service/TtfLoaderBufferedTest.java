@@ -46,7 +46,7 @@ public class TtfLoaderBufferedTest {
   public TtfLoaderBufferedTest() throws Exception {
     this.logger = new LoggerSimple();
     this.logger.setIsShowDebugMessages(true);
-    this.logger.setDetailLevel(2111);
+    this.logger.setDetailLevel(1111);
     this.factory = new PdfFactory();
     this.factory.setLogger(this.logger);
     this.factory.init();
@@ -88,7 +88,7 @@ public class TtfLoaderBufferedTest {
     this.ttfLoader.getLogUnicodes().add((char) 0x33);
   }
 
-  @Test
+  //@Test
   public void test1() throws Exception {
     //test ttf:
     TtfFont ttf = this.ttfLoader.loadFontTtf(ERegisteredTtfFont.DEJAVUSANS.toString(),
@@ -99,10 +99,10 @@ public class TtfLoaderBufferedTest {
     assertEquals((char) 3, ttf.getCmap().getUniToCid().get((char) 32).charValue()); //space
     assertEquals((char) 19, ttf.getCmap().getUniToCid().get((char) 0x30).charValue()); //zero
     assertEquals((char) 93, ttf.getCmap().getUniToCid().get((char) 0x7A).charValue()); //z
-    assertEquals((char) 957, ttf.getCmap().getUniToCid().get((char) 0x429).charValue()); //Щ mvnrepo
-    //assertEquals((char) 958, ttf.getCmap().getUniToCid().get((char) 0x429).charValue()); //Щ new
-    assertEquals((char) 947, ttf.getCmap().getUniToCid().get((char) 0x41F).charValue()); //П
-    //assertEquals((char) 948, ttf.getCmap().getUniToCid().get((char) 0x41F).charValue()); //П
+    //assertEquals((char) 957, ttf.getCmap().getUniToCid().get((char) 0x429).charValue()); //Щ mvnrepo
+    assertEquals((char) 958, ttf.getCmap().getUniToCid().get((char) 0x429).charValue()); //Щ new
+    //assertEquals((char) 947, ttf.getCmap().getUniToCid().get((char) 0x41F).charValue()); //П
+    assertEquals((char) 948, ttf.getCmap().getUniToCid().get((char) 0x41F).charValue()); //П
     assertEquals(0.0, ttf.getPost().getItalicAngle(), 0);
     assertEquals(1303, (int) ttf.getHmtx().getWidths()[19]);
     //ttf = this.ttfLoader.loadFontTtf("DejaVuSansMono");

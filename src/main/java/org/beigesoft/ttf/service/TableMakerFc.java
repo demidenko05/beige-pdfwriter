@@ -72,9 +72,13 @@ public class TableMakerFc implements ITableMaker<TableForEmbeddingBf> {
     long[] copyLongChksum = new long[] {-1L, -1L, -1L, -1L};
     TtfTableDirEntry tdeCopy = new TtfTableDirEntry();
     pOs.writeByteArr(pTfe.getBuffer(), tdeCopy, copyLongChksum);
-   int mod4 = (int) pTde.getLength() % 4;
+    int mod4 = (int) pTde.getLength() % 4;
     if (mod4 != 0) {
       pOs.addZeroBytesToCheksum(4 - mod4, tdeCopy, copyLongChksum);
+      if (this.isShowDebugMessages) {
+        this.logger.debug(null, TtfCompactFontMaker.class,
+          pTde.getTagString() + " added zeros to checksum " + (4 - mod4));
+      }
     }
     if (this.isShowDebugMessages
       && pTde.getChecksum() != tdeCopy.getChecksum()) {

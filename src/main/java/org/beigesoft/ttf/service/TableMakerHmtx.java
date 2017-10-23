@@ -76,10 +76,18 @@ public class TableMakerHmtx implements ITableMaker<TableForEmbeddingHmtx> {
     //add bearing:
     for (int i = widthsLen; i < numGlyphs; i++) {
       if (pGls.get(i) != null) {
-        pOs.writeSInt16(pTfe.getTtf().getHmtx().getLeftSideBearingAdd()[i],
-          pTde, pCurrLongChksum);
+        pOs.writeSInt16(pTfe.getTtf().getHmtx()
+          .getLeftSideBearingAdd()[i - widthsLen], pTde, pCurrLongChksum);
       } else { //to reduce file
         pOs.writeSInt16(shz, pTde, pCurrLongChksum);
+      }
+    }
+    int mod4 = (int) pTde.getLength() % 4;
+    if (mod4 != 0) {
+      pOs.addZeroBytesToCheksum(4 - mod4, pTde, pCurrLongChksum);
+      if (this.isShowDebugMessages) {
+        this.logger.debug(null, TableMakerHmtx.class,
+          "hmtx added zeros to checksum " + (4 - mod4));
       }
     }
     if (this.isShowDebugMessages) {

@@ -58,21 +58,26 @@ public class InvoiceReport<WI> {
    **/
   public final void makePdf(final InvoiceModel pInvoice,
     final OutputStream pOus, final boolean pIsInsertImg) throws Exception {
+    // it makes document with page A4 and margins LTRB 30*20*20*20, UOM=millimeters,
+    // font size 3.5:
     Document<WI> doc = this.factory.lazyGetFctDocument()
       .createDoc(EPageSize.A4, EPageOrientation.PORTRAIT);
+    //EPageSize.LETTER makes UOM=inch with no margins and font size!!! See source code.
     PdfDocument<WI> docPdf = this.factory.createPdfDoc(doc);
     docPdf.getPdfInfo().setAuthor("Beigesoft (TM) Tester");
     IDocumentMaker docMaker = this.factory.lazyGetDocumentMaker();
     IPdfMaker<WI> pdfMaker = this.factory.lazyGetPdfMaker();
     //just simple image with no mask demonstration:
     if (pIsInsertImg) {
-      DocImage<WI> dimg2 = docMaker.addImage(doc, "/img/bob-signature.png", 110, 40);
+      // X1, Y1 are upper left corner (Y axis starts from top of page)
+      // - this is for all elements - images, strings, lines...
+      DocImage<WI> dimg2 = docMaker.addImage(doc, "/img/bob-signature.png", 110, 10);
       dimg2.setScale(0.15);
       dimg2.setRotateDegrees(10);
       pdfMaker.addImage(docPdf, dimg2);
     }
-    pdfMaker.addFontTtf(docPdf, ERegisteredTtfFont.DEJAVUSANS_BOLD.toString());
-    pdfMaker.addFontTtf(docPdf, ERegisteredTtfFont.DEJAVUSANS.toString());
+    pdfMaker.addFontTtf(docPdf, ERegisteredTtfFont.DEJAVUSERIF_BOLD.toString());
+    pdfMaker.addFontTtf(docPdf, ERegisteredTtfFont.DEJAVUSERIF.toString());
     double widthNdot = this.factory.lazyGetUomHelper()
       //.fromPoints(1.0, doc.getResolutionDpi(), doc.getUnitOfMeasure());
       .fromPoints(2.0, 300.0, doc.getUnitOfMeasure()); //printer resolution

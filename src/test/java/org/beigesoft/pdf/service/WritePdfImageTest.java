@@ -76,10 +76,10 @@ public class WritePdfImageTest {
     Document<HasPdfContent> doc = this.factory.lazyGetFctDocument().createDoc(EPageSize.A4, EPageOrientation.PORTRAIT);
     PdfDocument<HasPdfContent> docPdf = this.factory.createPdfDoc(doc);
     //DocImage<HasPdfContent> dimg = this.docMaker.addImage(doc, "C:\\doc\\logo-web-store.png", 20, 150);
-    DocImage<HasPdfContent> dimg = this.docMaker.addImage(doc, "/img/logo-web-store.png", 20, 100);
+    DocImage<HasPdfContent> dimg = this.docMaker.addImage(doc, "/img/logo-web-store.png", 20, 50);
     dimg.setScale(0.5);
     this.pdfMaker.addImage(docPdf, dimg);
-    DocImage<HasPdfContent> dimg2 = this.docMaker.addImage(doc, "/img/bob-signature.png", 30, 200);
+    DocImage<HasPdfContent> dimg2 = this.docMaker.addImage(doc, "/img/bob-signature.png", 30, 150);
     dimg2.setScale(0.25);
     dimg2.setRotateDegrees(10);
     this.pdfMaker.addImage(docPdf, dimg2);

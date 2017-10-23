@@ -23,7 +23,7 @@ public class TtfLoca {
   /**
    * <p>16 bit offsets table.</p>
    **/
-  private char[] offsets16;
+  private int[] offsets16;
 
   /**
    * <p>32 bit offsets table.</p>
@@ -48,7 +48,7 @@ public class TtfLoca {
    * <p>Getter for offsets16.</p>
    * @return char[]
    **/
-  public final char[] getOffsets16() {
+  public final int[] getOffsets16() {
     return this.offsets16;
   }
 
@@ -56,7 +56,7 @@ public class TtfLoca {
    * <p>Setter for offsets16.</p>
    * @param pOffsets16 reference
    **/
-  public final void setOffsets16(final char[] pOffsets16) {
+  public final void setOffsets16(final int[] pOffsets16) {
     this.offsets16 = pOffsets16;
   }
 

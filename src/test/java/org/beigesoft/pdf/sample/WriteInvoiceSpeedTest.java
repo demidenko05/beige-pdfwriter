@@ -66,8 +66,8 @@ public class WriteInvoiceSpeedTest {
     this.factory.lazyGetTtfLoader().setIsCacheGlyf(true);
     //this.factory.lazyGetFctElement().setFctImageRgb(new SwingImageLoader());
     // load fonts - simulate state "server already full initialized before taking client's requests":
-    this.factory.lazyGetPdfMaker().lazyGetTtfFont(ERegisteredTtfFont.DEJAVUSANS.toString());
-    this.factory.lazyGetPdfMaker().lazyGetTtfFont(ERegisteredTtfFont.DEJAVUSANS_BOLD.toString());
+    this.factory.lazyGetPdfMaker().lazyGetTtfFont(ERegisteredTtfFont.DEJAVUSERIF.toString());
+    this.factory.lazyGetPdfMaker().lazyGetTtfFont(ERegisteredTtfFont.DEJAVUSERIF_BOLD.toString());
     //this.factory.lazyGetPdfMaker().lazyGetTtfFontFromFile(ERegisteredTtfFont.DEJAVUSANS_BOLD.toString(),
       //"/archive/fonts/Dejavu/dejavu-fonts-ttf-2.37/ttf/DejaVuSans-Bold.ttf");
     this.invoiceReporter = new InvoiceReport();
