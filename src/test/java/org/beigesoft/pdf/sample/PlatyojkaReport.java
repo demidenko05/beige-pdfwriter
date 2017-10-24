@@ -78,7 +78,8 @@ public class PlatyojkaReport<WI> {
     tblRez.getItsCells().get(3).setItsContent("\"О правилах осуществления");
     tblRez.getItsCells().get(4).setItsContent("перевода денежных средств\"");
     docMaker.makeDocTableWrapping(tblRez);
-    docMaker.setFont(doc, 1, 3.5);
+    double fnSz = 3.5;
+    docMaker.setFont(doc, 1, fnSz);
     double fnSzPd = 4.0;
     double top = 54.0;
     double lft = 30.0;
@@ -90,6 +91,14 @@ public class PlatyojkaReport<WI> {
     i++;
     docMaker.addString(doc, "                                                                    ┌─────┐", lft, top + (fnSzPd * ++i));
     docMaker.addString(doc, "ПЛАТЕЖНОЕ ПОРУЧЕНИЕ N            ______________ _________________   │     │", lft, top + (fnSzPd * ++i));
+    if (pData != null && pData.getItsNumber() != null) {
+      MetricsString msForNum = this.factory.lazyGetEvalMetricsString()
+        .eval("ПЛАТЕЖНОЕ ПОРУЧЕНИЕ N ", "LiberationMono-Regular", fnSz, 300.0, 0.0);
+      docMaker.addString(doc, pData.getItsNumber(), lft + msForNum.getWidth(), top + (fnSzPd * i));
+      MetricsString msForDt = this.factory.lazyGetEvalMetricsString()
+        .eval("ПЛАТЕЖНОЕ ПОРУЧЕНИЕ N            __", "LiberationMono-Regular", fnSz, 300.0, 0.0);
+      docMaker.addString(doc, pData.getItsDate(), lft + msForDt.getWidth(), top + (fnSzPd * i) - 0.5);
+    }
     docMaker.addString(doc, "                                      Дата         Вид платежа      └─────┘", lft, top + (fnSzPd * ++i));
     i++;
     docMaker.addString(doc, "Сумма   │", lft, top + (fnSzPd * ++i));

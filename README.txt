@@ -18,7 +18,7 @@ licenses:
 GNU General Public License version 2
 http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
-Files test-dejavu-table.pdf, Platyojka.pdf and invoiceA-68687687.pdf are included into the source code to quickly demonstrate what can Beige-PDFWriter does.
+Files test-dejavu-table.pdf, Platyojka.pdf, Sfactura.pdf and invoiceA-68687687.pdf are included into the source code to quickly demonstrate what can Beige-PDFWriter does.
 
 Examples see in the test folder.
 For Android see example https://github.com/demidenko05/beige-graphic-android-test

@@ -27,15 +27,15 @@ import org.beigesoft.pdf.service.PdfFactory;
 import org.beigesoft.doc.service.DocumentMaker;
 
 /**
- * <p>Write Platyojka tests.</p>
+ * <p>Write Sfactura tests.</p>
  *
  * @author Yury Demidenko
  */
-public class WritePlatyojkaTest {
+public class WriteSfacturaTest {
 
   private PdfFactory factory;
     
-  public WritePlatyojkaTest() throws Exception {
+  public WriteSfacturaTest() throws Exception {
     LoggerSimple logger = new LoggerSimple();
     logger.setIsShowDebugMessages(true);
     this.factory = new PdfFactory();
@@ -45,15 +45,21 @@ public class WritePlatyojkaTest {
   
   @Test
   public void testToPdf() throws Exception {
-    PlatyojkaModel pl = new PlatyojkaModel();
+    SfacturaModel pl = new SfacturaModel();
     pl.setItsNumber("1");
-    pl.setItsDate("22.11.2017");
+    pl.setDay("22");
+    pl.setMonthYear("мая 2017");
     pl.setTotal(new BigDecimal(1452.23));
-    PlatyojkaReport plr = new PlatyojkaReport();
+    pl.setSeller("ООО Березка");
+    pl.setSellerAddr("123122, г.Москва, ул. Ленина д.56");
+    pl.setSellerInnKpp("154545/124484");
+    pl.setGruzootpr("ООО Березка 123122, г.Москва, ул. Ленина д.56");
+    pl.setGruzopol("ООО Тополь 1212121, г.Ковров, ул. Ленина д.44");
+    SfacturaReport plr = new SfacturaReport();
     plr.setFactory(this.factory);
     FileOutputStream fos = null;
     try {
-      fos = new FileOutputStream("Platyojka.pdf");
+      fos = new FileOutputStream("Sfactura.pdf");
       plr.makePdf(pl, fos);
     } finally {
       if (fos != null) {

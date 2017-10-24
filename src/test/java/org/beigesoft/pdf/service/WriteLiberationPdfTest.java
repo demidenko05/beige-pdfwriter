@@ -85,16 +85,19 @@ public class WriteLiberationPdfTest {
   public void testLiber() throws Exception {
     Document<HasPdfContent> doc = this.factory.lazyGetFctDocument().createDoc(EPageSize.A4, EPageOrientation.PORTRAIT);
     PdfDocument<HasPdfContent> docPdf = this.factory.createPdfDoc(doc);
+    String lbser = "LiberationSerif-Regular";
+    this.pdfMaker.addFontTtf(docPdf, lbser);
     String lsr = "LiberationMono-Regular";
     this.pdfMaker.addFontTtf(docPdf, lsr);
-    this.docMaker.setFontSize(doc, 6);
-    //this.docMaker.addString(doc, "Привет G", 100, 150);
-    this.docMaker.addString(doc, "Привет G ѕіїљ", 100, 150);
+    this.docMaker.setFontSize(doc, 6.0);
+    this.docMaker.addString(doc, "Привет G ѕіїљ", 80, 125);
+    this.docMaker.setFont(doc, 1, 6.0);
+    this.docMaker.addString(doc, "от 27 мая 2017 года кл", 80, 160);
     FileOutputStream fos = null;
     this.pdfMaker.prepareBeforeWrite(docPdf);
     this.pdfMaker.setIsCompressed(docPdf, false);
     try {
-      fos = new FileOutputStream("test-libermono.pdf");
+      fos = new FileOutputStream("test-liber.pdf");
       this.factory.lazyGetPdfWriter().write(null, docPdf, fos);
       fos.flush();
       fos.close();
@@ -106,14 +109,14 @@ public class WriteLiberationPdfTest {
     System.out.println("Used CIDS:");
     TtfFont ttfOri = this.pdfMaker.getTtfFonts().get(lsr);
     assertTrue("hmth != null", ttfOri.getHmtx() != null);
-    for (Map.Entry<Character, Character> entry : docPdf.getPdfToUnicodes().get(0).getUsedCidToUni().entrySet()) {
+    for (Map.Entry<Character, Character> entry : docPdf.getPdfToUnicodes().get(1).getUsedCidToUni().entrySet()) {
       char cid = entry.getKey();
       char chr = entry.getValue();
       System.out.println("CID/uni/char/width: " + ((int) cid) + "/"
         + ((int) chr) + "/" + chr + "/" + ((int) ttfOri.getHmtx().getWidthForGid(cid)));
     }
     TtfCompactFontMaker compactFontMaker = this.factory.lazyGetCompactFontMaker();
-    byte[] compDjv = compactFontMaker.make(null, lsr, docPdf.getPdfToUnicodes().get(0).getUsedCids());
+    byte[] compDjv = compactFontMaker.make(null, lsr, docPdf.getPdfToUnicodes().get(1).getUsedCids());
     ByteArrayInputStream bais = new ByteArrayInputStream(compDjv);
     TtfInputStream is = new TtfInputStream(bais);
     TtfFont ttf = new TtfFont();
@@ -121,10 +124,10 @@ public class WriteLiberationPdfTest {
     this.logger.info(null, WriteLiberationPdfTest.class, "Loading from byte array Liber:");
     this.factory.lazyGetTtfLoader().loadFontTtfFrom(ttf, is);
     this.factory.lazyGetTtfLoader().prepareAfterLoading(ttf);
-    for (char cid : docPdf.getPdfToUnicodes().get(0).getUsedCids()) {
+    for (char cid : docPdf.getPdfToUnicodes().get(1).getUsedCids()) {
       char chr = 0;
-      if (docPdf.getPdfToUnicodes().get(0).getUsedCidToUni().get(cid) != null) {
-        chr = docPdf.getPdfToUnicodes().get(0).getUsedCidToUni().get(cid);
+      if (docPdf.getPdfToUnicodes().get(1).getUsedCidToUni().get(cid) != null) {
+        chr = docPdf.getPdfToUnicodes().get(1).getUsedCidToUni().get(cid);
       }
       assertEquals("widths equals for CID " + ((int) cid),
         ttfOri.getHmtx().getWidthForGid(cid), ttf.getHmtx().getWidthForGid(cid));
@@ -132,6 +135,17 @@ public class WriteLiberationPdfTest {
       int len = ttf.getLoca().getOffsets16()[cid + 1] - ttf.getLoca().getOffsets16()[cid];
       System.out.println("CID/char/width/offset/length: " + ((int) cid) + "/"
         + chr + "/" + ((int) ttf.getHmtx().getWidthForGid(cid)) + "/" + ofst + "/" + len);
+    }
+    TtfFont ttfSer = this.pdfMaker.getTtfFonts().get(lbser);
+    for (char cid : docPdf.getPdfToUnicodes().get(0).getUsedCids()) {
+      char chr = 0;
+      if (docPdf.getPdfToUnicodes().get(0).getUsedCidToUni().get(cid) != null) {
+        chr = docPdf.getPdfToUnicodes().get(0).getUsedCidToUni().get(cid);
+      }
+      int ofst = ttfSer.getLoca().getOffsets16()[cid];
+      int len = ttfSer.getLoca().getOffsets16()[cid + 1] - ttfSer.getLoca().getOffsets16()[cid];
+      System.out.println("CID/char/width/offset/length: " + ((int) cid) + "/"
+        + chr + "/" + ((int) ttfSer.getHmtx().getWidthForGid(cid)) + "/" + ofst + "/" + len);
     }
   }
 }

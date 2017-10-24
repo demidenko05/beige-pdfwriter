@@ -18,6 +18,7 @@ import java.io.OutputStream;
 
 import org.beigesoft.pdf.model.EFontType;
 import org.beigesoft.pdf.model.PdfCidFontType2;
+import org.beigesoft.pdf.exception.ExceptionPdfWr;
 
 /**
  * <p>PDF CIDFontType2 fonts writer.</p>
@@ -31,7 +32,7 @@ public class WriterPdfCidFontType2 extends AWriterPdfObject<PdfCidFontType2> {
    * @param pPdfObj PdfCidFontType2
    * @param pOut stream
    * @return bytes count
-   * @throws an Exception
+   * @throws Exception an Exception
    **/
   @Override
   public final int write(final PdfCidFontType2 pPdfObj,
@@ -85,8 +86,9 @@ public class WriterPdfCidFontType2 extends AWriterPdfObject<PdfCidFontType2> {
   /**
    * <p>Maker widths.</p>
    * @param pPdfObj PdfCidFontType2
+   * @throws Exception an Exception
    **/
-  public final void makeWidths(final PdfCidFontType2 pPdfObj) {
+  public final void makeWidths(final PdfCidFontType2 pPdfObj) throws Exception {
     //TODO JUnit test
     pPdfObj.getWidthsList().clear();
     float scaling = 1000f / pPdfObj.getUnitsPerEm();
@@ -102,6 +104,8 @@ public class WriterPdfCidFontType2 extends AWriterPdfObject<PdfCidFontType2> {
         cidStart = cid;
         cidEnd = cid;
         wdthsArr.add(width);
+      } else if (cid - cidEnd == 0) {
+        throw new ExceptionPdfWr("Duplicate CID: " + cid);
       } else if (cid - cidEnd == 1) {
         cidEnd = cid;
         // continue second and more char:
@@ -118,7 +122,6 @@ public class WriterPdfCidFontType2 extends AWriterPdfObject<PdfCidFontType2> {
           cidStart = cid;
           cidEnd = cid;
           wdthsArr.clear();
-          wdthsArr.add(width);
           wdthsArr.add(width);
         } else {
           //e.g. 100 110 456 (chars from 100 to 110 has 456)

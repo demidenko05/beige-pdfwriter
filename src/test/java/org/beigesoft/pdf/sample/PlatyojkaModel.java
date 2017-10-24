@@ -12,7 +12,6 @@ package org.beigesoft.pdf.sample;
  * http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
  */
 
-import java.util.Date;
 import java.util.List;
 import java.math.BigDecimal;
 
@@ -24,14 +23,14 @@ import java.math.BigDecimal;
 public class PlatyojkaModel {
 
   /**
-   * <p>Number of invoice.</p>
+   * <p>Number.</p>
    **/
   private String itsNumber;
 
   /**
-   * <p>Number of invoice.</p>
+   * <p>Date.</p>
    **/
-  private Date itsDate;
+  private String itsDate;
 
   /**
    * <p>Total.</p>
@@ -57,9 +56,9 @@ public class PlatyojkaModel {
 
   /**
    * <p>Getter for itsDate.</p>
-   * @return Date
+   * @return String
    **/
-  public final Date getItsDate() {
+  public final String getItsDate() {
     return this.itsDate;
   }
 
@@ -67,7 +66,7 @@ public class PlatyojkaModel {
    * <p>Setter for itsDate.</p>
    * @param pItsDate reference
    **/
-  public final void setItsDate(final Date pItsDate) {
+  public final void setItsDate(final String pItsDate) {
     this.itsDate = pItsDate;
   }
 
