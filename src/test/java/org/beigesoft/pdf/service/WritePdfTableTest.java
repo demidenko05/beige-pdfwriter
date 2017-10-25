@@ -32,6 +32,7 @@ import org.beigesoft.zlib.ZLibStreamer;
 import org.beigesoft.pdf.model.EFontS14;
 import org.beigesoft.pdf.model.ERegisteredTtfFont;
 import org.beigesoft.pdf.model.PdfDocument;
+import org.beigesoft.doc.model.Pagination;
 import org.beigesoft.pdf.model.HasPdfContent;
 import org.beigesoft.doc.model.MetricsString;
 import org.beigesoft.doc.model.EUnitOfMeasure;
@@ -144,6 +145,10 @@ public class WritePdfTableTest {
     double contMaxWd = dtbl4.getStartPage().getWidth() - dtbl4.getStartPage()
       .getMarginLeft() - dtbl4.getStartPage().getMarginRight();
     dtbl4.setWidth(contMaxWd * 0.7);
+    Pagination<HasPdfContent> paging = docMaker.addPagination(doc);
+    paging.setTitle("Page ");
+    paging.setFrom(null);
+    paging.setStart(2);
     this.docMaker.deriveElements(doc);
     assertTrue(dtbl4.getItsCells().get(3).getIsShowBorderBottom());
     assertTrue(dtbl4.getIsThereCellWithCustomBorder());

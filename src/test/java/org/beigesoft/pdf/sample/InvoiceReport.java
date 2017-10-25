@@ -175,7 +175,7 @@ public class InvoiceReport<WI> {
     tblRez.getItsCells().get(2).setItsContent("Total: " + pInvoice.getTotal());
     tblRez.setAlignHorizontal(EAlignHorizontal.RIGHT);
     docMaker.makeDocTableWrapping(tblRez);
-    // Add it at the end, make sure that 1 is current page!:
+    // paging.start = 1 by default (from first page), from = "/", so it will be "1/1":
     Pagination<WI> paging = docMaker.addPagination(doc);
     //paging.setTitle(this.dateFormat.format(new Date()) + ",    Page ");
     //paging.setFrom(" from ");

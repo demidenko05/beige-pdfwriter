@@ -15,6 +15,8 @@ package org.beigesoft.pdf.service;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import org.beigesoft.pdf.model.EFontType;
 import org.beigesoft.pdf.model.PdfCidFontType2;
@@ -91,14 +93,14 @@ public class WriterPdfCidFontType2 extends AWriterPdfObject<PdfCidFontType2> {
   public final void makeWidths(final PdfCidFontType2 pPdfObj) throws Exception {
     //TODO JUnit test
     pPdfObj.getWidthsList().clear();
-    float scaling = 1000f / pPdfObj.getUnitsPerEm();
+    double scaling = 1000.0 / pPdfObj.getUnitsPerEm();
     Character cidStart = null;
     Character cidEnd = null;
-    List<Character> wdthsArr = new ArrayList<Character>();
+    List<BigDecimal> wdthsArr = new ArrayList<BigDecimal>();
     for (Character cid : pPdfObj.getToUnicode().getUsedCids()) {
-      float widthF = pPdfObj.getHmtx().getWidthForGid(cid);
-      widthF *= scaling;
-      char width = (char) Math.round(widthF);
+      double widthF = pPdfObj.getHmtx().getWidthForGid(cid);
+      BigDecimal width = BigDecimal.valueOf(widthF * scaling)
+        .setScale(2, RoundingMode.HALF_UP).stripTrailingZeros();
       if (cidStart == null) {
         //the start:
         cidStart = cid;
@@ -110,12 +112,12 @@ public class WriterPdfCidFontType2 extends AWriterPdfObject<PdfCidFontType2> {
         cidEnd = cid;
         // continue second and more char:
         if (wdthsArr.size() > 1
-          || width != wdthsArr.get(0) && cid - cidStart == 1) {
+          || width.compareTo(wdthsArr.get(0)) != 0 && cid - cidStart == 1) {
           // e.g. 100 [456 523](char 100 has 456, 101 has 523)
           wdthsArr.add(width);
           cidEnd = cid;
         } else if (wdthsArr.size() == 1
-          && width != wdthsArr.get(0) && cid - cidStart != 1) {
+          && width.compareTo(wdthsArr.get(0)) != 0 && cid - cidStart != 1) {
           // was mono-space row
           finishWidthsEntry(pPdfObj, cidStart, cidEnd, wdthsArr);
           //continue new:
@@ -148,12 +150,12 @@ public class WriterPdfCidFontType2 extends AWriterPdfObject<PdfCidFontType2> {
    **/
   public final void finishWidthsEntry(final PdfCidFontType2 pPdfObj,
     final Character pCidStart, final Character pCidEnd,
-      final List<Character> pWdthsArr) {
+      final List<BigDecimal> pWdthsArr) {
     StringBuffer sb = new StringBuffer();
     if (pCidEnd - pCidStart == 0) {
       // e.g. 100 [456](char 100 has 456)
       pPdfObj.getWidthsList().add(String.valueOf((int) pCidStart) + " ["
-        + ((int) pWdthsArr.get(0)) + "] ");
+        + pWdthsArr.get(0).toPlainString() + "] ");
     } else if (pWdthsArr.size() > 1) {
       // e.g. 100 [456 523](char 100 has 456, 101 has 523)
       sb.append(String.valueOf((int) pCidStart) + " [");
@@ -161,14 +163,14 @@ public class WriterPdfCidFontType2 extends AWriterPdfObject<PdfCidFontType2> {
         if (i > 0) {
           sb.append(" ");
         }
-        sb.append(String.valueOf((int) pWdthsArr.get(i)));
+        sb.append(pWdthsArr.get(i).toPlainString());
       }
       sb.append("] ");
       pPdfObj.getWidthsList().add(sb.toString());
     } else {
       // e.g. 100 110 456 (chars from 100 to 110 has 456)
       pPdfObj.getWidthsList().add(String.valueOf((int) pCidStart) + " "
-        + ((int) pCidEnd) + " " + ((int) pWdthsArr.get(0)) + " ");
+        + ((int) pCidEnd) + " " + pWdthsArr.get(0).toPlainString() + " ");
     }
   }
 }

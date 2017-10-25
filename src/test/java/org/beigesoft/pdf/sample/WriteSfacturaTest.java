@@ -49,12 +49,29 @@ public class WriteSfacturaTest {
     pl.setItsNumber("1");
     pl.setDay("22");
     pl.setMonthYear("мая 2017");
-    pl.setTotal(new BigDecimal(1452.23));
     pl.setSeller("ООО Березка");
     pl.setSellerAddr("123122, г.Москва, ул. Ленина д.56");
     pl.setSellerInnKpp("154545/124484");
     pl.setGruzootpr("ООО Березка 123122, г.Москва, ул. Ленина д.56");
     pl.setGruzopol("ООО Тополь 1212121, г.Ковров, ул. Ленина д.44");
+    pl.setPrdNum("12");
+    pl.setPrdData("11.12.2017г.");
+    pl.setBuyer("ООО Тополь");
+    pl.setBuyerInnKpp("546464/464646");
+    pl.setBuyerAddr("1212121, г.Ковров, ул. Ленина д.44");
+    pl.setCurrency("российский рубль, 645");
+    pl.setItems(new ArrayList<SfacturaLineModel>());
+    pl.getItems().add(new SfacturaLineModel("Конфеты \"Мишка на севере\"", "кг", "166",
+      new BigDecimal("270.00"), new BigDecimal("30"), new BigDecimal("18")));
+    for (int i = 1; i < 20; i++) {
+      pl.getItems().add(new SfacturaLineModel("Сахар #" + i, "кг", "166",
+        new BigDecimal("50.00"), new BigDecimal("10"), new BigDecimal("18")));
+    }
+    for (SfacturaLineModel ln : pl.getItems()) {
+      pl.setSubtotal(pl.getSubtotal().add(ln.getSubtotal()));
+      pl.setTotalTaxes(pl.getTotalTaxes().add(ln.getTotalTaxes()));
+      pl.setTotal(pl.getTotal().add(ln.getTotal()));
+    }
     SfacturaReport plr = new SfacturaReport();
     plr.setFactory(this.factory);
     FileOutputStream fos = null;

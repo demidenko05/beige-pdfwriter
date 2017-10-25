@@ -43,6 +43,16 @@ public class SfacturaModel {
   private BigDecimal total = BigDecimal.ZERO;
 
   /**
+   * <p>Subtotal.</p>
+   **/
+  private BigDecimal subtotal = BigDecimal.ZERO;
+
+  /**
+   * <p>Total taxes.</p>
+   **/
+  private BigDecimal totalTaxes = BigDecimal.ZERO;
+
+  /**
    * <p>Number.</p>
    **/
   private String chNumber = "-";
@@ -75,6 +85,20 @@ public class SfacturaModel {
   private String gruzootpr;
 
   private String gruzopol;
+
+  private String prdNum;
+
+  private String prdData;
+
+  private String buyer;
+  
+  private String buyerAddr;
+  
+  private String buyerInnKpp;
+  
+  private String currency;
+  
+  private List<SfacturaLineModel> items;
 
   //Simple getters and setters:
   /**
@@ -139,6 +163,38 @@ public class SfacturaModel {
    **/
   public final void setTotal(final BigDecimal pTotal) {
     this.total = pTotal;
+  }
+
+  /**
+   * <p>Getter for subtotal.</p>
+   * @return BigDecimal
+   **/
+  public final BigDecimal getSubtotal() {
+    return this.subtotal;
+  }
+
+  /**
+   * <p>Setter for subtotal.</p>
+   * @param pSubtotal reference
+   **/
+  public final void setSubtotal(final BigDecimal pSubtotal) {
+    this.subtotal = pSubtotal;
+  }
+
+  /**
+   * <p>Getter for totalTaxes.</p>
+   * @return BigDecimal
+   **/
+  public final BigDecimal getTotalTaxes() {
+    return this.totalTaxes;
+  }
+
+  /**
+   * <p>Setter for totalTaxes.</p>
+   * @param pTotalTaxes reference
+   **/
+  public final void setTotalTaxes(final BigDecimal pTotalTaxes) {
+    this.totalTaxes = pTotalTaxes;
   }
 
   /**
@@ -268,5 +324,117 @@ public class SfacturaModel {
    **/
   public final void setGruzopol(final String pGruzopol) {
     this.gruzopol = pGruzopol;
+  }
+
+  /**
+   * <p>Getter for prdNum.</p>
+   * @return String
+   **/
+  public final String getPrdNum() {
+    return this.prdNum;
+  }
+
+  /**
+   * <p>Setter for prdNum.</p>
+   * @param pPrdNum reference
+   **/
+  public final void setPrdNum(final String pPrdNum) {
+    this.prdNum = pPrdNum;
+  }
+
+  /**
+   * <p>Getter for prdData.</p>
+   * @return String
+   **/
+  public final String getPrdData() {
+    return this.prdData;
+  }
+
+  /**
+   * <p>Setter for prdData.</p>
+   * @param pPrdData reference
+   **/
+  public final void setPrdData(final String pPrdData) {
+    this.prdData = pPrdData;
+  }
+
+  /**
+   * <p>Getter for buyer.</p>
+   * @return String
+   **/
+  public final String getBuyer() {
+    return this.buyer;
+  }
+
+  /**
+   * <p>Setter for buyer.</p>
+   * @param pBuyer reference
+   **/
+  public final void setBuyer(final String pBuyer) {
+    this.buyer = pBuyer;
+  }
+
+  /**
+   * <p>Getter for buyerAddr.</p>
+   * @return String
+   **/
+  public final String getBuyerAddr() {
+    return this.buyerAddr;
+  }
+
+  /**
+   * <p>Setter for buyerAddr.</p>
+   * @param pBuyerAddr reference
+   **/
+  public final void setBuyerAddr(final String pBuyerAddr) {
+    this.buyerAddr = pBuyerAddr;
+  }
+
+  /**
+   * <p>Getter for buyerInnKpp.</p>
+   * @return String
+   **/
+  public final String getBuyerInnKpp() {
+    return this.buyerInnKpp;
+  }
+
+  /**
+   * <p>Setter for buyerInnKpp.</p>
+   * @param pBuyerInnKpp reference
+   **/
+  public final void setBuyerInnKpp(final String pBuyerInnKpp) {
+    this.buyerInnKpp = pBuyerInnKpp;
+  }
+
+  /**
+   * <p>Getter for currency.</p>
+   * @return String
+   **/
+  public final String getCurrency() {
+    return this.currency;
+  }
+
+  /**
+   * <p>Setter for currency.</p>
+   * @param pCurrency reference
+   **/
+  public final void setCurrency(final String pCurrency) {
+    this.currency = pCurrency;
+  }
+
+  /**
+   * <p>Getter for items.</p>
+   * @return List<SfacturaLineModel>
+   **/
+  public final List<SfacturaLineModel> getItems() {
+    return this.items;
+  }
+
+  /**
+   * <p>Setter for items.</p>
+   * @param pItems reference
+   **/
+  public final void setItems(final List<SfacturaLineModel> pItems) {
+    this.items = pItems;
   }
 }
