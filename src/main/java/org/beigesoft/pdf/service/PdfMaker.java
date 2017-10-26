@@ -355,7 +355,9 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
     fd.setMaxY(ttfFont.getHead().getYMax() * scaling);
     if (ttfFont.getOs2() != null) {
       fd.setFontWeight(ttfFont.getOs2().getUsWeightClass());
-      fd.setCapHeight(ttfFont.getOs2().getSCapHeight() * scaling);
+      if (ttfFont.getOs2().getSCapHeight() != 0) {
+        fd.setCapHeight(ttfFont.getOs2().getSCapHeight() * scaling);
+      }
       fd.setXHeight(ttfFont.getOs2().getSxHeight() * scaling);
       fd.setIsItalic7((ttfFont.getOs2().getFsSelection() & 0b1) > 0);
       switch (ttfFont.getOs2().getSFamilyClass()) {
@@ -373,6 +375,9 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
         default:
         break;
       }
+    }
+    if (fd.getCapHeight() == 0f) {
+      fd.setCapHeight(700f);
     }
     if (ttfFont.getHhea() != null) {
       fd.setAscent(ttfFont.getHhea().getAscent() * scaling);

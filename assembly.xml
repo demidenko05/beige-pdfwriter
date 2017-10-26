@@ -21,6 +21,10 @@
         <include>/maven-central-deploy.sh</include>
         <include>/findbug-exclude.xml</include>
         <include>/checkstyle-suppressions.xml</include>
+        <include>/test-dejavu-table.pdf</include>
+        <include>/Platyojka.pdf</include>
+        <include>/Sfactura.pdf</include>
+        <include>/invoiceA-68687687.pdf</include>
       </includes>
     </fileSet>
   </fileSets>

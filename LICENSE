@@ -322,10 +322,10 @@ consider it more useful to permit linking proprietary applications with the
 library.  If this is what you want to do, use the GNU Library General Public
 License instead of this License.
 
-3-D PARTY LICENSES (TTF used in test package):
+3-D PARTY LICENSES (TTFs included in test package):
 
-DejaVu fonts:
+DejaVu fonts license:
 https://dejavu-fonts.github.io/License.html
 
-Liberation fonts:
+Liberation 1.07.4 fonts license (GNU General Public License version 2 with exceptions):
 https://fedoraproject.org/wiki/Licensing/LiberationFontLicense

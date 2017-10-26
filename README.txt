@@ -18,6 +18,14 @@ licenses:
 GNU General Public License version 2
 http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
+3-D PARTY LICENSES (TTFs included in test package):
+
+DejaVu fonts license:
+https://dejavu-fonts.github.io/License.html
+
+Liberation 1.07.4 fonts license (GNU General Public License version 2 with exceptions):
+https://fedoraproject.org/wiki/Licensing/LiberationFontLicense
+
 Files test-dejavu-table.pdf, Platyojka.pdf, Sfactura.pdf and invoiceA-68687687.pdf are included into the source code to quickly demonstrate what can Beige-PDFWriter does.
 
 Examples see in the test folder.

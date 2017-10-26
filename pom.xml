@@ -7,6 +7,12 @@
   <version>1.0.0-SNAPSHOT</version>
   
   <name>Beigesoft PDF writer library.</name>
+  <description>This is light-weight (all JARs size is about 250KB),
+    international friendly and fast PDF writer. You will not get performance problems
+    on a high load server application, e.g. if hundred users push print (to PDF) button
+    at the same time. It's cross-platform writer - Standard Java and Android.
+    There are not 3-d party dependencies except Java, Android and TTF fonts.</description>
+
   <url>http://www.beigesoft.org</url>
   <inceptionYear>2017</inceptionYear>
 
@@ -138,12 +144,12 @@
     <dependency>
      <groupId>org.beigesoft</groupId>
      <artifactId>beige-docwriter</artifactId>
-     <version>1.0.0-SNAPSHOT</version>
+     <version>1.0.0</version>
     </dependency>
     <dependency>
      <groupId>org.beigesoft</groupId>
      <artifactId>beige-graphic-swing</artifactId>
-     <version>1.0.0-SNAPSHOT</version>
+     <version>1.0.0</version>
      <scope>test</scope>
     </dependency>
     <dependency>
