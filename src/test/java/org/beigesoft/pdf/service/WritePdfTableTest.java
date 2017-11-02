@@ -83,6 +83,7 @@ public class WritePdfTableTest {
   public void testTbl() throws Exception {
     Document<HasPdfContent> doc = this.factory.lazyGetFctDocument().createDoc(EPageSize.A4, EPageOrientation.PORTRAIT);
     PdfDocument<HasPdfContent> docPdf = this.factory.createPdfDoc(doc);
+    docPdf.getPdfInfo().setCreationDate(new Date(1462867931627L));
     this.pdfMaker.addFontTtf(docPdf, ERegisteredTtfFont.DEJAVUSANS.toString());
     this.docMaker.setFontSize(doc, 3.6);
     double width1dot = this.factory.lazyGetUomHelper().fromPoints(1.0, doc.getResolutionDpi(), doc.getUnitOfMeasure());

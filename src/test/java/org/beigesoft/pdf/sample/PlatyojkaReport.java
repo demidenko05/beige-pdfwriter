@@ -60,6 +60,7 @@ public class PlatyojkaReport<WI> {
       .createDoc(EPageSize.A4, EPageOrientation.PORTRAIT);
     doc.getPages().get(0).setMarginRight(14);
     PdfDocument<WI> docPdf = this.factory.createPdfDoc(doc);
+    docPdf.getPdfInfo().setCreationDate(new Date(1462867931627L));
     docPdf.getPdfInfo().setAuthor("Beigesoft (TM) Tester");
     IDocumentMaker docMaker = this.factory.lazyGetDocumentMaker();
     IPdfMaker<WI> pdfMaker = this.factory.lazyGetPdfMaker();
