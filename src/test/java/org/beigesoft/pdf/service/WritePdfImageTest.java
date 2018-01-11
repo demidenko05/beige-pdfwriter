@@ -42,7 +42,7 @@ import org.beigesoft.ttf.model.TtfFont;
 import org.beigesoft.ttf.service.TtfCompactFontMaker;
 import org.beigesoft.ttf.service.TtfInputStream;
 import org.beigesoft.doc.service.DocumentMaker;
-import org.beigesoft.graphic.service.SwingImageLoader;
+import org.beigesoft.graphic.swing.service.SwingImageLoader;
 
 /**
  * <p>Write image into PDF tests.</p>

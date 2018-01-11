@@ -26,7 +26,7 @@ import org.beigesoft.log.LoggerSimple;
 import org.beigesoft.pdf.model.HasPdfContent;
 import org.beigesoft.pdf.model.ERegisteredTtfFont;
 import org.beigesoft.pdf.service.PdfFactory;
-//import org.beigesoft.graphic.service.SwingImageLoader;
+//import org.beigesoft.graphic.swing.service.SwingImageLoader;
 
 /**
  * <p>Write Invoice speed tests. Every invoice takes own thread (taking client's request server side behavior).

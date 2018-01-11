@@ -1,5 +1,4 @@
-site: http://www.beigesoft.org
-or https://sites.google.com/site/beigesoftware
+site: https://sites.google.com/site/beigesoftware
 
 Beigesoft ™ PDF Writer.
 
@@ -13,6 +12,10 @@ For internationalization use free TTF fonts:
 * Liberation fonts - https://pagure.io/liberation-fonts
 
 TTF fonts will be embedded into PDF in compact form, i.e. only used characters will be present.
+
+Version 1.0.1:
+Added JAR signing.
+Fixed crossplatform file.separator.
 
 licenses:
 GNU General Public License version 2
@@ -29,7 +32,7 @@ https://fedoraproject.org/wiki/Licensing/LiberationFontLicense
 Files test-dejavu-table.pdf, Platyojka.pdf, Sfactura.pdf and invoiceA-68687687.pdf are included into the source code to quickly demonstrate what can Beige-PDFWriter does.
 
 Examples see in the test folder.
-For Android see example https://github.com/demidenko05/beige-graphic-android-test
+For Android see example https://github.com/demidenko05/beigesoft-android-sqlite-test
 org.beigesoft.androidtest.WritePdfImageTest.java
 
 Speed test (org.beigesoft.pdf.sample.WriteInvoiceSpeedTest) shows that 100 invoices (3pages each) take less than 4 seconds on ordinal notebook IntelI3/4GB, 64bit desktop linux (non-server), JVM8 64Bit. Doing each invoice takes its own thread.

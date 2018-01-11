@@ -25,7 +25,7 @@ import org.beigesoft.log.LoggerSimple;
 import org.beigesoft.pdf.model.HasPdfContent;
 import org.beigesoft.pdf.service.PdfFactory;
 import org.beigesoft.doc.service.DocumentMaker;
-import org.beigesoft.graphic.service.SwingImageLoader;
+import org.beigesoft.graphic.swing.service.SwingImageLoader;
 
 /**
  * <p>Write Invoice tests.</p>
