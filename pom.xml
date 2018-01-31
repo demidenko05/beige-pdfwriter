@@ -4,7 +4,7 @@
 
   <groupId>org.beigesoft</groupId>
   <artifactId>beige-pdfwriter</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.1</version>
   
   <name>Beigesoft PDF writer library.</name>
   <description>This is light-weight (all JARs size is about 250KB),
@@ -264,7 +264,7 @@
     <url>https://github.com/demidenko05/beige-pdfwriter.git</url>
     <connection>scm:git:git@github.com:demidenko05/beige-pdfwriter.git</connection>
     <developerConnection>scm:git:git@github.com:demidenko05/beige-pdfwriter.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>beige-pdfwriter-1.0.1</tag>
   </scm>
 
 </project>
