@@ -301,13 +301,13 @@ public class SfacturaReport<WI> {
       tblGoods.getItsCells().get(j * 13 + i++).setItsContent(ln.getItem());
       tblGoods.getItsCells().get(j * 13 + i++).setItsContent(ln.getUomCode());
       tblGoods.getItsCells().get(j * 13 + i++).setItsContent(ln.getUom());
-      tblGoods.getItsCells().get(j * 13 + i++).setItsContent(ln.getQuantity().toString().replace('.', ','));
-      tblGoods.getItsCells().get(j * 13 + i++).setItsContent(ln.getPrice().toString().replace('.', ','));
-      tblGoods.getItsCells().get(j * 13 + i++).setItsContent(ln.getSubtotal().toString().replace('.', ','));
+      tblGoods.getItsCells().get(j * 13 + i++).setItsContent(print(ln.getQuantity().toString()));
+      tblGoods.getItsCells().get(j * 13 + i++).setItsContent(print(ln.getPrice().toString()));
+      tblGoods.getItsCells().get(j * 13 + i++).setItsContent(print(ln.getSubtotal().toString()));
       tblGoods.getItsCells().get(j * 13 + i++).setItsContent(ln.getAkciz());
-      tblGoods.getItsCells().get(j * 13 + i++).setItsContent(ln.getTaxRate().toString().replace('.', ',') + "%");
-      tblGoods.getItsCells().get(j * 13 + i++).setItsContent(ln.getTotalTaxes().toString().replace('.', ','));
-      tblGoods.getItsCells().get(j * 13 + i++).setItsContent(ln.getTotal().toString().replace('.', ','));
+      tblGoods.getItsCells().get(j * 13 + i++).setItsContent(ln.getTaxRate().toString() + "%");
+      tblGoods.getItsCells().get(j * 13 + i++).setItsContent(print(ln.getTotalTaxes().toString()));
+      tblGoods.getItsCells().get(j * 13 + i++).setItsContent(print(ln.getTotal().toString()));
       tblGoods.getItsCells().get(j * 13 + i++).setItsContent("-");
       tblGoods.getItsCells().get(j * 13 + i++).setItsContent("-");
       tblGoods.getItsCells().get(j * 13 + i++).setItsContent("-");
@@ -323,16 +323,16 @@ public class SfacturaReport<WI> {
     tblGoods.getItsCells().get(1 + lastRowAddr).setMergedCell(tblGoods.getItsCells().get(2 + lastRowAddr));
     tblGoods.getItsCells().get(2 + lastRowAddr).setMergedCell(tblGoods.getItsCells().get(3 + lastRowAddr));
     tblGoods.getItsCells().get(5 + lastRowAddr).setAlignHorizontal(EAlignHorizontal.CENTER);
-    tblGoods.getItsCells().get(5 + lastRowAddr).setItsContent(pData.getSubtotal().toString().replace('.', ','));
-    //System.out.println(pData.getSubtotal().toString().replace('.', ','));
-    //System.out.println(pData.getTotalTaxes().toString().replace('.', ',')); // wrong wrapped data can overflow table width
-    //System.out.println(pData.getTotal().toString().replace('.', ','));
+    tblGoods.getItsCells().get(5 + lastRowAddr).setItsContent(print(pData.getSubtotal().toString()));
+    //System.out.println(pData.getSubtotal().toString()));
+    //System.out.println(pData.getTotalTaxes().toString())); // wrong wrapped data can overflow table width
+    //System.out.println(pData.getTotal().toString()));
     tblGoods.getItsCells().get(6 + lastRowAddr).setItsContent("X");
     tblGoods.getItsCells().get(6 + lastRowAddr).setAlignHorizontal(EAlignHorizontal.CENTER);
     tblGoods.getItsCells().get(6 + lastRowAddr).setMergedCell(tblGoods.getItsCells().get(7 + lastRowAddr));
-    tblGoods.getItsCells().get(8 + lastRowAddr).setItsContent(pData.getTotalTaxes().toString().replace('.', ','));
+    tblGoods.getItsCells().get(8 + lastRowAddr).setItsContent(print(pData.getTotalTaxes().toString()));
     tblGoods.getItsCells().get(8 + lastRowAddr).setAlignHorizontal(EAlignHorizontal.CENTER);
-    tblGoods.getItsCells().get(9 + lastRowAddr).setItsContent(pData.getTotal().toString().replace('.', ','));
+    tblGoods.getItsCells().get(9 + lastRowAddr).setItsContent(print(pData.getTotal().toString()));
     tblGoods.getItsCells().get(9 + lastRowAddr).setAlignHorizontal(EAlignHorizontal.CENTER);
     tblGoods.getItsCells().get(0 + lastRowAddr).setIsShowBorderLeft(true);
     tblGoods.getItsCells().get(0 + lastRowAddr).setIsShowBorderBottom(true);
@@ -393,6 +393,84 @@ public class SfacturaReport<WI> {
     pdfMaker.prepareBeforeWrite(docPdf);
     //pdfMaker.setIsCompressed(docPdf, false);
     this.factory.lazyGetPdfWriter().write(null, docPdf, pOus);
+  }
+
+
+  /**
+   * <p>Prints number formatted by given decimal separator, decimal group
+   * separator and decimal places after dot. Digits in group is 3.</p>
+   * @param pNumber e.g. "12146678.12"
+   * @return String internationalized number, e.g. "12 146 678,12"
+   **/
+  public final String print(final String pNumber) {
+    return print(pNumber, ",", " ", 2, 3);
+  }
+
+  /**
+   * <p>Prints number formatted by given decimal separator, decimal group
+   * separator, decimal places after dot and digits in group.</p>
+   * @param pNumber e.g. "12146678.12"
+   * @param pDigSep decimal separator, e.g. ","
+   * @param pDigGrSep decimal group separator, e.g. " "
+   * @param pDecPlAfDot decimal places after dot, e.g. 2
+   * @param pDigitsInGroup Digits in group, e.g. 3
+   * @return String internationalized number, e.g. "12 146 678,12"
+   **/
+  public final String print(final String pNumber, final String pDigSep,
+    final String pDigGrSep, final Integer pDecPlAfDot,
+      final Integer pDigitsInGroup) {
+    if (pNumber == null || "".equals(pNumber)) {
+      return "";
+    }
+    int dotIdx = pNumber.indexOf(".");
+    String leftWing;
+    String rightWing;
+    if (dotIdx == -1) {
+      leftWing = pNumber;
+      rightWing = null;
+    } else {
+      leftWing = pNumber.substring(0, dotIdx);
+      rightWing = pNumber.substring(dotIdx + 1);
+    }
+    StringBuffer sb = new StringBuffer();
+    for (int i = 0; i < leftWing.length(); i++) {
+      char ch = leftWing.charAt(i);
+      sb.append(ch);
+      int idxFl = leftWing.length() - i;
+      if (pDigitsInGroup == 2) {
+        //hard-coded Indian style 12,12,14,334
+        if (idxFl == 4) {
+          sb.append(pDigGrSep);
+        } else {
+          idxFl -= 3;
+        }
+      }
+      if (idxFl >= pDigitsInGroup) {
+        int gc = idxFl / pDigitsInGroup;
+        if (gc > 0) {
+          int rem;
+          if (gc == 1) {
+            rem = idxFl % pDigitsInGroup;
+          } else {
+            rem = idxFl % (pDigitsInGroup * gc);
+          }
+          if (rem == 1) {
+            sb.append(pDigGrSep);
+          }
+        }
+      }
+    }
+    if (pDecPlAfDot > 0) {
+      sb.append(pDigSep);
+      for (int i = 0; i < pDecPlAfDot; i++) {
+        if (rightWing != null && rightWing.length() > i) {
+          sb.append(rightWing.charAt(i));
+        } else {
+          sb.append("0");
+        }
+      }
+    }
+    return sb.toString();
   }
 
   //Simple getters and setters:
