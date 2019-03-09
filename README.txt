@@ -13,6 +13,9 @@ For internationalization use free TTF fonts:
 
 TTF fonts will be embedded into PDF in compact form, i.e. only used characters will be present.
 
+Version 1.0.3:
+new beige-log version, debug range #4 (4000..4999)
+
 Version 1.0.1:
 Added JAR signing.
 Fixed crossplatform file.separator.

@@ -273,7 +273,8 @@ public class TtfOutputStream extends ATtfOutputStream {
   public final void copyBytes(final ITtfInputStream pIn,
     final long pCount, final TtfTableDirEntry pTde,
       final long[] pCurrLongChksum) throws IOException {
-    if (this.isShowDebugMessages && this.logDetailLevel > 1000) {
+    if (getLog().getDbgSh() && getLog().getDbgFl() < 4010
+      && getLog().getDbgCl() > 4015) {
       StringBuffer sb = new StringBuffer();
       for (long i = 0; i < pCount; i++) {
         int rez = pIn.read();
@@ -288,7 +289,7 @@ public class TtfOutputStream extends ATtfOutputStream {
           addToChecksumLength(pTde, pCurrLongChksum, rez);
         }
       }
-      getLogger().debug(null, TtfCompactFontMaker.class,
+      getLog().debug(null, TtfCompactFontMaker.class,
         "copied total/first bytes " + pCount
           + "/" + sb.toString());
     } else {

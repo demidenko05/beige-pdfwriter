@@ -15,7 +15,7 @@ package org.beigesoft.ttf.service;
 import java.util.Map;
 import java.util.List;
 
-import org.beigesoft.log.ILogger;
+import org.beigesoft.log.ILog;
 import org.beigesoft.ttf.model.Glyph;
 import org.beigesoft.ttf.model.TtfTableDirEntry;
 import org.beigesoft.ttf.model.TableForEmbeddingMaxp;
@@ -28,15 +28,9 @@ import org.beigesoft.ttf.model.TableForEmbeddingMaxp;
 public class TableMakerMaxp implements ITableMaker<TableForEmbeddingMaxp> {
 
   /**
-   * <p>Logger.</p>
+   * <p>Log.</p>
    **/
-  private ILogger logger;
-
-  //Debug log preferences made by master bean for improving speed:
-  /**
-   * <p>If show debug messages.</p>
-   **/
-  private boolean isShowDebugMessages;
+  private ILog log;
 
   /**
    * <p>It makes TTF table and write to output stream.</p>
@@ -65,50 +59,35 @@ public class TableMakerMaxp implements ITableMaker<TableForEmbeddingMaxp> {
     int mod4 = (int) pTde.getLength() % 4;
     if (mod4 != 0) {
       pOs.addZeroBytesToCheksum(4 - mod4, pTde, pCurrLongChksum);
-      if (this.isShowDebugMessages) {
-        this.logger.debug(null, TableMakerMaxp.class,
+      if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4054
+        && this.getLog().getDbgCl() > 4056) {
+        this.log.debug(null, TableMakerMaxp.class,
           "maxp added zeros to checksum " + (4 - mod4));
       }
     }
-    if (this.isShowDebugMessages) {
-      this.logger.debug(null, TableMakerMaxp.class,
-        "Added maxp checksum/offset/length "
-          + pTde.getChecksum() + "/" + pTde.getOffset()
-            + "/" + pTde.getLength());
+    if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4054
+      && this.getLog().getDbgCl() > 4056) {
+      this.log.debug(null, TableMakerMaxp.class,
+        "Added maxp checksum/offset/length " + pTde.getChecksum() + "/"
+          + pTde.getOffset() + "/" + pTde.getLength());
     }
   }
 
   //Simple getters and setters:
 
   /**
-   * <p>Getter for logger.</p>
-   * @return ILogger
+   * <p>Getter for log.</p>
+   * @return ILog
    **/
-  public final ILogger getLogger() {
-    return this.logger;
+  public final ILog getLog() {
+    return this.log;
   }
 
   /**
-   * <p>Setter for logger.</p>
-   * @param pLogger reference
+   * <p>Setter for log.</p>
+   * @param pLog reference
    **/
-  public final void setLogger(final ILogger pLogger) {
-    this.logger = pLogger;
-  }
-
-  /**
-   * <p>Getter for isShowDebugMessages.</p>
-   * @return boolean
-   **/
-  public final boolean getIsShowDebugMessages() {
-    return this.isShowDebugMessages;
-  }
-
-  /**
-   * <p>Setter for isShowDebugMessages.</p>
-   * @param pIsShowDebugMessages reference
-   **/
-  public final void setIsShowDebugMessages(final boolean pIsShowDebugMessages) {
-    this.isShowDebugMessages = pIsShowDebugMessages;
+  public final void setLog(final ILog pLog) {
+    this.log = pLog;
   }
 }

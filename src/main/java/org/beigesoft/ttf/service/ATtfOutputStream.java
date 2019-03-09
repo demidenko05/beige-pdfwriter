@@ -15,7 +15,7 @@ package org.beigesoft.ttf.service;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.beigesoft.log.ILogger;
+import org.beigesoft.log.ILog;
 import org.beigesoft.ttf.model.TtfTableDirEntry;
 
 /**
@@ -27,25 +27,14 @@ import org.beigesoft.ttf.model.TtfTableDirEntry;
 public abstract class ATtfOutputStream implements ITtfOutputStream {
 
   /**
-   * <p>Logger.</p>
+   * <p>Log.</p>
    **/
-  private ILogger logger;
+  private ILog log;
 
   /**
    * <p>OutputStream.</p>
    **/
   protected final OutputStream outputStream;
-
-  //Debug log preferences:
-  /**
-   * <p>If show debug messages.</p>
-   **/
-  protected boolean isShowDebugMessages;
-
-  /**
-   * <p>Logs detail level.</p>
-   **/
-  protected int logDetailLevel;
 
   /**
    * <p>Current size.</p>
@@ -138,25 +127,21 @@ public abstract class ATtfOutputStream implements ITtfOutputStream {
     this.outputStream.close();
   }
 
-  //CGS:
-  /**
-   * <p>Setter for logger.</p>
-   * @param pLogger reference
-   **/
-  public final void setLogger(final ILogger pLogger) {
-    this.logger = pLogger;
-    this.isShowDebugMessages = this.logger
-      .getIsShowDebugMessagesFor(getClass());
-    this.logDetailLevel = this.logger.getDetailLevel();
-  }
-
   //SGS:
   /**
-   * <p>Getter for logger.</p>
-   * @return ILogger
+   * <p>Setter for log.</p>
+   * @param pLog reference
    **/
-  public final ILogger getLogger() {
-    return this.logger;
+  public final void setLog(final ILog pLog) {
+    this.log = pLog;
+  }
+
+  /**
+   * <p>Getter for log.</p>
+   * @return ILog
+   **/
+  public final ILog getLog() {
+    return this.log;
   }
 
   /**

@@ -20,7 +20,7 @@ import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
 
-import org.beigesoft.log.ILogger;
+import org.beigesoft.log.ILog;
 import org.beigesoft.ttf.model.Glyph;
 import org.beigesoft.ttf.model.TtfFont;
 import org.beigesoft.ttf.model.TtfTableDirEntry;
@@ -35,9 +35,9 @@ import org.beigesoft.pdf.exception.ExceptionPdfWr;
 public class TtfCompactFontMaker implements ITtfCompactFontMaker {
 
   /**
-   * <p>Logger.</p>
+   * <p>Log.</p>
    **/
-  private ILogger logger;
+  private ILog log;
 
   /**
    * <p>App-scoped TTF fonts data map.</p>
@@ -54,11 +54,6 @@ public class TtfCompactFontMaker implements ITtfCompactFontMaker {
    **/
   private Map<String, String> ttfFontsPaths;
 
-  //Debug log preferences:
-  /**
-   * <p>If show debug messages.</p>
-   **/
-  private boolean isShowDebugMessages;
 
   /**
    * <p>It makes compact TTF font for embedding into PDF.</p>
@@ -82,7 +77,7 @@ public class TtfCompactFontMaker implements ITtfCompactFontMaker {
     if (ttfFont.getGlyf().getBufferInputStream() != null) {
       return makeCompact(pAddParam, ttfFont, null, pUsedCids);
     } else {
-      this.logger.info(null, TtfCompactFontMaker.class,
+      this.log.info(null, TtfCompactFontMaker.class,
         "Make input stream for font " + pFontName);
       TtfInputStream is = null;
       try {
@@ -112,9 +107,8 @@ public class TtfCompactFontMaker implements ITtfCompactFontMaker {
   public final byte[] makeCompact(final Map<String, Object> pAddParam,
     final TtfFont pTtf, final TtfInputStream pIs,
       final List<Character> pUsedCids) throws Exception {
-    this.isShowDebugMessages = this.logger
-      .getIsShowDebugMessagesFor(getClass());
     TtfOutputStream os = new TtfOutputStream(new ByteArrayOutputStream());
+    os.setLog(this.log);
     os.writeUInt32(pTtf.getScalerType()); //uint32 scaler type
     int numTables = pTtf.getTablesForEmbedding().size(); //uint16 numTables
     os.write(0); os.write(numTables);
@@ -185,24 +179,27 @@ public class TtfCompactFontMaker implements ITtfCompactFontMaker {
   public final void fixTde(final byte[] pArr, final TtfTableDirEntry pTde) {
     if (pTde.getChecksumIdx() != null) {
       replaceUInt32(pArr, pTde.getChecksumIdx(), pTde.getChecksum());
-      if (this.isShowDebugMessages) {
-        this.logger.debug(null, TtfCompactFontMaker.class,
+      if (getLog().getDbgSh() && getLog().getDbgFl() < 4020
+        && getLog().getDbgCl() > 4022) {
+        this.log.debug(null, TtfCompactFontMaker.class,
           "Replaced checksum  tde/idx/value " + pTde.getTagString()
             + "/" + pTde.getChecksumIdx() + "/" + pTde.getChecksum());
       }
     }
     if (pTde.getOffsetIdx() != null) {
       replaceUInt32(pArr, pTde.getOffsetIdx(), pTde.getOffset());
-      if (this.isShowDebugMessages) {
-        this.logger.debug(null, TtfCompactFontMaker.class,
+      if (getLog().getDbgSh() && getLog().getDbgFl() < 4020
+        && getLog().getDbgCl() > 4022) {
+        this.log.debug(null, TtfCompactFontMaker.class,
           "Replaced offset tde/idx/value " + pTde.getTagString()
              + "/" + pTde.getOffsetIdx() + "/" + pTde.getOffset());
       }
     }
     if (pTde.getLengthIdx() != null) {
       replaceUInt32(pArr, pTde.getLengthIdx(), pTde.getLength());
-      if (this.isShowDebugMessages) {
-        this.logger.debug(null, TtfCompactFontMaker.class,
+      if (getLog().getDbgSh() && getLog().getDbgFl() < 4020
+        && getLog().getDbgCl() > 4022) {
+        this.log.debug(null, TtfCompactFontMaker.class,
           "Replaced length  tde/idx/value " + pTde.getTagString()
             + "/" + pTde.getLengthIdx() + "/" + pTde.getLength());
       }
@@ -238,7 +235,7 @@ public class TtfCompactFontMaker implements ITtfCompactFontMaker {
     URL url = TtfCompactFontMaker.class
       .getResource(fntFlNm);
     if (url != null) {
-      this.logger.info(null, TtfCompactFontMaker.class,
+      this.log.info(null, TtfCompactFontMaker.class,
         "Loading font " + pFontName);
       InputStream is = null;
       try {
@@ -262,19 +259,19 @@ public class TtfCompactFontMaker implements ITtfCompactFontMaker {
 
   //SGS:
   /**
-   * <p>Getter for logger.</p>
-   * @return ILogger
+   * <p>Getter for log.</p>
+   * @return ILog
    **/
-  public final ILogger getLogger() {
-    return this.logger;
+  public final ILog getLog() {
+    return this.log;
   }
 
   /**
-   * <p>Setter for logger.</p>
-   * @param pLogger reference
+   * <p>Setter for log.</p>
+   * @param pLog reference
    **/
-  public final void setLogger(final ILogger pLogger) {
-    this.logger = pLogger;
+  public final void setLog(final ILog pLog) {
+    this.log = pLog;
   }
 
   /**

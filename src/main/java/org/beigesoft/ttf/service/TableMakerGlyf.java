@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.Arrays;
 
-import org.beigesoft.log.ILogger;
+import org.beigesoft.log.ILog;
 import org.beigesoft.ttf.model.Glyph;
 import org.beigesoft.ttf.model.TtfTableDirEntry;
 import org.beigesoft.ttf.model.TableForEmbeddingGlyf;
@@ -29,20 +29,9 @@ import org.beigesoft.ttf.model.TableForEmbeddingGlyf;
 public class TableMakerGlyf implements ITableMaker<TableForEmbeddingGlyf> {
 
   /**
-   * <p>Logger.</p>
+   * <p>Log.</p>
    **/
-  private ILogger logger;
-
-  //Debug log preferences made by master bean for improving speed:
-  /**
-   * <p>If show debug messages.</p>
-   **/
-  private boolean isShowDebugMessages;
-
-  /**
-   * <p>Logs detail level.</p>
-   **/
-  private int logDetailLevel;
+  private ILog log;
 
   /**
    * <p>It makes TTF table and write to output stream.</p>
@@ -78,8 +67,9 @@ public class TableMakerGlyf implements ITableMaker<TableForEmbeddingGlyf> {
         if (pIs != null) {
           pIs.goAhead(pTfe.getSourceTde().getOffset()
             + gl.getOffset());
-          if (this.isShowDebugMessages && this.logDetailLevel > 114) {
-            this.logger.debug(null, TableMakerGlyf.class,
+          if (getLog().getDbgSh() && getLog().getDbgFl() < 4033
+            && getLog().getDbgCl() > 4035) {
+            this.log.debug(null, TableMakerGlyf.class,
               "Copy GID/offsetIs/offsetOs/offset/length " + ((int) gid)
                 + "/" + pIs.getOffset() + "/" + pOs.getSize() + "/"
                   + gl.getOffset() + "/" + gl.getLength());
@@ -87,8 +77,9 @@ public class TableMakerGlyf implements ITableMaker<TableForEmbeddingGlyf> {
           gl.setOffset(pOs.getSize() - pTde.getOffset()); //new CTTF offset
           pOs.copyBytes(pIs, gl.getLength(), pTde, pCurrLongChksum);
         } else {
-          if (this.isShowDebugMessages && this.logDetailLevel > 114) {
-            this.logger.debug(null, TableMakerGlyf.class,
+          if (getLog().getDbgSh() && getLog().getDbgFl() < 4033
+            && getLog().getDbgCl() > 4035) {
+            this.log.debug(null, TableMakerGlyf.class,
               "Try to copy GID/offsetOs/offset/length " + ((int) gid)
                 + "/" + pOs.getSize() + "/"
                   + gl.getOffset() + "/" + gl.getLength());
@@ -102,8 +93,9 @@ public class TableMakerGlyf implements ITableMaker<TableForEmbeddingGlyf> {
         // padding zeros at the end of glyph for 4byte aligned
         int mod4 = (int) gl.getLength() % 4;
         if (mod4 != 0) {
-          if (this.isShowDebugMessages && this.logDetailLevel > 114) {
-            this.logger.debug(null, TableMakerGlyf.class,
+          if (getLog().getDbgSh() && getLog().getDbgFl() < 4033
+            && getLog().getDbgCl() > 4035) {
+            this.log.debug(null, TableMakerGlyf.class,
               "4-bytes aligned GID/count zeros " + ((int) gid)
                 + "/"  + (4 - mod4));
           }
@@ -111,8 +103,9 @@ public class TableMakerGlyf implements ITableMaker<TableForEmbeddingGlyf> {
         }
       }
     }
-    if (this.isShowDebugMessages) {
-      this.logger.debug(null, TableMakerGlyf.class,
+    if (getLog().getDbgSh() && getLog().getDbgFl() < 4033
+      && getLog().getDbgCl() > 4035) {
+      this.log.debug(null, TableMakerGlyf.class,
         "Added glyf checksum/offset/length "
           + pTde.getChecksum() + "/" + pTde.getOffset()
             + "/" + pTde.getLength());
@@ -122,50 +115,18 @@ public class TableMakerGlyf implements ITableMaker<TableForEmbeddingGlyf> {
   //Simple getters and setters:
 
   /**
-   * <p>Getter for logger.</p>
-   * @return ILogger
+   * <p>Getter for log.</p>
+   * @return ILog
    **/
-  public final ILogger getLogger() {
-    return this.logger;
+  public final ILog getLog() {
+    return this.log;
   }
 
   /**
-   * <p>Setter for logger.</p>
-   * @param pLogger reference
+   * <p>Setter for log.</p>
+   * @param pLog reference
    **/
-  public final void setLogger(final ILogger pLogger) {
-    this.logger = pLogger;
-  }
-
-  /**
-   * <p>Getter for isShowDebugMessages.</p>
-   * @return boolean
-   **/
-  public final boolean getIsShowDebugMessages() {
-    return this.isShowDebugMessages;
-  }
-
-  /**
-   * <p>Setter for isShowDebugMessages.</p>
-   * @param pIsShowDebugMessages reference
-   **/
-  public final void setIsShowDebugMessages(final boolean pIsShowDebugMessages) {
-    this.isShowDebugMessages = pIsShowDebugMessages;
-  }
-
-  /**
-   * <p>Getter for logDetailLevel.</p>
-   * @return int
-   **/
-  public final int getLogDetailLevel() {
-    return this.logDetailLevel;
-  }
-
-  /**
-   * <p>Setter for logDetailLevel.</p>
-   * @param pLogDetailLevel reference
-   **/
-  public final void setLogDetailLevel(final int pLogDetailLevel) {
-    this.logDetailLevel = pLogDetailLevel;
+  public final void setLog(final ILog pLog) {
+    this.log = pLog;
   }
 }

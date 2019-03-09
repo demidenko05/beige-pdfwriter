@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import org.beigesoft.log.LoggerSimple;
+import org.beigesoft.log.LogSmp;
 import org.beigesoft.zlib.ZLibStreamer;
 import org.beigesoft.pdf.model.EFontS14;
 import org.beigesoft.pdf.model.ERegisteredTtfFont;
@@ -51,7 +51,7 @@ import org.beigesoft.graphic.swing.service.SwingImageLoader;
  */
 public class WritePdfImageTest {
 
-  LoggerSimple logger;
+  LogSmp logger;
 
   PdfFactory factory;
 
@@ -60,11 +60,12 @@ public class WritePdfImageTest {
   DocumentMaker<HasPdfContent> docMaker;
     
   public WritePdfImageTest() throws Exception {
-    this.logger = new LoggerSimple();
-    this.logger.setIsShowDebugMessages(true);
-    this.logger.setDetailLevel(115);
+    this.logger = new LogSmp();
+    logger.setDbgSh(true);
+    logger.setDbgFl(4000);
+    logger.setDbgCl(4999);
     this.factory = new PdfFactory();
-    this.factory.setLogger(this.logger);
+    this.factory.setLog(this.logger);
     this.factory.init();
     this.factory.lazyGetFctElement().setFctImageRgb(new SwingImageLoader());
     this.pdfMaker = this.factory.lazyGetPdfMaker();

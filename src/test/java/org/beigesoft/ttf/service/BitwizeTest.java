@@ -23,7 +23,7 @@ import static org.junit.Assert.assertArrayEquals;
 
 import org.junit.Test;
 
-import org.beigesoft.log.LoggerSimple;
+import org.beigesoft.log.LogSmp;
 import org.beigesoft.ttf.model.TtfTableDirEntry;
 
 /**
@@ -38,16 +38,17 @@ public class BitwizeTest {
    **/
   private final Charset ascii = Charset.forName("ISO-8859-1");
 
-  LoggerSimple logger;
+  LogSmp logger;
 
   TtfCompactFontMaker compactFontMaker;
   
   public BitwizeTest() {
-    this.logger = new LoggerSimple();
-    this.logger.setIsShowDebugMessages(true);
-    this.logger.setDetailLevel(5);
+    this.logger = new LogSmp();
+    logger.setDbgSh(true);
+    logger.setDbgFl(4000);
+    logger.setDbgCl(4999);
     this.compactFontMaker = new TtfCompactFontMaker();
-    this.compactFontMaker.setLogger(this.logger);
+    this.compactFontMaker.setLog(this.logger);
   }
 
   @Test

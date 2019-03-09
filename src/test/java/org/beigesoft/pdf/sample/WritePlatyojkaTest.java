@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import org.beigesoft.log.LoggerSimple;
+import org.beigesoft.log.LogSmp;
 import org.beigesoft.pdf.model.HasPdfContent;
 import org.beigesoft.pdf.service.PdfFactory;
 import org.beigesoft.doc.service.DocumentMaker;
@@ -36,10 +36,12 @@ public class WritePlatyojkaTest {
   private PdfFactory factory;
     
   public WritePlatyojkaTest() throws Exception {
-    LoggerSimple logger = new LoggerSimple();
-    logger.setIsShowDebugMessages(true);
+    LogSmp logger = new LogSmp();
+    logger.setDbgSh(true);
+    logger.setDbgFl(4000);
+    logger.setDbgCl(4999);
     this.factory = new PdfFactory();
-    this.factory.setLogger(logger);
+    this.factory.setLog(logger);
     this.factory.init();
   }
   

@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import org.beigesoft.log.LoggerSimple;
+import org.beigesoft.log.LogSmp;
 import org.beigesoft.pdf.model.HasPdfContent;
 import org.beigesoft.pdf.model.ERegisteredTtfFont;
 import org.beigesoft.pdf.service.PdfFactory;
@@ -58,10 +58,12 @@ public class WriteInvoiceSpeedTest {
   private long lastFinishedTime;
 
   public WriteInvoiceSpeedTest() throws Exception {
-    LoggerSimple logger = new LoggerSimple();
-    logger.setIsShowDebugMessages(false);
+    LogSmp logger = new LogSmp();
+    logger.setDbgSh(true);
+    logger.setDbgFl(4000);
+    logger.setDbgCl(4999);
     this.factory = new PdfFactory();
-    this.factory.setLogger(logger);
+    this.factory.setLog(logger);
     this.factory.init();
     this.factory.lazyGetTtfLoader().setIsCacheGlyf(true);
     //this.factory.lazyGetFctElement().setFctImageRgb(new SwingImageLoader());

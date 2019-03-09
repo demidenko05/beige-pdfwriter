@@ -14,7 +14,7 @@ package org.beigesoft.pdf.service;
 
 import java.util.Comparator;
 
-import org.beigesoft.log.ILogger;
+import org.beigesoft.log.ILog;
 import org.beigesoft.zlib.IZLibStreamer;
 import org.beigesoft.doc.model.Document;
 import org.beigesoft.doc.model.DocLine;
@@ -77,10 +77,10 @@ public interface IPdfFactory<WI> {
 
   /**
    * <p>Getter for logger.</p>
-   * @return ILogger
+   * @return ILog
    * @throws Exception an Exception
    **/
-  ILogger lazyGetLogger() throws Exception;
+  ILog lazyGetLog() throws Exception;
 
   /**
    * <p>Getter for documentMaker.</p>

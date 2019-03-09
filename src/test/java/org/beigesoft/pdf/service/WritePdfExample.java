@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import org.beigesoft.log.LoggerSimple;
+import org.beigesoft.log.LogSmp;
 import org.beigesoft.zlib.ZLibStreamer;
 import org.beigesoft.pdf.model.EFontS14;
 import org.beigesoft.pdf.model.ERegisteredTtfFont;
@@ -78,11 +78,12 @@ public class WritePdfExample {
       argTxt2 = args[4];
     }
     boolean isCompressed = args.length > 4;
-    LoggerSimple logger = new LoggerSimple();
-    logger.setIsShowDebugMessages(true);
-    logger.setDetailLevel(1115);
+    LogSmp logger = new LogSmp();
+    logger.setDbgSh(true);
+    logger.setDbgFl(4000);
+    logger.setDbgCl(4999);
     PdfFactory factory = new PdfFactory();
-    factory.setLogger(logger);
+    factory.setLog(logger);
     factory.init();
     char[] unis = new char[argTxt.length()];
     factory.lazyGetTtfLoader().setLogUnicodes(new LinkedHashSet<Character>());

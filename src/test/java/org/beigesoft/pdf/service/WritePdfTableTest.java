@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import org.beigesoft.log.LoggerSimple;
+import org.beigesoft.log.LogSmp;
 import org.beigesoft.zlib.ZLibStreamer;
 import org.beigesoft.pdf.model.EFontS14;
 import org.beigesoft.pdf.model.ERegisteredTtfFont;
@@ -55,7 +55,7 @@ import org.beigesoft.doc.service.DocumentMaker;
  */
 public class WritePdfTableTest {
 
-  LoggerSimple logger;
+  LogSmp logger;
 
   PdfFactory factory;
 
@@ -64,11 +64,12 @@ public class WritePdfTableTest {
   DocumentMaker<HasPdfContent> docMaker;
     
   public WritePdfTableTest() throws Exception {
-    this.logger = new LoggerSimple();
-    this.logger.setIsShowDebugMessages(true);
-    this.logger.setDetailLevel(115);
+    this.logger = new LogSmp();
+    logger.setDbgSh(true);
+    logger.setDbgFl(4000);
+    logger.setDbgCl(4999);
     this.factory = new PdfFactory();
-    this.factory.setLogger(this.logger);
+    this.factory.setLog(this.logger);
     this.factory.init();
     this.factory.lazyGetTtfLoader().setIsCacheGlyf(true);
     this.factory.lazyGetTtfLoader().setLogGtiDelta(5);

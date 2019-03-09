@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import org.beigesoft.log.LoggerSimple;
+import org.beigesoft.log.LogSmp;
 import org.beigesoft.ttf.model.Glyph;
 import org.beigesoft.ttf.model.TtfFont;
 import org.beigesoft.ttf.model.TtfConstants;
@@ -37,18 +37,19 @@ import org.beigesoft.pdf.service.PdfFactory;
  */
 public class TtfLoaderTest {
 
-  LoggerSimple logger;
+  LogSmp logger;
   
   TtfLoader ttfLoader;
 
   PdfFactory factory;
   
   public TtfLoaderTest() throws Exception {
-    this.logger = new LoggerSimple();
-    this.logger.setIsShowDebugMessages(true);
-    this.logger.setDetailLevel(1005);
+    this.logger = new LogSmp();
+    logger.setDbgSh(true);
+    logger.setDbgFl(4000);
+    logger.setDbgCl(4999);
     this.factory = new PdfFactory();
-    this.factory.setLogger(this.logger);
+    this.factory.setLog(this.logger);
     this.factory.init();
     this.ttfLoader = this.factory.lazyGetTtfLoader();
     this.ttfLoader.setLogGtiDelta(5);

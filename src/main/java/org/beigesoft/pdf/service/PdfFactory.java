@@ -16,8 +16,8 @@ import java.util.Date;
 import java.util.ArrayList;
 import java.io.File;
 
-import org.beigesoft.log.ILogger;
-import org.beigesoft.log.LoggerFile;
+import org.beigesoft.log.ILog;
+import org.beigesoft.log.LogFile;
 import org.beigesoft.zlib.ZLibStreamer;
 import org.beigesoft.doc.model.Document;
 import org.beigesoft.doc.model.DocRectangle;
@@ -70,9 +70,9 @@ import org.beigesoft.pdf.exception.ExceptionPdfWr;
 public class PdfFactory implements IPdfFactory<HasPdfContent> {
 
   /**
-   * <p>Logger.</p>
+   * <p>Log.</p>
    **/
-  private ILogger logger;
+  private ILog log;
 
   /**
    * <p>App-scoped PDF writer.</p>
@@ -310,32 +310,33 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
    * @throws Exception an Exception
    **/
   public final synchronized void init() throws Exception {
-    if (this.logger == null) { //usually external
-      LoggerFile log = new LoggerFile();
+    if (this.log == null) { //usually external
+      LogFile lg = new LogFile();
       String currDir = System.getProperty("user.dir") + File.separator;
       String fileBaseName = "pdf-writer";
-      log.setFilePath(currDir + fileBaseName);
-      this.logger = log;
-      this.logger.setIsShowDebugMessages(false);
-      this.logger.setDetailLevel(5);
+      lg.setPath(currDir + fileBaseName);
+      this.log = lg;
+      this.log.setDbgSh(false);
+      this.log.setDbgFl(4000);
+      this.log.setDbgFl(4999);
     }
     this.compactFontMaker = new TtfCompactFontMaker();
-    this.compactFontMaker.setLogger(this.logger);
+    this.compactFontMaker.setLog(this.log);
     this.tdeMaker = new TdeMaker();
     this.tableMakerFc = new TableMakerFc();
-    this.tableMakerFc.setLogger(this.logger);
+    this.tableMakerFc.setLog(this.log);
     this.tableMakerHmtx = new TableMakerHmtx();
-    this.tableMakerHmtx.setLogger(this.logger);
+    this.tableMakerHmtx.setLog(this.log);
     this.tableMakerHead = new TableMakerHead();
-    this.tableMakerHead.setLogger(this.logger);
+    this.tableMakerHead.setLog(this.log);
     this.tableMakerGlyf = new TableMakerGlyf();
-    this.tableMakerGlyf.setLogger(this.logger);
+    this.tableMakerGlyf.setLog(this.log);
     this.tableMakerLoca = new TableMakerLoca();
-    this.tableMakerLoca.setLogger(this.logger);
+    this.tableMakerLoca.setLog(this.log);
     this.tableMakerMaxp = new TableMakerMaxp();
-    this.tableMakerMaxp.setLogger(this.logger);
+    this.tableMakerMaxp.setLog(this.log);
     this.tableMakerHhea = new TableMakerHhea();
-    this.tableMakerHhea.setLogger(this.logger);
+    this.tableMakerHhea.setLog(this.log);
     this.ttfConstants = new TtfConstants();
     this.ttfLoader = new TtfLoader();
     this.ttfLoader.setTdeMaker(this.tdeMaker);
@@ -346,7 +347,7 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
     this.ttfLoader.setTableMakerLoca(this.tableMakerLoca);
     this.ttfLoader.setTableMakerMaxp(this.tableMakerMaxp);
     this.ttfLoader.setTableMakerHhea(this.tableMakerHhea);
-    this.ttfLoader.setLogger(this.logger);
+    this.ttfLoader.setLog(this.log);
     this.ttfLoader.setTtfConstants(this.ttfConstants);
     this.writeHelper = new PdfWriteHelper();
     PdfWriter<HasPdfContent> pdfWr = new PdfWriter<HasPdfContent>();
@@ -522,13 +523,13 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
   }
 
   /**
-   * <p>Getter for logger.</p>
-   * @return ILogger
+   * <p>Getter for log.</p>
+   * @return ILog
    * @throws Exception an Exception
    **/
   @Override
-  public final ILogger lazyGetLogger() throws Exception {
-    return this.logger;
+  public final ILog lazyGetLog() throws Exception {
+    return this.log;
   }
 
   /**
@@ -952,11 +953,11 @@ public class PdfFactory implements IPdfFactory<HasPdfContent> {
 
   //SGS:
   /**
-   * <p>Setter for logger.</p>
-   * @param pLogger reference
+   * <p>Setter for log.</p>
+   * @param pLog reference
    **/
-  public final void setLogger(final ILogger pLogger) {
-    this.logger = pLogger;
+  public final void setLog(final ILog pLog) {
+    this.log = pLog;
   }
 
   /**
