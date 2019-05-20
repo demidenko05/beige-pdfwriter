@@ -1,6 +1,6 @@
 site: https://sites.google.com/site/beigesoftware
 
-Beigesoft ™ PDF Writer.
+Beigesoft™ PDF Writer.
 
 This is light-weight (all JARs size is about 250KB), international friendly and fast PDF writer. You will not get performance problems on a high load server application, e.g. if hundred users push print (to PDF) button at the same time. It's cross-platform writer - Standard Java and Android. There are not 3-d party dependencies except Java, Android and TTF fonts.
 
@@ -14,15 +14,16 @@ For internationalization use free TTF fonts:
 TTF fonts will be embedded into PDF in compact form, i.e. only used characters will be present.
 
 Version 1.0.3:
-new beige-log version, debug range #4 (4000..4999)
+License changed to BSD 2-Clause.
+new beige-logging version, debug range #4 (4000..4999)
 
 Version 1.0.1:
 Added JAR signing.
 Fixed crossplatform file.separator.
 
-licenses:
-GNU General Public License version 2
-http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
+license:
+BSD 2-Clause License
+https://sites.google.com/site/beigesoftware/bsd2csl
 
 3-D PARTY LICENSES (TTFs included in test package):
 
