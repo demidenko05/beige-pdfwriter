@@ -193,10 +193,10 @@ public class TtfCompactFontMaker implements ITtfCompactFontMaker {
    * @param pTde TDE
    **/
   public final void fixTde(final byte[] pArr, final TtfTableDirEntry pTde) {
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4150);
     if (pTde.getChecksumIdx() != null) {
       replaceUInt32(pArr, pTde.getChecksumIdx(), pTde.getChecksum());
-      if (getLog().getDbgSh() && getLog().getDbgFl() < 4020
-        && getLog().getDbgCl() > 4022) {
+      if (dbgSh) {
         this.log.debug(null, TtfCompactFontMaker.class,
           "Replaced checksum  tde/idx/value " + pTde.getTagString()
             + "/" + pTde.getChecksumIdx() + "/" + pTde.getChecksum());
@@ -204,8 +204,7 @@ public class TtfCompactFontMaker implements ITtfCompactFontMaker {
     }
     if (pTde.getOffsetIdx() != null) {
       replaceUInt32(pArr, pTde.getOffsetIdx(), pTde.getOffset());
-      if (getLog().getDbgSh() && getLog().getDbgFl() < 4020
-        && getLog().getDbgCl() > 4022) {
+      if (dbgSh) {
         this.log.debug(null, TtfCompactFontMaker.class,
           "Replaced offset tde/idx/value " + pTde.getTagString()
              + "/" + pTde.getOffsetIdx() + "/" + pTde.getOffset());
@@ -213,8 +212,7 @@ public class TtfCompactFontMaker implements ITtfCompactFontMaker {
     }
     if (pTde.getLengthIdx() != null) {
       replaceUInt32(pArr, pTde.getLengthIdx(), pTde.getLength());
-      if (getLog().getDbgSh() && getLog().getDbgFl() < 4020
-        && getLog().getDbgCl() > 4022) {
+      if (dbgSh) {
         this.log.debug(null, TtfCompactFontMaker.class,
           "Replaced length  tde/idx/value " + pTde.getTagString()
             + "/" + pTde.getLengthIdx() + "/" + pTde.getLength());

@@ -271,6 +271,7 @@ public class TtfLoader implements ITtfLoader {
     pTtf.setEntrySelector(pIs.readUInt16());
     pTtf.setRangeShift(pIs.readUInt16());
     pTtf.setTableDirectory(new ArrayList<TtfTableDirEntry>());
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4001);
     for (int i = 0; i < pTtf.getNumTables(); i++) {
       TtfTableDirEntry tde = new TtfTableDirEntry();
       tde.setTag(pIs.readTag());
@@ -280,8 +281,7 @@ public class TtfLoader implements ITtfLoader {
       tde.setOffset(pIs.readUInt32());
       tde.setLength(pIs.readUInt32());
       pTtf.getTableDirectory().add(tde);
-      if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-        && this.getLog().getDbgCl() > 4003) {
+      if (dbgSh) {
         this.log.debug(null, TtfLoader.class,
           "Added TDE: TAG/Checksum/Offset/Length " + tde.getTagString()
             + "/" + tde.getChecksum() + "/" + tde.getOffset() + "/"
@@ -340,8 +340,7 @@ public class TtfLoader implements ITtfLoader {
           pIs.read(buf);
           glyf.setBufferInputStream(
             new TtfBufferInputStream(buf, tde.getOffset()));
-          if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-            && this.getLog().getDbgCl() > 4003) {
+          if (dbgSh) {
             this.log.debug(null, TtfLoader.class,
               "Glyf copied into buffer Length: "
                 + glyf.getBufferInputStream().getBuffer().length);
@@ -388,6 +387,7 @@ public class TtfLoader implements ITtfLoader {
     }
     long ofst; //from begin of glyf
     long nextOfst;
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4002);
     for (int gid = 0; gid < gidsTotal; gid++) {
       if (pTtf.getLoca().getOffsets16() != null) {
         ofst = pTtf.getLoca().getOffsets16()[gid];
@@ -425,9 +425,7 @@ public class TtfLoader implements ITtfLoader {
           glyph.setMaxY(pIs.readFWord());
           if (numberOfContours < 0) { //compound
             loadCompoundGlyph(cGlyph, pIs);
-            if (getLog().getDbgSh() && this.log.getDbgFl() < 4001
-              && this.log.getDbgCl() > 4002
-                && this.logGids != null && this.logGids.contains(gid)) {
+            if (dbgSh && this.logGids != null && this.logGids.contains(gid)) {
               this.log.debug(null, TtfLoader.class,
       "Added compound glyph, gid/parts size/xMin/yMin/xMax/yMax/offset/length: "
         + gid + "/" + cGlyph.getPartsGids().size() + "/" + xMin + "/" + yMin
@@ -436,9 +434,7 @@ public class TtfLoader implements ITtfLoader {
             }
           } else { //simple
             // no need to read any more
-            if (getLog().getDbgSh() && this.log.getDbgFl() < 4001
-              && this.log.getDbgCl() > 4002
-                && this.logGids != null && this.logGids.contains(gid)) {
+            if (dbgSh && this.logGids != null && this.logGids.contains(gid)) {
               this.log.debug(null, TtfLoader.class,
               "Added simple glyph, gid/contours/xMin/yMin/xMax/offset/length: "
                 + gid + "/" + numberOfContours + "/" + xMin + "/"
@@ -471,8 +467,7 @@ public class TtfLoader implements ITtfLoader {
         }
       }
     }
-    if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-      && this.getLog().getDbgCl() > 4003) {
+    if (dbgSh) {
       this.log.debug(null, TtfLoader.class,
       "Added glyf with loca, total: " + glyf.getGlyphs().size());
     }
@@ -491,6 +486,7 @@ public class TtfLoader implements ITtfLoader {
     final ITtfInputStream pIs) throws Exception {
     pIs.goAhead(pTtf.getGlyf().getTableDirEntry().getOffset());
     int gti = 0;
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4003);
     while (pIs.getOffset() - pTtf.getGlyf().getTableDirEntry()
       .getOffset() < pTtf.getGlyf().getTableDirEntry().getLength()) {
       // offset from begin of the glyf
@@ -524,18 +520,14 @@ public class TtfLoader implements ITtfLoader {
           .getOffset()) % 4;
         if (mod4 != 0) {
           pIs.readUInt8Arr(4 - mod4);
-          if (getLog().getDbgSh() && this.log.getDbgFl() < 4001
-            && this.log.getDbgCl() > 4002 && this.logGids != null
-              && this.logGids.contains(gti)) {
+          if (dbgSh && this.logGids != null && this.logGids.contains(gti)) {
             this.log.debug(null, TtfLoader.class,
               "Added padding zeros/gti " + (4 - mod4) + "/" + gti);
           }
         }
         glyph.setLength(pIs.getOffset() - pTtf.getGlyf().getTableDirEntry()
           .getOffset() - glyph.getOffset());
-        if (getLog().getDbgSh() && this.log.getDbgFl() < 4001
-          && this.log.getDbgCl() > 4002
-            && this.logGids != null && this.logGids.contains(gti)) {
+        if (dbgSh && this.logGids != null && this.logGids.contains(gti)) {
           if (cGlyph != null) {
             this.log.debug(null, TtfLoader.class,
         "Added compound glyph, gti/parts size/xMin/yMin/xMax/offset/length: "
@@ -570,10 +562,8 @@ public class TtfLoader implements ITtfLoader {
       }
       gti++;
     }
-    if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-      && this.getLog().getDbgCl() > 4002) {
-      this.log.debug(null, TtfLoader.class,
-      "Added glyf, total: " + gti);
+    if (dbgSh) {
+      this.log.debug(null, TtfLoader.class, "Added glyf, total: " + gti);
     }
   }
 
@@ -594,11 +584,10 @@ public class TtfLoader implements ITtfLoader {
       //they say someone marks empty glyph in that way
       return;
     }
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4004);
     int instructionLength = pIs.readUInt16();
     //uint8 instructions[instructionLength]
-    if (getLog().getDbgSh() && this.log.getDbgFl() < 4001
-      && this.log.getDbgCl() > 4002
-        && this.logGids != null && this.logGids.contains(pGti)) {
+    if (dbgSh && this.logGids != null && this.logGids.contains(pGti)) {
       this.log.debug(null, TtfLoader.class,
       "simple glyph gti + delta/numContours/points/delta/instrLen " + pGti + "/"
         + pNumContours + "/" + totalPoints + "/" + this.logGtiDelta
@@ -710,6 +699,7 @@ public class TtfLoader implements ITtfLoader {
     }
     boolean needToMakeGids = pTtf.getGlyf().getTableDirEntry().getOffset()
       < pTtf.getLoca().getTableDirEntry().getOffset();
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4005);
     if (needToMakeGids) {
       for (CompoundGlyph gl : pTtf.getGlyf().getCompoundGlyphs()) {
         for (int gid = 0; gid < gCount; gid++) {
@@ -728,9 +718,8 @@ public class TtfLoader implements ITtfLoader {
             break;
           }
         }
-        if (getLog().getDbgSh() && this.log.getDbgFl() < 4003
-          && this.log.getDbgCl() > 4005 && this.logGids != null
-            && this.logGids.contains((int) gl.getGid())) {
+        if (dbgSh && this.logGids != null
+          && this.logGids.contains((int) gl.getGid())) {
           this.log.debug(null, TtfLoader.class,
             "Prepared compound glyph : gid/offset/length " + ((int) gl.getGid())
               + "/" + gl.getOffset() + "/" + gl.getLength());
@@ -755,9 +744,8 @@ public class TtfLoader implements ITtfLoader {
             break;
           }
         }
-        if (getLog().getDbgSh() && this.log.getDbgFl() < 4003
-          && this.log.getDbgCl() > 4005 && this.logGids != null
-            && this.logGids.contains((int) gl.getGid())) {
+        if (dbgSh && this.logGids != null
+          && this.logGids.contains((int) gl.getGid())) {
           this.log.debug(null, TtfLoader.class,
             "Prepared glyph : gid/offset/length " + ((int) gl.getGid())
               + "/" + gl.getOffset() + "/" + gl.getLength());
@@ -775,14 +763,12 @@ public class TtfLoader implements ITtfLoader {
     if (pTtf.getOs2() != null && pTtf.getOs2().getSCapHeight() == 0
       && glyphH != null) {
       pTtf.getOs2().setSCapHeight(glyphH.getMaxY());
-      if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-        && this.getLog().getDbgCl() > 4004) {
+      if (dbgSh) {
         this.log.debug(null, TtfLoader.class,
           "Caps height from H yMax = " + pTtf.getOs2().getSCapHeight());
       }
     }
-    if (this.getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-      && this.getLog().getDbgCl() > 4004) {
+    if (dbgSh) {
       if (glyph1 != null) {
         this.log.debug(null, TtfLoader.class,
           "glyph 1 : gid/offset/length " + ((int) glyph1.getGid())
@@ -828,8 +814,8 @@ public class TtfLoader implements ITtfLoader {
       tfe.setTdeMaker(this.tdeMaker);
       tfe.setTableMaker(this.tableMakerHmtx);
       pTtf.getTablesForEmbedding().add(tfe);
-      if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-        && this.getLog().getDbgCl() > 4004) {
+      boolean dbgSh = getLog().getDbgSh(this.getClass(), 4006);
+      if (dbgSh) {
         StringBuffer sb = new StringBuffer();
         sb.append("Added hmtx: size = " + widthsCount);
         if (this.logGids != null) {
@@ -891,8 +877,8 @@ public class TtfLoader implements ITtfLoader {
     tfe.setTdeMaker(this.tdeMaker);
     tfe.setTableMaker(this.tableMakerLoca);
     pTtf.getTablesForEmbedding().add(tfe);
-    if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-      && this.getLog().getDbgCl() > 4004) {
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4007);
+    if (dbgSh) {
       StringBuffer sb = new StringBuffer();
       sb.append("Added loca ");
       if (loca.getOffsets16() == null) {
@@ -941,8 +927,8 @@ public class TtfLoader implements ITtfLoader {
     pIs.readFWord(); //underlineThickness
     long isFixedPitch = pIs.readUInt32();
     post.setIsFixedPitch(isFixedPitch > 0);
-    if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-      && this.getLog().getDbgCl() > 4004) {
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4008);
+    if (dbgSh) {
       this.log.debug(null, TtfLoader.class,
         "Added post: ItalicAngle/isFixedPitch "
           + post.getItalicAngle() + "/"  + isFixedPitch);
@@ -980,8 +966,8 @@ public class TtfLoader implements ITtfLoader {
     tfe.setTdeMaker(this.tdeMaker);
     tfe.setTableMaker(this.tableMakerHead);
     pTtf.getTablesForEmbedding().add(tfe);
-    if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-      && this.getLog().getDbgCl() > 4004) {
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4009);
+    if (dbgSh) {
       this.log.debug(null, TtfLoader.class,
         "Added head: UnitsPerEm/XMin/YMin/XMax/YMax/loca "
           + head.getUnitsPerEm() + "/"  + head.getXMin() + "/"
@@ -1013,8 +999,8 @@ public class TtfLoader implements ITtfLoader {
     tfe.setTdeMaker(this.tdeMaker);
     tfe.setTableMaker(this.tableMakerMaxp);
     pTtf.getTablesForEmbedding().add(tfe);
-    if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-      && this.getLog().getDbgCl() > 4004) {
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4010);
+    if (dbgSh) {
       this.log.debug(null, TtfLoader.class,
         "Added maxp: numGlyphs= " + maxp.getNumGlyphs());
     }
@@ -1052,8 +1038,8 @@ public class TtfLoader implements ITtfLoader {
     tfe.setTdeMaker(this.tdeMaker);
     tfe.setTableMaker(this.tableMakerHhea);
     pTtf.getTablesForEmbedding().add(tfe);
-    if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-      && this.getLog().getDbgCl() > 4004) {
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4011);
+    if (dbgSh) {
       this.log.debug(null, TtfLoader.class,
         "Added hhea: Ascent/Descent/NumOfLongHorMetrics "
           + hhea.getAscent() + "/"  + hhea.getDescent() + "/"
@@ -1079,8 +1065,8 @@ public class TtfLoader implements ITtfLoader {
     tfebf.setTdeMaker(this.tdeMaker);
     tfebf.setTableMaker(this.tableMakerFc);
     pTtf.getTablesForEmbedding().add(tfebf);
-    if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-      && this.getLog().getDbgCl() > 4004) {
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4012);
+    if (dbgSh) {
       this.log.debug(null, TtfLoader.class,
         "Added fpgm table");
     }
@@ -1104,8 +1090,8 @@ public class TtfLoader implements ITtfLoader {
     tfebf.setTdeMaker(this.tdeMaker);
     tfebf.setTableMaker(this.tableMakerFc);
     pTtf.getTablesForEmbedding().add(tfebf);
-    if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-      && this.getLog().getDbgCl() > 4004) {
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4013);
+    if (dbgSh) {
       this.log.debug(null, TtfLoader.class,
         "Added gasp table");
     }
@@ -1129,8 +1115,8 @@ public class TtfLoader implements ITtfLoader {
     tfebf.setTdeMaker(this.tdeMaker);
     tfebf.setTableMaker(this.tableMakerFc);
     pTtf.getTablesForEmbedding().add(tfebf);
-    if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-      && this.getLog().getDbgCl() > 4004) {
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4014);
+    if (dbgSh) {
       this.log.debug(null, TtfLoader.class,
         "Added prep table");
     }
@@ -1154,8 +1140,8 @@ public class TtfLoader implements ITtfLoader {
     tfebf.setTdeMaker(this.tdeMaker);
     tfebf.setTableMaker(this.tableMakerFc);
     pTtf.getTablesForEmbedding().add(tfebf);
-    if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-      && this.getLog().getDbgCl() > 4004) {
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4015);
+    if (dbgSh) {
       this.log.debug(null, TtfLoader.class,
         "Added cvt table");
     }
@@ -1214,8 +1200,8 @@ public class TtfLoader implements ITtfLoader {
       os2.setSxHeight(pIs.readSInt16());
       os2.setSCapHeight(pIs.readSInt16());
     }
-    if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-      && this.getLog().getDbgCl() > 4004) {
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4016);
+    if (dbgSh) {
       this.log.debug(null, TtfLoader.class,
         "Added os2: Version/XAvgCharWidth/UsWeightClass/UsWidthClass "
           + os2.getVersion() + "/" + os2.getXAvgCharWidth() + "/"
@@ -1244,14 +1230,14 @@ public class TtfLoader implements ITtfLoader {
     pIs.goAhead(pTde.getOffset());
     pIs.readUInt16(); //version
     cmap.setNumSubTables(pIs.readUInt16());
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4017);
     for (int i = 0; i < cmap.getNumSubTables(); i++) {
       TtfCmapSubtable cms = new TtfCmapSubtable();
       cms.setPlatformId(pIs.readUInt16());
       cms.setPlatformSpecificId(pIs.readUInt16());
       cms.setOffset(pIs.readUInt32());
       cmap.getSubtables().add(cms);
-      if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-        && this.getLog().getDbgCl() > 4004) {
+      if (dbgSh) {
         this.log.debug(null, TtfLoader.class,
           "Added CMAP subtable: PlatformId/PlatformSpecificId/Offset "
             + cms.getPlatformId() + "/"  + cms.getPlatformSpecificId()
@@ -1290,8 +1276,8 @@ public class TtfLoader implements ITtfLoader {
     pIs.goAhead(pTtf.getCmap().getTableDirEntry().getOffset()
       + pCmapSub.getOffset());
     int frmtNum = pIs.readUInt16();
-    if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-      && this.getLog().getDbgCl() > 4004) {
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4018);
+    if (dbgSh) {
       this.log.debug(null, TtfLoader.class,
   "Loading uniToCid from subtable: PlatformId/PlatformSpecificId/Offset/Format "
           + pCmapSub.getPlatformId() + "/"  + pCmapSub.getPlatformSpecificId()
@@ -1352,8 +1338,8 @@ public class TtfLoader implements ITtfLoader {
         }
       }
     }
-    if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4001
-      && this.getLog().getDbgCl() > 4004) {
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4019);
+    if (dbgSh) {
       this.log.debug(null, TtfLoader.class, "UniToCid count = "
         + pTtf.getCmap().getUniToCid().size());
       if (this.logUnicodes != null && pTtf.getCmap() != null

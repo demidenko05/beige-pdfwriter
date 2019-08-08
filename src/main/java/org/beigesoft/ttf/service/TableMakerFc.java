@@ -73,8 +73,8 @@ public class TableMakerFc implements ITableMaker<TableForEmbeddingBf> {
           + pTde.getLength() + "/" + pTfe.getBuffer().length);
     }
     pTde.setOffset(pOs.getSize());
-    if (getLog().getDbgSh() && getLog().getDbgFl() < 4030
-      && getLog().getDbgCl() > 4032) {
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4080);
+    if (dbgSh) {
       this.log.debug(null, TableMakerFc.class,
         "Full copy from buffer - table/offsetOs/length "
           + pTde.getTagString() + "/" + pOs.getSize()
@@ -86,15 +86,12 @@ public class TableMakerFc implements ITableMaker<TableForEmbeddingBf> {
     int mod4 = (int) pTde.getLength() % 4;
     if (mod4 != 0) {
       pOs.addZeroBytesToCheksum(4 - mod4, tdeCopy, copyLongChksum);
-      if (getLog().getDbgSh() && getLog().getDbgFl() < 4030
-        && getLog().getDbgCl() > 4032) {
+      if (dbgSh) {
         this.log.debug(null, TtfCompactFontMaker.class,
           pTde.getTagString() + " added zeros to checksum " + (4 - mod4));
       }
     }
-    if (getLog().getDbgSh() && getLog().getDbgFl() < 4030
-      && getLog().getDbgCl() > 4032
-        && pTde.getChecksum() != tdeCopy.getChecksum()) {
+    if (dbgSh && pTde.getChecksum() != tdeCopy.getChecksum()) {
       this.log.warn(null, TableMakerFc.class,
         "Checksums don't equals: tag/checksum source/checksum real: "
           + pTde.getTagString() + "/" + pTde.getChecksum()

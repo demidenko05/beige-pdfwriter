@@ -88,16 +88,15 @@ public class TableMakerHhea implements ITableMaker<TableForEmbeddingHhea> {
     int nolm = Math.min(numGlyphs, pTfe.getHhea().getNumOfLongHorMetrics());
     pOs.writeUInt16(nolm, pTde, pCurrLongChksum);
     int mod4 = (int) pTde.getLength() % 4;
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4040);
     if (mod4 != 0) {
       pOs.addZeroBytesToCheksum(4 - mod4, pTde, pCurrLongChksum);
-      if (getLog().getDbgSh() && getLog().getDbgFl() < 4043
-        && getLog().getDbgCl() > 4045) {
+      if (dbgSh) {
         this.log.debug(null, TableMakerHhea.class,
           "hhea added zeros to checksum " + (4 - mod4));
       }
     }
-    if (getLog().getDbgSh() && getLog().getDbgFl()
-      < 4043 && getLog().getDbgCl() > 4045) {
+    if (dbgSh) {
       this.log.debug(null, TableMakerHhea.class,
         "Added hhea checksum/offset/length " + pTde.getChecksum() + "/"
           + pTde.getOffset() + "/" + pTde.getLength());

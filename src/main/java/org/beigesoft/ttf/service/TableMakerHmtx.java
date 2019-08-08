@@ -93,16 +93,15 @@ public class TableMakerHmtx implements ITableMaker<TableForEmbeddingHmtx> {
       }
     }
     int mod4 = (int) pTde.getLength() % 4;
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4060);
     if (mod4 != 0) {
       pOs.addZeroBytesToCheksum(4 - mod4, pTde, pCurrLongChksum);
-      if (getLog().getDbgSh() && getLog().getDbgFl() < 4046
-        && getLog().getDbgCl() > 4049) {
+      if (dbgSh) {
         this.log.debug(null, TableMakerHmtx.class,
           "hmtx added zeros to checksum " + (4 - mod4));
       }
     }
-    if (getLog().getDbgSh() && getLog().getDbgFl() < 4046
-      && getLog().getDbgCl() > 4049) {
+    if (dbgSh) {
       this.log.debug(null, TableMakerHmtx.class,
         "Added hmtx checksum/offset/length " + pTde.getChecksum() + "/"
           + pTde.getOffset() + "/" + pTde.getLength());

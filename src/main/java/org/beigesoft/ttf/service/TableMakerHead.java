@@ -80,8 +80,8 @@ public class TableMakerHead implements ITableMaker<TableForEmbeddingHead> {
     pOs.writeByteArr(pTfe.getHead().getMsLrpFdhBuf(), null, null);
     pOs.writeSInt16(pTfe.getHead().getIndexToLocFormat(), null, null);
     pOs.writeByteArr(pTfe.getHead().getGlyphDataFormatBuf(), null, null);
-    if (getLog().getDbgSh() && getLog().getDbgFl() < 4040
-      && getLog().getDbgCl() > 4042) {
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4090);
+    if (dbgSh) {
       this.log.debug(null, TableMakerHead.class,
         "Added head checksum/offset/length " + pTde.getChecksum() + "/"
           + pTde.getOffset() + "/" + pTde.getLength());

@@ -73,16 +73,15 @@ public class TableMakerMaxp implements ITableMaker<TableForEmbeddingMaxp> {
     pOs.writeUInt16(numGlyphs, pTde, pCurrLongChksum);
     pOs.writeByteArr(pTfe.getMaxp().getTail(), pTde, pCurrLongChksum);
     int mod4 = (int) pTde.getLength() % 4;
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4070);
     if (mod4 != 0) {
       pOs.addZeroBytesToCheksum(4 - mod4, pTde, pCurrLongChksum);
-      if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4054
-        && this.getLog().getDbgCl() > 4056) {
+      if (dbgSh) {
         this.log.debug(null, TableMakerMaxp.class,
           "maxp added zeros to checksum " + (4 - mod4));
       }
     }
-    if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4054
-      && this.getLog().getDbgCl() > 4056) {
+    if (dbgSh) {
       this.log.debug(null, TableMakerMaxp.class,
         "Added maxp checksum/offset/length " + pTde.getChecksum() + "/"
           + pTde.getOffset() + "/" + pTde.getLength());

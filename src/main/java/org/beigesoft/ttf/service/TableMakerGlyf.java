@@ -67,6 +67,7 @@ public class TableMakerGlyf implements ITableMaker<TableForEmbeddingGlyf> {
         final List<Character> pUsedCids,
           final Map<Integer, Glyph> pGls) throws Exception {
     pTde.setOffset(pOs.getSize());
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4050);
     for (char gid : pUsedCids) {
       Glyph gl = new Glyph();
       pGls.put((int) gid, gl); // for farther fast exist checking
@@ -83,8 +84,7 @@ public class TableMakerGlyf implements ITableMaker<TableForEmbeddingGlyf> {
         if (pIs != null) {
           pIs.goAhead(pTfe.getSourceTde().getOffset()
             + gl.getOffset());
-          if (getLog().getDbgSh() && getLog().getDbgFl() < 4033
-            && getLog().getDbgCl() > 4035) {
+          if (dbgSh) {
             this.log.debug(null, TableMakerGlyf.class,
               "Copy GID/offsetIs/offsetOs/offset/length " + ((int) gid)
                 + "/" + pIs.getOffset() + "/" + pOs.getSize() + "/"
@@ -93,8 +93,7 @@ public class TableMakerGlyf implements ITableMaker<TableForEmbeddingGlyf> {
           gl.setOffset(pOs.getSize() - pTde.getOffset()); //new CTTF offset
           pOs.copyBytes(pIs, gl.getLength(), pTde, pCurrLongChksum);
         } else {
-          if (getLog().getDbgSh() && getLog().getDbgFl() < 4033
-            && getLog().getDbgCl() > 4035) {
+          if (dbgSh) {
             this.log.debug(null, TableMakerGlyf.class,
               "Try to copy GID/offsetOs/offset/length " + ((int) gid)
                 + "/" + pOs.getSize() + "/"
@@ -109,8 +108,7 @@ public class TableMakerGlyf implements ITableMaker<TableForEmbeddingGlyf> {
         // padding zeros at the end of glyph for 4byte aligned
         int mod4 = (int) gl.getLength() % 4;
         if (mod4 != 0) {
-          if (getLog().getDbgSh() && getLog().getDbgFl() < 4033
-            && getLog().getDbgCl() > 4035) {
+          if (dbgSh) {
             this.log.debug(null, TableMakerGlyf.class,
               "4-bytes aligned GID/count zeros " + ((int) gid)
                 + "/"  + (4 - mod4));
@@ -119,8 +117,7 @@ public class TableMakerGlyf implements ITableMaker<TableForEmbeddingGlyf> {
         }
       }
     }
-    if (getLog().getDbgSh() && getLog().getDbgFl() < 4033
-      && getLog().getDbgCl() > 4035) {
+    if (dbgSh) {
       this.log.debug(null, TableMakerGlyf.class,
         "Added glyf checksum/offset/length "
           + pTde.getChecksum() + "/" + pTde.getOffset()

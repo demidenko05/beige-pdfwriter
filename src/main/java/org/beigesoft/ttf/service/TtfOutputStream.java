@@ -289,8 +289,8 @@ public class TtfOutputStream extends ATtfOutputStream {
   public final void copyBytes(final ITtfInputStream pIn,
     final long pCount, final TtfTableDirEntry pTde,
       final long[] pCurrLongChksum) throws IOException {
-    if (getLog().getDbgSh() && getLog().getDbgFl() < 4010
-      && getLog().getDbgCl() > 4015) {
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4100);
+    if (dbgSh) {
       StringBuffer sb = new StringBuffer();
       for (long i = 0; i < pCount; i++) {
         int rez = pIn.read();

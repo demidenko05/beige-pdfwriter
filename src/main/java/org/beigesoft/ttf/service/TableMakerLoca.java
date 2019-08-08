@@ -86,16 +86,15 @@ public class TableMakerLoca implements ITableMaker<TableForEmbeddingLoca> {
       }
     }
     int mod4 = (int) pTde.getLength() % 4;
+    boolean dbgSh = getLog().getDbgSh(this.getClass(), 4030);
     if (mod4 != 0) {
       pOs.addZeroBytesToCheksum(4 - mod4, pTde, pCurrLongChksum);
-      if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4050
-        && this.getLog().getDbgCl() > 4053) {
+      if (dbgSh) {
         this.log.debug(null, TableMakerLoca.class,
           "loca added zeros to checksum " + (4 - mod4));
       }
     }
-    if (getLog().getDbgSh() && this.getLog().getDbgFl() < 4050
-      && this.getLog().getDbgCl() > 4053) {
+    if (dbgSh) {
       this.log.debug(null, TtfCompactFontMaker.class,
         "Added loca checksum/offset/length " + pTde.getChecksum() + "/"
           + pTde.getOffset() + "/" + pTde.getLength());
