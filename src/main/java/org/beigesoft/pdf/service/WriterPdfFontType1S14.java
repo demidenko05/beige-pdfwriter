@@ -45,7 +45,7 @@ public class WriterPdfFontType1S14 extends AWriterPdfObject<PdfFontType1S14> {
    * @param pPdfObj PdfFontType1S14
    * @param pOut stream
    * @return bytes count
-   * @throws an Exception
+   * @throws Exception an Exception
    **/
   @Override
   public final int write(final PdfFontType1S14 pPdfObj,

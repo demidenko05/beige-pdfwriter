@@ -62,15 +62,15 @@ public abstract class
    * @param pOut stream
    * @throws Exception an Exception
    **/
-  public abstract void writeToBuffer(final T pPdfObj,
-    final OutputStream pOut) throws Exception;
+  public abstract void writeToBuffer(T pPdfObj,
+    OutputStream pOut) throws Exception;
 
   /**
    * <p>Write object to stream and return bytes count.</p>
    * @param pPdfObj object
    * @param pOut stream
    * @return bytes count
-   * @throws an Exception
+   * @throws Exception an Exception
    **/
   @Override
   public final int write(final T pPdfObj,

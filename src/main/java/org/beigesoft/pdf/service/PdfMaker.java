@@ -156,7 +156,6 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
   /**
    * <p>Prepare before write.</p>
    * @param pDoc PDF document
-   * @param pBaseDoc base document
    * @throws Exception an Exception
    **/
   @Override
@@ -284,7 +283,7 @@ public class PdfMaker<WI extends IHasPdfContent> implements IPdfMaker<WI> {
   /**
    * <p>Add font type 1 standard 14.</p>
    * @param pDoc document
-   * @param pFontT1S14 to add
+   * @param pFontS14 to add
    * @throws Exception an Exception
    **/
   @Override

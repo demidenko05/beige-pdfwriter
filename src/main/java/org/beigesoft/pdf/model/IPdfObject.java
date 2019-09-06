@@ -56,7 +56,7 @@ public interface IPdfObject {
    * <p>Setter for start.</p>
    * @param pStart reference
    **/
-  void setStart(final Integer pStart);
+  void setStart(Integer pStart);
 
   /**
    * <p>Getter for number.</p>
@@ -68,7 +68,7 @@ public interface IPdfObject {
    * <p>Setter for number.</p>
    * @param pNumber reference
    **/
-  void setNumber(final Integer pNumber);
+  void setNumber(Integer pNumber);
 
   /**
    * <p>Getter for genNumber.</p>
@@ -80,5 +80,5 @@ public interface IPdfObject {
    * <p>Setter for genNumber.</p>
    * @param pGenNumber reference
    **/
-  void setGenNumber(final Integer pGenNumber);
+  void setGenNumber(Integer pGenNumber);
 }

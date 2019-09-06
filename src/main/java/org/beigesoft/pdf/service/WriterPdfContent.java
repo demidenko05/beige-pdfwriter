@@ -59,7 +59,6 @@ public class WriterPdfContent extends AWriterPdfStream<PdfContent, PdfContent> {
   /**
    * <p>Write object to buffer.</p>
    * @param pOut stream
-   * @return bytes count
    * @throws Exception an Exception
    **/
   @Override

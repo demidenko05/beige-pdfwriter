@@ -44,7 +44,7 @@ public class WriterPdfInfo extends AWriterPdfObject<PdfInfo> {
    * @param pPdfObj PdfInfo
    * @param pOut stream
    * @return bytes count
-   * @throws an Exception
+   * @throws Exception an Exception
    **/
   @Override
   public final int write(final PdfInfo pPdfObj,

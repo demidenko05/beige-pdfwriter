@@ -50,7 +50,6 @@ public class WriterPdfToUnicode
    * <p>Write object to buffer.</p>
    * @param pPdfObj PdfToUnicode
    * @param pOut stream
-   * @return bytes count
    * @throws Exception an Exception
    **/
   @Override

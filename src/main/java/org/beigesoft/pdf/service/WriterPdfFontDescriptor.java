@@ -45,7 +45,7 @@ public class WriterPdfFontDescriptor
    * @param pPdfObj PdfFontDescriptor
    * @param pOut stream
    * @return bytes count
-   * @throws an Exception
+   * @throws Exception an Exception
    **/
   @Override
   public final int write(final PdfFontDescriptor pPdfObj,

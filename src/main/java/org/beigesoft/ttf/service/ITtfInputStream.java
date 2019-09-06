@@ -131,7 +131,7 @@ public interface ITtfInputStream extends Closeable {
    * @return read arrUInt16[pCount]
    * @throws IOException an IOException
    **/
-  int[] readUInt16Arr(final int pCount) throws IOException;
+  int[] readUInt16Arr(int pCount) throws IOException;
 
   /**
    * <p>Read UInt8 flags array.</p>
@@ -139,7 +139,7 @@ public interface ITtfInputStream extends Closeable {
    * @return read short arrUInt8[pCount]
    * @throws IOException an IOException
    **/
-  int[] readUInt8Arr(final int pCount) throws IOException;
+  int[] readUInt8Arr(int pCount) throws IOException;
 
   /**
    * <p>Read long (8 bytes)
@@ -156,14 +156,14 @@ public interface ITtfInputStream extends Closeable {
    * @param pCount of bytes
    * @throws IOException an IOException
    **/
-  void skip(final int pCount) throws IOException;
+  void skip(int pCount) throws IOException;
 
   /**
    * <p>Go to offset ahead.</p>
    * @param pOffset to go
    * @throws IOException an Exception, e.g. end of data
    **/
-  void goAhead(final long pOffset) throws IOException;
+  void goAhead(long pOffset) throws IOException;
 
   /**
    * <p>Get for current Offset.</p>
