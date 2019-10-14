@@ -168,7 +168,7 @@
     <dependency>
      <groupId>org.beigesoft</groupId>
      <artifactId>beige-docwriter</artifactId>
-     <version>1.0.3-SNAPSHOT</version>
+     <version>1.0.3</version>
     </dependency>
     <dependency>
      <groupId>junit</groupId>
